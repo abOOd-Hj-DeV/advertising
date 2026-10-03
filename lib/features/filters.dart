@@ -471,7 +471,10 @@ class _PriceSheetState extends State<PriceSheet> {
                         keyboardType: const TextInputType.numberWithOptions(
                           decimal: true,
                         ),
-                        decoration: const InputDecoration(labelText: 'Ab'),
+                        decoration: const InputDecoration(
+                          labelText: 'Ab',
+                          errorMaxLines: 3,
+                        ),
                       ),
                     ),
                     const SizedBox(width: 10),
@@ -484,6 +487,7 @@ class _PriceSheetState extends State<PriceSheet> {
                         ),
                         decoration: InputDecoration(
                           labelText: 'Bis',
+                          errorMaxLines: 3,
                           suffixIcon: IconButton(
                             tooltip: 'Preis löschen',
                             onPressed: maximum.clear,

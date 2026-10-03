@@ -284,6 +284,55 @@ void main() {
     },
   );
 
+  testWidgets(
+    'non-bike details show category instead of bicycle-specific kind',
+    (tester) async {
+      await phoneSize(tester);
+      final sofa = listings.firstWhere((listing) => listing.id == 's1');
+      await tester.pumpWidget(
+        DemoScope(
+          store: readyStore(),
+          child: MaterialApp(
+            theme: Brand.theme(Brightness.light),
+            home: ListingPage(listing: sofa),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+      await tester.scrollUntilVisible(
+        find.text('Kategorie'),
+        200,
+        scrollable: find.byType(Scrollable).first,
+      );
+      expect(find.text('Unisex'), findsNothing);
+      expect(find.text('Kategorie'), findsOneWidget);
+      expect(find.text('Haus & Garten'), findsOneWidget);
+      expect(sofa.title, contains('Grün'));
+      expect(tester.takeException(), isNull);
+    },
+  );
+
+  testWidgets('invalid price messages wrap on a narrow phone', (tester) async {
+    await phoneSize(tester, size: const Size(320, 640));
+    await tester.pumpWidget(
+      MaterialApp(
+        theme: Brand.theme(Brightness.light),
+        home: Scaffold(body: PriceSheet(initial: SearchFilters())),
+      ),
+    );
+    await tester.pumpAndSettle();
+    await tester.enterText(find.byType(TextFormField).at(0), '200');
+    await tester.enterText(find.byType(TextFormField).at(1), '50');
+    await tester.tap(find.text('Ergebnisse anzeigen'));
+    await tester.pumpAndSettle();
+    final errors = find.text('Minimum liegt über Maximum');
+    expect(errors, findsNWidgets(2));
+    for (final error in tester.widgetList<Text>(errors)) {
+      expect(error.maxLines, 3);
+    }
+    expect(tester.takeException(), isNull);
+  });
+
   final screens = <String, Widget Function()>{
     'home': () => const HomePage(),
     'search': () => const SearchPage(),

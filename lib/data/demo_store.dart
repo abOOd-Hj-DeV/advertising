@@ -160,7 +160,7 @@ const listings = <Listing>[
   ),
   Listing(
     id: 's1',
-    title: 'Gemütliches Sofa in warmem Grau',
+    title: 'Gemütliches Sofa in sattem Grün',
     price: 240,
     image: 'sofa',
     type: 'Sofas & Sitzgarnituren',

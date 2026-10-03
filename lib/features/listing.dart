@@ -41,7 +41,14 @@ class _ListingPageState extends State<ListingPage> {
   Widget build(BuildContext context) {
     final l = widget.listing;
     final store = DemoScope.of(context);
-    final attributes = {'Art': l.kind, 'Typ': l.type, 'Zustand': l.condition};
+    final attributes = {
+      if (l.category == 'Fahrräder & Zubehör')
+        'Art': l.kind
+      else
+        'Kategorie': l.category,
+      'Typ': l.type,
+      'Zustand': l.condition,
+    };
     return Scaffold(
       body: CustomScrollView(
         slivers: [
