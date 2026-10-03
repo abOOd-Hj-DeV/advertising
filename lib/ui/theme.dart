@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 
 class Brand {
   static const green = Color(0xff2f6812);
@@ -19,6 +20,7 @@ class Brand {
     return ThemeData(
       useMaterial3: true,
       fontFamily: 'NunitoSans',
+      fontFamilyFallback: kIsWeb ? const ['LocalFallback'] : null,
       colorScheme: scheme,
       scaffoldBackgroundColor: scheme.surface,
       dividerColor: dark ? const Color(0xff41433c) : line,

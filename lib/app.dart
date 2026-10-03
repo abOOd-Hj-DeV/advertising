@@ -33,7 +33,7 @@ class MarketplaceApp extends StatelessWidget {
           child: LayoutBuilder(
             builder: (context, limits) {
               if (!kIsWeb || limits.maxWidth < 600) return child!;
-              return ColoredBox(
+              return Material(
                 color: const Color(0xffe8eadf),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,

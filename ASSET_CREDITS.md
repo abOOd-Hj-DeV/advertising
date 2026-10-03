@@ -9,6 +9,12 @@ Replacement assets for an unofficial visual UI study. **No APK resources or real
 - License: **SIL Open Font License 1.1**, included in `assets/fonts/OFL.txt`.
 - This is a substitute, not claimed to be the reference's exact font.
 
+## Local fallback fonts
+
+- Roboto: https://github.com/google/fonts/tree/main/ofl/roboto, bundled as `assets/fonts/Roboto.ttf` under SIL OFL 1.1 (`Roboto-OFL.txt`). Registered for Flutter Web's mandatory default font without fetching it from Google.
+- DejaVu Sans: https://dejavu-fonts.github.io/, bundled from the system fonts as `assets/fonts/DejaVuSans.ttf`; Bitstream Vera license with public-domain DejaVu changes (`DejaVu-LICENSE.txt`). Provides local Web fallback for symbols and additional scripts.
+- Web font fallback URLs are same-origin. Unbundled scripts/emoji require additional local fonts rather than an automatic CDN download.
+
 ## Photographs
 
 Locally bundled Unsplash example photos under the [Unsplash License](https://unsplash.com/license), which permits free download, modification and commercial/noncommercial use. Used as listing illustrations, not resold or offered as a stock-photo library. No runtime image network requests.
