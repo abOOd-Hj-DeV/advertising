@@ -24,9 +24,10 @@ class Brand {
       colorScheme: scheme,
       scaffoldBackgroundColor: scheme.surface,
       dividerColor: dark ? const Color(0xff41433c) : line,
-      textTheme: ThemeData(
-        brightness: brightness,
-      ).textTheme.apply(fontFamily: 'NunitoSans'),
+      textTheme: ThemeData(brightness: brightness).textTheme.apply(
+        fontFamily: 'NunitoSans',
+        fontFamilyFallback: kIsWeb ? const ['LocalFallback'] : null,
+      ),
       appBarTheme: AppBarTheme(
         backgroundColor: scheme.surface,
         surfaceTintColor: Colors.transparent,

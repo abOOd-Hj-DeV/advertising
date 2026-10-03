@@ -41,12 +41,13 @@ flutter run -d chrome       # معاينة Web
 dart format --output=none --set-exit-if-changed lib test
 flutter analyze
 flutter test
+flutter test --platform chrome test/web_theme_test.dart
 flutter build apk --release
 flutter build web --release --no-web-resources-cdn
 python3 -m http.server 8080 --directory build/web
 ```
 
-الناتج: `build/app/outputs/flutter-apk/app-release.apk` و`build/web/`. CanvasKit مضمن محليًا بدل CDN.
+الناتج: `build/app/outputs/flutter-apk/app-release.apk` و`build/web/`. CanvasKit والخطوط الاحتياطية مضمنة محليًا بدل CDN. فحص ثيم Web يحتاج Chrome؛ فحص `flutter test` العادي يتخطى الاختبارات الخاصة بالمتصفح.
 
 **APK تجريبي موقّع بمفتاح debug الافتراضي**، وليس إصدار متجر. يلزم مفتاح release خاص للنشر الفعلي.
 

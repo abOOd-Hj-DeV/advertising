@@ -40,33 +40,40 @@ class MarketplaceApp extends StatelessWidget {
                   children: [
                     SizedBox(
                       width: limits.maxWidth > 1000 ? 280 : 140,
-                      child: const Padding(
-                        padding: EdgeInsets.all(24),
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Logo(size: 43, color: Brand.deep),
-                            SizedBox(height: 24),
-                            Text(
-                              'Lieblingsstücke.\nNeue Geschichten.',
-                              style: TextStyle(
-                                fontSize: 30,
-                                fontWeight: FontWeight.w900,
-                                height: 1.2,
-                                color: Brand.deep,
+                      child: const SingleChildScrollView(
+                        primary: false,
+                        child: Padding(
+                          padding: EdgeInsets.all(24),
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Logo(size: 43, color: Brand.deep),
+                              SizedBox(height: 24),
+                              FittedBox(
+                                fit: BoxFit.scaleDown,
+                                alignment: Alignment.centerLeft,
+                                child: Text(
+                                  'Lieblingsstücke.\nNeue Geschichten.',
+                                  style: TextStyle(
+                                    fontSize: 30,
+                                    fontWeight: FontWeight.w900,
+                                    height: 1.2,
+                                    color: Brand.deep,
+                                  ),
+                                ),
                               ),
-                            ),
-                            SizedBox(height: 18),
-                            Text(
-                              'Flutter UI-Studie\nFiktive Daten · vollständig lokal\nKein offizielles Kleinanzeigen-Produkt',
-                              style: TextStyle(
-                                fontSize: 13,
-                                height: 1.6,
-                                color: Brand.green,
+                              SizedBox(height: 18),
+                              Text(
+                                'Flutter UI-Studie\nFiktive Daten · vollständig lokal\nKein offizielles Kleinanzeigen-Produkt',
+                                style: TextStyle(
+                                  fontSize: 13,
+                                  height: 1.6,
+                                  color: Brand.green,
+                                ),
                               ),
-                            ),
-                          ],
+                            ],
+                          ),
                         ),
                       ),
                     ),
