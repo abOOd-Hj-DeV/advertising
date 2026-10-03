@@ -333,6 +333,77 @@ void main() {
     expect(tester.takeException(), isNull);
   });
 
+  for (final tab in <int?>[null, 0, 1, 2, 3, 4]) {
+    for (final signedIn in [false, true]) {
+      testWidgets(
+        'home error ${tab == null ? 'retry' : 'tab $tab'} returns to marketplace root (signed in: $signedIn)',
+        (tester) async {
+          final store = readyStore();
+          store.signedIn = signedIn;
+          await start(tester, store);
+          await tester.tap(find.text('Meins'));
+          await tester.pumpAndSettle();
+          await tester.tap(
+            signedIn ? find.byTooltip('Einstellungen') : find.text('HILFE'),
+          );
+          await tester.pumpAndSettle();
+          await tester.scrollUntilVisible(find.text('Über diese Demo'), 300);
+          await tester.tap(find.text('Über diese Demo'));
+          await tester.pumpAndSettle();
+          await tester.tap(find.text('Startseite im Fehlerzustand'));
+          await tester.pumpAndSettle();
+          expect(find.byType(ErrorPage), findsOneWidget);
+          await tester.tap(
+            tab == null
+                ? find.text('Nochmals versuchen')
+                : find.descendant(
+                    of: find.byType(BottomTabs),
+                    matching: find.text(
+                      [
+                        'Suchen',
+                        'Favoriten',
+                        'Inserieren',
+                        'Nachrichten',
+                        'Meins',
+                      ][tab],
+                    ),
+                  ),
+          );
+          await tester.pumpAndSettle();
+          expect(store.selectedTab, signedIn ? tab ?? 0 : 0);
+          expect(find.byType(ErrorPage), findsNothing);
+          expect(find.byType(DemoInfoPage), findsNothing);
+          expect(find.byType(SettingsPage), findsNothing);
+          if (tab == null || tab == 0) {
+            expect(find.byType(HomePage), findsOneWidget);
+          } else {
+            if (signedIn) {
+              expect(
+                find.byType(
+                  [
+                    HomePage,
+                    FavoritesPage,
+                    NewListingPage,
+                    MessagesPage,
+                    AccountPage,
+                  ][tab],
+                ),
+                findsOneWidget,
+              );
+            } else {
+              expect(find.byType(GuestPage), findsOneWidget);
+              expect(
+                tester.widget<GuestPage>(find.byType(GuestPage)).variant,
+                [1, 0, 3, 2, 1][tab],
+              );
+            }
+          }
+          expect(tester.takeException(), isNull);
+        },
+      );
+    }
+  }
+
   final screens = <String, Widget Function()>{
     'home': () => const HomePage(),
     'search': () => const SearchPage(),

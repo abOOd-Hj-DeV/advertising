@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../data/demo_store.dart';
 import '../ui/theme.dart';
 import '../ui/widgets.dart';
+import 'account.dart';
 
 Color panelBackground(BuildContext context) =>
     Theme.of(context).brightness == Brightness.dark
@@ -702,6 +703,7 @@ class HelpTopicPage extends StatelessWidget {
 class ErrorPage extends StatelessWidget {
   const ErrorPage({super.key, this.home = false});
   final bool home;
+
   @override
   Widget build(BuildContext context) => Scaffold(
     appBar: PageHeader(home ? 'Suchen' : 'Lösungscenter', center: true),
@@ -734,7 +736,7 @@ class ErrorPage extends StatelessWidget {
               OutlinedButton(
                 onPressed: () {
                   if (home) {
-                    Navigator.pop(context);
+                    openMarketplaceTab(context, 0, returnToRoot: true);
                   } else {
                     Navigator.pushReplacement(
                       context,
@@ -759,7 +761,11 @@ class ErrorPage extends StatelessWidget {
       ),
     ),
     bottomNavigationBar: home
-        ? BottomTabs(selected: 0, onTap: (_) => Navigator.pop(context))
+        ? BottomTabs(
+            selected: 0,
+            onTap: (tab) =>
+                openMarketplaceTab(context, tab, returnToRoot: true),
+          )
         : null,
   );
 }

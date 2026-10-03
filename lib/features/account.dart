@@ -8,6 +8,25 @@ import 'filters.dart';
 import 'listing.dart';
 import 'settings.dart';
 
+void openMarketplaceTab(
+  BuildContext context,
+  int tab, {
+  bool returnToRoot = false,
+}) {
+  final store = DemoScope.of(context);
+  final navigator = Navigator.of(context);
+  if (returnToRoot) navigator.popUntil((route) => route.isFirst);
+  if (tab != 0 && !store.signedIn) {
+    navigator.push<void>(
+      MaterialPageRoute(
+        builder: (_) => GuestPage(variant: [1, 0, 3, 2, 1][tab]),
+      ),
+    );
+  } else {
+    store.changeTab(tab);
+  }
+}
+
 class GuestPage extends StatefulWidget {
   const GuestPage({super.key, this.variant = 0, this.favoriteId});
   final int variant;

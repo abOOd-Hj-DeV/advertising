@@ -115,24 +115,7 @@ class MarketplaceShell extends StatelessWidget {
       body: SafeArea(child: page),
       bottomNavigationBar: BottomTabs(
         selected: store.selectedTab,
-        onTap: (i) {
-          if (i != 0 && !store.signedIn) {
-            go(
-              context,
-              GuestPage(
-                variant: i == 1
-                    ? 0
-                    : i == 3
-                    ? 2
-                    : i == 2
-                    ? 3
-                    : 1,
-              ),
-            );
-          } else {
-            store.changeTab(i);
-          }
-        },
+        onTap: (tab) => openMarketplaceTab(context, tab),
       ),
     );
   }
