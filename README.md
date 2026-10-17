@@ -50,11 +50,13 @@ flutter test
 flutter test --platform chrome test/web_theme_test.dart
 flutter test --platform chrome test/web_storage_test.dart
 flutter build apk --release
-flutter build web --release --no-web-resources-cdn
+bash tool/build_web.sh
 python3 -m http.server 8080 --directory build/web
 ```
 
 الناتج: `build/app/outputs/flutter-apk/app-release.apk` و`build/web/`. CanvasKit والخطوط الاحتياطية مضمنة محليًا بدل CDN. فحص ثيم/تخزين Web يحتاج Chrome؛ فحص `flutter test` العادي يتخطى الحالات الخاصة بالمتصفح. الاستمرار دون اتصال مضمون لتفاعلات البيانات بعد تحميل التطبيق؛ بدء Web دون اتصال يحتاج استضافة محلية أو موارد مخزنة مسبقًا، وليس دعم PWA مثبتًا أو ضمانًا لبدء بارد دون شبكة.
+
+استخدم سكربت بناء Web حتى عند البناء المتكرر: يعيد توليد نقطة الدخول وتسجيل الإضافات، لأن كاش Flutter 3.44.2 قد يحتفظ بتسجيل قديم بعد إضافة plugin (فيظهر فشل محدد الملفات رغم نجاح البناء). لا يعدّل الملفات المولّدة يدويًا ولا يمس بيانات المستخدم. يمكن تحديد مسار Flutter عبر `FLUTTER_BIN=/path/to/flutter bash tool/build_web.sh`. على Windows شغّله داخل WSL أو Git Bash.
 
 **APK تجريبي موقّع بمفتاح debug الافتراضي**، وليس إصدار متجر. يلزم مفتاح release خاص للنشر الفعلي.
 
