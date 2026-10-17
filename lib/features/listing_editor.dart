@@ -449,10 +449,14 @@ class ListingEditorState extends State<ListingEditor> {
       );
     }
     return PopScope(
-      canPop: allowPop || !dirty,
+      canPop: !widget.embedded && (allowPop || !dirty),
       onPopInvokedWithResult: (didPop, _) async {
         if (didPop) return;
         if (await confirmLeave() && context.mounted) {
+          if (widget.embedded) {
+            store.changeTab(4);
+            return;
+          }
           setState(() => allowPop = true);
           await WidgetsBinding.instance.endOfFrame;
           if (context.mounted) Navigator.pop(context);

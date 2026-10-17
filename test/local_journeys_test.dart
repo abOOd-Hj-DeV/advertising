@@ -1,11 +1,14 @@
 import 'package:advertising/app.dart';
 import 'package:advertising/data/demo_store.dart';
+import 'package:advertising/data/media.dart';
 import 'package:advertising/features/account.dart';
 import 'package:advertising/features/listing.dart';
 import 'package:advertising/features/listing_editor.dart';
 import 'package:advertising/features/settings.dart';
 import 'package:advertising/ui/theme.dart';
+import 'package:advertising/ui/widgets.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'test_fonts.dart';
@@ -70,6 +73,64 @@ Listing own(String id) => Listing(
 );
 void main() {
   setUpAll(loadTestFonts);
+  for (final choice in [
+    'Entwurf speichern',
+    'Verwerfen',
+    'Weiter bearbeiten',
+  ]) {
+    testWidgets('root editor Android back safely handles $choice', (
+      tester,
+    ) async {
+      MediaRepository.instance = MediaRepository(MemoryMediaStorage());
+      final s = ready()..changeTab(2);
+      await page(tester, s, const Scaffold());
+      await tester.pumpWidget(MarketplaceApp(store: s));
+      await tester.pumpAndSettle();
+      await tester.enterText(field('Titel'), 'Android Durable Draft');
+      await tester.pumpAndSettle();
+      await tester.binding.handlePopRoute();
+      await tester.pumpAndSettle();
+      expect(find.text('Änderungen behalten?'), findsOneWidget);
+      await tapVisible(tester, choice);
+      expect(find.byType(MarketplaceShell), findsOneWidget);
+      expect(s.selectedTab, choice == 'Weiter bearbeiten' ? 2 : 4);
+      if (choice == 'Entwurf speichern') {
+        expect(s.drafts.single.values['title'], 'Android Durable Draft');
+      } else {
+        expect(s.drafts, isEmpty);
+      }
+      expect(tester.takeException(), isNull);
+    });
+  }
+  testWidgets('clean root editor Android back returns to Meins', (
+    tester,
+  ) async {
+    final s = ready()..changeTab(2);
+    await page(tester, s, const Scaffold());
+    await tester.pumpWidget(MarketplaceApp(store: s));
+    await tester.pumpAndSettle();
+    await tester.binding.handlePopRoute();
+    await tester.pumpAndSettle();
+    expect(find.byType(MarketplaceShell), findsOneWidget);
+    expect(s.selectedTab, 4);
+    expect(tester.takeException(), isNull);
+  });
+  testWidgets('navigation labels remain single-line at 320px', (tester) async {
+    await page(
+      tester,
+      ready(),
+      Scaffold(bottomNavigationBar: BottomTabs(selected: 3, onTap: (_) {})),
+      width: 320,
+    );
+    final paragraph = tester.renderObject<RenderParagraph>(
+      find.text('Nachrichten'),
+    );
+    final lines = paragraph.getBoxesForSelection(
+      const TextSelection(baseOffset: 0, extentOffset: 11),
+    );
+    expect(lines.map((box) => box.top).toSet(), hasLength(1));
+    expect(tester.takeException(), isNull);
+  });
   testWidgets(
     'guest notification intent returns to Notifications rather than messages',
     (tester) async {

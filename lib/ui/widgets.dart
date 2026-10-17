@@ -703,16 +703,21 @@ class BottomTabs extends StatelessWidget {
                                 : Theme.of(context).colorScheme.onSurface,
                           ),
                           const SizedBox(height: 2),
-                          Text(
-                            labels[i],
-                            style: TextStyle(
-                              fontSize: 12,
-                              fontWeight: selected == i
-                                  ? FontWeight.w800
-                                  : FontWeight.w500,
-                              color: selected == i
-                                  ? Theme.of(context).colorScheme.primary
-                                  : null,
+                          FittedBox(
+                            fit: BoxFit.scaleDown,
+                            child: Text(
+                              labels[i],
+                              maxLines: 1,
+                              softWrap: false,
+                              style: TextStyle(
+                                fontSize: 12,
+                                fontWeight: selected == i
+                                    ? FontWeight.w800
+                                    : FontWeight.w500,
+                                color: selected == i
+                                    ? Theme.of(context).colorScheme.primary
+                                    : null,
+                              ),
                             ),
                           ),
                         ],
