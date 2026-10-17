@@ -46,7 +46,8 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     final store = DemoScope.of(context);
-    var items = [...store.ownListings, ...listings]
+    var items = store.catalog
+        .where((l) => l.status == ListingStatus.active)
         .where(
           (l) =>
               category == 'Für dich' ||
@@ -117,7 +118,10 @@ class _HomePageState extends State<HomePage> {
                   context,
                   store.signedIn
                       ? const NotificationsPage()
-                      : const GuestPage(variant: 2),
+                      : GuestPage(
+                          variant: 2,
+                          continueTo: (_) => const NotificationsPage(),
+                        ),
                 ),
                 icon: Icon(
                   Icons.notifications_none,
@@ -648,7 +652,19 @@ class _SearchPageState extends State<SearchPage> {
                                 store.saveSearch();
                                 toast(context, 'Suche lokal gespeichert');
                               } else {
-                                go(context, const GuestPage(variant: 0));
+                                go(
+                                  context,
+                                  GuestPage(
+                                    variant: 0,
+                                    onEntered: () => store.saveSearch(
+                                      snapshot: SavedSearch(
+                                        store.query,
+                                        store.filters,
+                                      ),
+                                    ),
+                                    continueTo: (_) => const SearchPage(),
+                                  ),
+                                );
                               }
                             },
                           ),

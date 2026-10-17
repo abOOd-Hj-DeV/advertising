@@ -2,6 +2,7 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 
 import '../data/demo_store.dart';
+import '../data/media.dart';
 import 'theme.dart';
 
 Future<T?> go<T>(BuildContext context, Widget page) =>
@@ -217,17 +218,36 @@ class ProductImage extends StatelessWidget {
   final BoxFit fit;
   final double? height, width;
   @override
-  Widget build(BuildContext context) => Image.asset(
-    'assets/images/$image.jpg',
-    fit: fit,
-    height: height,
-    width: width,
-    errorBuilder: (_, _, _) => Container(
-      color: Brand.background,
+  Widget build(BuildContext context) {
+    Widget missing() => Container(
+      height: height,
+      width: width,
+      color: Theme.of(context).colorScheme.surfaceContainerHighest,
       alignment: Alignment.center,
       child: const Icon(Icons.image_outlined, size: 40, color: Brand.muted),
-    ),
-  );
+    );
+    if (image.startsWith('media-')) {
+      return FutureBuilder(
+        future: MediaRepository.instance.get(image),
+        builder: (context, snapshot) => snapshot.hasData
+            ? Image.memory(
+                snapshot.data!,
+                fit: fit,
+                height: height,
+                width: width,
+                errorBuilder: (_, _, _) => missing(),
+              )
+            : missing(),
+      );
+    }
+    return Image.asset(
+      'assets/images/$image.jpg',
+      fit: fit,
+      height: height,
+      width: width,
+      errorBuilder: (_, _, _) => missing(),
+    );
+  }
 }
 
 class FavoriteButton extends StatelessWidget {
@@ -339,7 +359,7 @@ class ListingCard extends StatelessWidget {
         ),
         const SizedBox(height: 4),
         Text(
-          '${listing.formattedPrice}${listing.price > 100 && listing.category != 'Immobilien' ? ' VB' : ''}',
+          listing.formattedPrice,
           style: TextStyle(
             fontSize: compact ? 20 : 19,
             fontWeight: FontWeight.w800,

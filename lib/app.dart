@@ -4,6 +4,7 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter/services.dart';
 import 'data/demo_store.dart';
 import 'features/account.dart';
+import 'features/listing_editor.dart';
 import 'features/discovery.dart';
 import 'features/settings.dart';
 import 'ui/theme.dart';
@@ -104,25 +105,58 @@ class MarketplaceApp extends StatelessWidget {
   );
 }
 
-class MarketplaceShell extends StatelessWidget {
+class MarketplaceShell extends StatefulWidget {
   const MarketplaceShell({super.key});
+  @override
+  State<MarketplaceShell> createState() => _MarketplaceShellState();
+}
+
+class _MarketplaceShellState extends State<MarketplaceShell> {
+  final editor = GlobalKey<ListingEditorState>();
   @override
   Widget build(BuildContext context) {
     final store = DemoScope.of(context);
     final page = store.signedIn
         ? switch (store.selectedTab) {
             1 => const FavoritesPage(),
-            2 => const NewListingPage(),
+            2 => NewListingPage(editorKey: editor),
             3 => const MessagesPage(),
             4 => const AccountPage(),
             _ => const HomePage(),
           }
         : const HomePage();
     return Scaffold(
-      body: SafeArea(child: page),
+      body: SafeArea(
+        child: Column(
+          children: [
+            if (store.storageError != null)
+              MaterialBanner(
+                content: Text(
+                  store.storageError!,
+                  style: const TextStyle(fontSize: 12),
+                ),
+                actions: [
+                  TextButton(
+                    onPressed: () => go(context, const LocalDataPage()),
+                    child: const Text('Details'),
+                  ),
+                ],
+              ),
+            Expanded(child: page),
+          ],
+        ),
+      ),
       bottomNavigationBar: BottomTabs(
         selected: store.selectedTab,
-        onTap: (tab) => openMarketplaceTab(context, tab),
+        onTap: (tab) async {
+          if (tab == store.selectedTab) return;
+          if (store.selectedTab == 2 &&
+              editor.currentState != null &&
+              !await editor.currentState!.confirmLeave()) {
+            return;
+          }
+          if (context.mounted) openMarketplaceTab(context, tab);
+        },
       ),
     );
   }
