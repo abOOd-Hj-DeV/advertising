@@ -249,9 +249,13 @@ void main() {
       );
       await tester.enterText(find.byType(TextFormField).at(1), '55,50');
       await tester.enterText(
-        find.byType(TextFormField).at(2),
+        find.byType(TextFormField).at(3),
         'Eine lokale Testanzeige ohne echtes Inserieren.',
       );
+      await tester.ensureVisible(find.text('Vorschau'));
+      await tester.tap(find.text('Vorschau'));
+      await tester.pumpAndSettle();
+      expect(store.ownListings, isEmpty);
       await tester.ensureVisible(find.text('Lokal veröffentlichen'));
       await tester.tap(find.text('Lokal veröffentlichen'));
       await tester.pumpAndSettle();

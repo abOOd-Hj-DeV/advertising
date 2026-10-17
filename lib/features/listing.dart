@@ -38,9 +38,23 @@ class ListingPage extends StatefulWidget {
 class _ListingPageState extends State<ListingPage> {
   bool expanded = false, translated = false;
   @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) DemoScope.of(context).viewListing(widget.listing.id);
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
-    final l = widget.listing;
     final store = DemoScope.of(context);
+    final l = store.findListing(widget.listing.id);
+    if (l == null) {
+      return const Scaffold(
+        appBar: PageHeader('Anzeige nicht verfügbar'),
+        body: Center(child: Text('Diese lokale Anzeige wurde gelöscht.')),
+      );
+    }
     final attributes = {
       if (l.category == 'Fahrräder & Zubehör')
         'Art': l.kind
@@ -170,7 +184,7 @@ class _ListingPageState extends State<ListingPage> {
                             crossAxisAlignment: WrapCrossAlignment.center,
                             children: [
                               Text(
-                                '${l.formattedPrice}${l.price > 100 ? ' VB' : ''}',
+                                l.formattedPrice,
                                 style: TextStyle(
                                   fontSize: 23,
                                   fontWeight: FontWeight.w900,
@@ -352,10 +366,7 @@ class _ListingPageState extends State<ListingPage> {
             child: RowLink(
               'Anzeige melden',
               icon: Icons.flag_outlined,
-              onTap: () => go(
-                context,
-                FeedbackPage(title: 'Anzeige melden', subject: l.title),
-              ),
+              onTap: () => go(context, LocalReportPage(target: l.id)),
             ),
           ),
           SliverToBoxAdapter(
@@ -369,41 +380,63 @@ class _ListingPageState extends State<ListingPage> {
           ),
         ],
       ),
-      bottomNavigationBar: Container(
-        padding: const EdgeInsets.fromLTRB(8, 6, 8, 10),
-        color: Theme.of(context).colorScheme.surface,
-        child: SafeArea(
-          top: false,
-          child: Row(
-            children: [
-              Expanded(
-                child: OutlinedButton.icon(
-                  onPressed: () => demoCall(context),
-                  icon: const Icon(Icons.phone_outlined, size: 18),
-                  label: const Text('Anrufen'),
-                  style: OutlinedButton.styleFrom(
-                    minimumSize: const Size(0, 46),
-                    shape: const StadiumBorder(),
-                  ),
+      bottomNavigationBar: store.isOwn(l.id)
+          ? SafeArea(
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  Text(l.status.label),
+                  ListingManagementMenu(listingId: l.id),
+                ],
+              ),
+            )
+          : l.status != ListingStatus.active
+          ? SafeArea(
+              child: Padding(
+                padding: const EdgeInsets.all(16),
+                child: Text(
+                  'Anzeige ${l.status.label.toLowerCase()} – Kontakt deaktiviert',
                 ),
               ),
-              const SizedBox(width: 8),
-              Expanded(
-                child: PrimaryButton(
-                  'Nachricht',
-                  icon: Icons.chat_bubble_outline,
-                  onPressed: () => go(
-                    context,
-                    store.signedIn
-                        ? MessagePage(listing: l)
-                        : const GuestPage(variant: 2),
-                  ),
+            )
+          : Container(
+              padding: const EdgeInsets.fromLTRB(8, 6, 8, 10),
+              color: Theme.of(context).colorScheme.surface,
+              child: SafeArea(
+                top: false,
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: OutlinedButton.icon(
+                        onPressed: () => demoCall(context),
+                        icon: const Icon(Icons.phone_outlined, size: 18),
+                        label: const Text('Anrufen'),
+                        style: OutlinedButton.styleFrom(
+                          minimumSize: const Size(0, 46),
+                          shape: const StadiumBorder(),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: PrimaryButton(
+                        'Nachricht',
+                        icon: Icons.chat_bubble_outline,
+                        onPressed: () => go(
+                          context,
+                          store.signedIn
+                              ? MessagePage(listing: l)
+                              : GuestPage(
+                                  variant: 2,
+                                  continueTo: (_) => MessagePage(listing: l),
+                                ),
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ),
-            ],
-          ),
-        ),
-      ),
+            ),
     );
   }
 }
@@ -503,7 +536,6 @@ class SellerPage extends StatefulWidget {
 }
 
 class _SellerPageState extends State<SellerPage> {
-  bool followed = false;
   final search = TextEditingController();
   @override
   void dispose() {
@@ -513,11 +545,14 @@ class _SellerPageState extends State<SellerPage> {
 
   @override
   Widget build(BuildContext context) {
-    final l = widget.listing;
-    final items = listings
+    final store = DemoScope.of(context);
+    final l = store.findListing(widget.listing.id) ?? widget.listing;
+    final followed = store.followedSellers.contains(l.identity);
+    final items = store
+        .sellerListings(l.identity)
         .where(
           (a) =>
-              a.seller == l.seller &&
+              a.identity == l.identity &&
               a.title.toLowerCase().contains(search.text.toLowerCase()),
         )
         .toList();
@@ -569,7 +604,7 @@ class _SellerPageState extends State<SellerPage> {
                           ),
                         ),
                         Text(
-                          '${listings.where((a) => a.seller == l.seller).length} Anzeigen online · 12 Follower',
+                          '${store.sellerListings(l.identity).length} Anzeigen online · Demo-Profil',
                           style: const TextStyle(
                             fontSize: 11,
                             color: Brand.muted,
@@ -603,9 +638,16 @@ class _SellerPageState extends State<SellerPage> {
                       ),
                       onPressed: () {
                         if (!DemoScope.of(context).signedIn) {
-                          go(context, const GuestPage(variant: 1));
+                          go(
+                            context,
+                            GuestPage(
+                              variant: 1,
+                              onEntered: () => store.toggleFollow(l.identity),
+                              continueTo: (_) => SellerPage(listing: l),
+                            ),
+                          );
                         } else {
-                          setState(() => followed = !followed);
+                          store.toggleFollow(l.identity);
                         }
                       },
                       icon: Icon(

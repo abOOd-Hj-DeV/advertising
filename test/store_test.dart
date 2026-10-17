@@ -153,6 +153,7 @@ void main() {
       store.setPrivacy(personalized: true, analytics: false);
       store.search('Fahrrad');
       store.saveSearch();
+      await store.flush();
       final restored = DemoStore(preferences: prefs);
       expect(restored.themeMode, ThemeMode.dark);
       expect(restored.favorites, {'b1'});
@@ -195,7 +196,7 @@ void main() {
     expect(store.searchHistory, isEmpty);
   });
   test('messages stay isolated per listing and ignore empty sends', () {
-    final store = DemoStore();
+    final store = DemoStore()..signIn();
     store.addMessage('b1', 'Hallo Fahrrad');
     store.addMessage('c1', 'Hallo Auto');
     store.addMessage('b1', '  ');

@@ -1,6 +1,8 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+part 'local_models.dart';
+part 'local_store.dart';
 
 class Listing {
   const Listing({
@@ -25,6 +27,9 @@ class Listing {
     this.seller = 'Lena',
     this.date = 'Heute, 10:42',
     this.images = const [],
+    this.sellerId = '',
+    this.status = ListingStatus.active,
+    this.priceType = PriceType.fixed,
     this.description =
         'Gut erhalten und bereit für ein neues Zuhause. '
         'Wir geben diesen schönen Artikel ab, weil wir Platz schaffen möchten. '
@@ -44,18 +49,132 @@ class Listing {
       seller,
       date,
       description;
+  final String sellerId;
+  final ListingStatus status;
+  final PriceType priceType;
+  String get identity => sellerId.isEmpty ? 'fixture-$seller' : sellerId;
   final double price, distance;
   final int ageHours;
   final bool shipping, direct, commercial, wanted, featured;
   final List<String> images;
   List<String> get gallery => images.isEmpty ? [image] : images;
-  String get formattedPrice =>
-      '${price.toStringAsFixed(price % 1 == 0 ? 0 : 2).replaceAll('.', ',')} €';
+  String get formattedPrice => priceType == PriceType.free
+      ? 'Zu verschenken'
+      : '${price.toStringAsFixed(price % 1 == 0 ? 0 : 2).replaceAll('.', ',')} €${priceType == PriceType.negotiable ? ' VB' : ''}';
+  Map<String, dynamic> toJson() => {
+    'id': id,
+    'title': title,
+    'price': price,
+    'image': image,
+    'category': category,
+    'city': city,
+    'district': district,
+    'distance': distance,
+    'type': type,
+    'kind': kind,
+    'carrier': carrier,
+    'ageHours': ageHours,
+    'condition': condition,
+    'shipping': shipping,
+    'direct': direct,
+    'commercial': commercial,
+    'wanted': wanted,
+    'featured': featured,
+    'seller': seller,
+    'sellerId': sellerId,
+    'date': date,
+    'images': images,
+    'description': description,
+    'status': status.name,
+    'priceType': priceType.name,
+  };
+  factory Listing.fromJson(Map<String, dynamic> j) {
+    final price = (j['price'] as num).toDouble();
+    final id = j['id'] as String;
+    if (id.isEmpty || !price.isFinite || price < 0) {
+      throw const FormatException('Ungültige Anzeige');
+    }
+    return Listing(
+      id: id,
+      price: price,
+      title: j['title'] as String,
+      image: j['image'] as String,
+      category: j['category'] as String,
+      city: j['city'] as String? ?? 'Berlin',
+      district: j['district'] as String? ?? '',
+      type: j['type'] as String? ?? '',
+      kind: j['kind'] as String? ?? '',
+      carrier: j['carrier'] as String? ?? 'DHL',
+      condition: j['condition'] as String? ?? 'Gut',
+      seller: j['seller'] as String? ?? 'Lena Demo',
+      sellerId: j['sellerId'] as String? ?? 'self',
+      date: j['date'] as String? ?? 'Lokal',
+      description: j['description'] as String? ?? '',
+      shipping: j['shipping'] as bool? ?? false,
+      direct: j['direct'] as bool? ?? false,
+      commercial: j['commercial'] as bool? ?? false,
+      wanted: j['wanted'] as bool? ?? false,
+      featured: j['featured'] as bool? ?? false,
+      distance: (j['distance'] as num?)?.toDouble() ?? 0,
+      ageHours: (j['ageHours'] as num?)?.toInt() ?? 0,
+      images: (j['images'] as List? ?? []).cast<String>(),
+      status: ListingStatus.values.byName(j['status'] as String? ?? 'active'),
+      priceType: PriceType.values.byName(j['priceType'] as String? ?? 'fixed'),
+    );
+  }
+  Listing copyWith({
+    String? title,
+    String? image,
+    String? category,
+    String? city,
+    String? district,
+    String? type,
+    String? kind,
+    String? carrier,
+    String? condition,
+    String? seller,
+    String? sellerId,
+    String? description,
+    double? price,
+    bool? shipping,
+    bool? wanted,
+    bool? commercial,
+    List<String>? images,
+    ListingStatus? status,
+    PriceType? priceType,
+  }) => Listing(
+    id: id,
+    distance: distance,
+    ageHours: ageHours,
+    date: date,
+    featured: featured,
+    direct: direct,
+    title: title ?? this.title,
+    image: image ?? this.image,
+    category: category ?? this.category,
+    city: city ?? this.city,
+    district: district ?? this.district,
+    type: type ?? this.type,
+    kind: kind ?? this.kind,
+    carrier: carrier ?? this.carrier,
+    condition: condition ?? this.condition,
+    seller: seller ?? this.seller,
+    sellerId: sellerId ?? this.sellerId,
+    description: description ?? this.description,
+    price: price ?? this.price,
+    shipping: shipping ?? this.shipping,
+    wanted: wanted ?? this.wanted,
+    commercial: commercial ?? this.commercial,
+    images: images ?? this.images,
+    status: status ?? this.status,
+    priceType: priceType ?? this.priceType,
+  );
 }
 
 const listings = <Listing>[
   Listing(
     id: 'b1',
+    priceType: PriceType.negotiable,
     title: 'Citybike – leicht, gepflegt und sofort startklar',
     price: 180,
     image: 'bike_city',
@@ -85,6 +204,7 @@ const listings = <Listing>[
     id: 'b3',
     title: 'Trekkingrad für Stadt und kleine Abenteuer',
     price: 320,
+    priceType: PriceType.negotiable,
     image: 'bike_road',
     category: 'Fahrräder & Zubehör',
     district: 'Kreuzberg',
@@ -111,6 +231,7 @@ const listings = <Listing>[
     id: 'b5',
     title: 'Sportliches Rennrad – neue Reifen',
     price: 550,
+    priceType: PriceType.negotiable,
     image: 'bike_road',
     category: 'Fahrräder & Zubehör',
     type: 'Rennräder',
@@ -124,6 +245,7 @@ const listings = <Listing>[
     id: 'b6',
     title: 'Fahrrad Retro – schönes Alltagsrad',
     price: 125,
+    priceType: PriceType.negotiable,
     image: 'bike',
     category: 'Fahrräder & Zubehör',
     district: 'Charlottenburg',
@@ -137,6 +259,7 @@ const listings = <Listing>[
     id: 'b7',
     title: 'E-Bike mit Zubehör und Rechnung',
     price: 1290,
+    priceType: PriceType.negotiable,
     image: 'bike_city',
     category: 'Fahrräder & Zubehör',
     type: 'E-Bikes',
@@ -150,6 +273,7 @@ const listings = <Listing>[
     id: 'b8',
     title: 'Suche Fahrrad für den Weg zur Uni',
     price: 150,
+    priceType: PriceType.negotiable,
     image: 'bike',
     category: 'Fahrräder & Zubehör',
     wanted: true,
@@ -162,6 +286,7 @@ const listings = <Listing>[
     id: 's1',
     title: 'Gemütliches Sofa in sattem Grün',
     price: 240,
+    priceType: PriceType.negotiable,
     image: 'sofa',
     type: 'Sofas & Sitzgarnituren',
     category: 'Haus & Garten',
@@ -198,6 +323,7 @@ const listings = <Listing>[
     id: 'c1',
     title: 'Sportwagen – gepflegt, neue Inspektion',
     price: 23900,
+    priceType: PriceType.negotiable,
     image: 'car',
     type: 'Autos',
     category: 'Auto, Rad & Boot',
@@ -208,6 +334,7 @@ const listings = <Listing>[
     id: 'e1',
     title: 'Spiegelreflexkamera mit Objektiv',
     price: 290,
+    priceType: PriceType.negotiable,
     image: 'camera',
     type: 'Kameras',
     category: 'Elektronik',
@@ -218,6 +345,7 @@ const listings = <Listing>[
     id: 'e2',
     title: 'Notebook 13 Zoll – ideal fürs Studium',
     price: 420,
+    priceType: PriceType.negotiable,
     image: 'laptop',
     type: 'Notebooks',
     carrier: 'DPD',
@@ -317,6 +445,7 @@ class SearchFilters {
   bool accepts(Listing l) =>
       (category == 'Alle Kategorien' ||
           l.category == category ||
+          category == 'Autos' && l.type == 'Autos' ||
           category == 'Auto, Rad & Boot' &&
               l.category == 'Fahrräder & Zubehör') &&
       (city.isEmpty || l.city == city && l.distance <= radius) &&
@@ -376,195 +505,21 @@ class SavedSearch {
   SavedSearch(this.query, SearchFilters filters) : filters = filters.copy();
   final String query;
   final SearchFilters filters;
+  bool alerts = true;
   String get label =>
       '${query.isEmpty ? 'Alle Anzeigen' : query} · ${filters.locationLabel} · ${filters.priceLabel}';
-  String encode() => jsonEncode({'query': query, 'filters': filters.toJson()});
+  String encode() => jsonEncode({
+    'query': query,
+    'filters': filters.toJson(),
+    'alerts': alerts,
+  });
   factory SavedSearch.decode(String encoded) {
     final json = jsonDecode(encoded) as Map<String, dynamic>;
     return SavedSearch(
       json['query'] as String,
       SearchFilters.fromJson(json['filters'] as Map<String, dynamic>),
-    );
+    )..alerts = json['alerts'] as bool? ?? true;
   }
-}
-
-class DemoMessage {
-  const DemoMessage({required this.listingId, required this.text});
-  final String listingId;
-  final String text;
-}
-
-class DemoStore extends ChangeNotifier {
-  DemoStore({this.preferences}) {
-    final savedMode = preferences?.getString('theme');
-    themeMode = ThemeMode.values.firstWhere(
-      (m) => m.name == savedMode,
-      orElse: () => ThemeMode.system,
-    );
-    consentAccepted = preferences?.getBool('consent') ?? false;
-    personalized = preferences?.getBool('personalized') ?? false;
-    analytics = preferences?.getBool('analytics') ?? false;
-    favorites.addAll(preferences?.getStringList('favorites') ?? []);
-    for (final encoded
-        in preferences?.getStringList('saved_searches') ?? <String>[]) {
-      try {
-        savedSearches.add(SavedSearch.decode(encoded));
-      } on FormatException {
-        continue;
-      } on TypeError {
-        continue;
-      }
-    }
-  }
-  final SharedPreferences? preferences;
-  ThemeMode themeMode = ThemeMode.system;
-  bool consentAccepted = false, personalized = false, analytics = false;
-  bool signedIn = false;
-  String name = 'Lena Demo';
-  int selectedTab = 0;
-  String query = '';
-  SearchFilters filters = SearchFilters();
-  final Set<String> favorites = {};
-  final List<SavedSearch> savedSearches = [];
-  final List<String> searchHistory = [];
-  final List<DemoMessage> messages = [];
-  final List<Listing> ownListings = [];
-  List<Listing> results({SearchFilters? using}) {
-    final f = using ?? filters;
-    final words = _searchText(query.trim()).split(RegExp(r'\s+'));
-    final result = [...ownListings, ...listings]
-        .where(
-          (l) =>
-              f.accepts(l) &&
-              words.every(
-                (w) => _searchText(
-                  '${l.title} ${l.category} ${l.description}',
-                ).contains(w),
-              ),
-        )
-        .toList();
-    switch (f.sort) {
-      case 'Niedrigster Preis':
-        result.sort((a, b) => a.price.compareTo(b.price));
-      case 'Höchster Preis':
-        result.sort((a, b) => b.price.compareTo(a.price));
-      case 'Neueste':
-        result.sort((a, b) => a.ageHours.compareTo(b.ageHours));
-      default:
-        result.sort(
-          (a, b) => (b.featured ? 1 : 0).compareTo(a.featured ? 1 : 0),
-        );
-    }
-    return result;
-  }
-
-  void changeFilters(SearchFilters value) {
-    filters = value.copy();
-    notifyListeners();
-  }
-
-  void search(String value) {
-    query = value.trim();
-    if (query.isNotEmpty) {
-      searchHistory.remove(query);
-      searchHistory.insert(0, query);
-    }
-    notifyListeners();
-  }
-
-  void changeTab(int value) {
-    selectedTab = value;
-    notifyListeners();
-  }
-
-  void toggleFavorite(String id) {
-    favorites.contains(id) ? favorites.remove(id) : favorites.add(id);
-    preferences?.setStringList('favorites', favorites.toList());
-    notifyListeners();
-  }
-
-  void saveSearch() {
-    final saved = SavedSearch(query, filters);
-    if (!savedSearches.any((s) => s.encode() == saved.encode())) {
-      savedSearches.insert(0, saved);
-    }
-    preferences?.setStringList(
-      'saved_searches',
-      savedSearches.map((s) => s.encode()).toList(),
-    );
-    notifyListeners();
-  }
-
-  void restoreSearch(SavedSearch saved) {
-    query = saved.query;
-    filters = saved.filters.copy();
-    notifyListeners();
-  }
-
-  void setTheme(ThemeMode value) {
-    themeMode = value;
-    preferences?.setString('theme', value.name);
-    notifyListeners();
-  }
-
-  void acceptConsent({bool all = false}) {
-    consentAccepted = true;
-    personalized = all;
-    analytics = all;
-    preferences?.setBool('consent', true);
-    preferences?.setBool('personalized', personalized);
-    preferences?.setBool('analytics', analytics);
-    notifyListeners();
-  }
-
-  void setPrivacy({required bool personalized, required bool analytics}) {
-    this.personalized = personalized;
-    this.analytics = analytics;
-    preferences?.setBool('personalized', personalized);
-    preferences?.setBool('analytics', analytics);
-    notifyListeners();
-  }
-
-  void signIn() {
-    signedIn = true;
-    notifyListeners();
-  }
-
-  void signOut() {
-    signedIn = false;
-    selectedTab = 0;
-    messages.clear();
-    notifyListeners();
-  }
-
-  List<String> messagesFor(String listingId) => messages
-      .where((message) => message.listingId == listingId)
-      .map((message) => message.text)
-      .toList();
-
-  void addMessage(String listingId, String text) {
-    if (text.trim().isEmpty) return;
-    messages.add(DemoMessage(listingId: listingId, text: text.trim()));
-    notifyListeners();
-  }
-
-  void publish(Listing l) {
-    ownListings.insert(0, l);
-    selectedTab = 4;
-    notifyListeners();
-  }
-
-  void clearHistory() {
-    searchHistory.clear();
-    notifyListeners();
-  }
-
-  static String _searchText(String value) => value
-      .toLowerCase()
-      .replaceAll('ä', 'a')
-      .replaceAll('ö', 'o')
-      .replaceAll('ü', 'u')
-      .replaceAll('ß', 'ss');
 }
 
 class DemoScope extends InheritedNotifier<DemoStore> {

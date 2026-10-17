@@ -3,9 +3,9 @@ import 'package:flutter/material.dart';
 import '../data/demo_store.dart';
 import '../ui/theme.dart';
 import '../ui/widgets.dart';
-import 'discovery.dart';
-import 'filters.dart';
-import 'listing.dart';
+export 'local_pages.dart';
+export 'listing_editor.dart' show NewListingPage;
+import 'local_pages.dart';
 import 'settings.dart';
 
 void openMarketplaceTab(
@@ -28,7 +28,15 @@ void openMarketplaceTab(
 }
 
 class GuestPage extends StatefulWidget {
-  const GuestPage({super.key, this.variant = 0, this.favoriteId});
+  const GuestPage({
+    super.key,
+    this.variant = 0,
+    this.favoriteId,
+    this.continueTo,
+    this.onEntered,
+  });
+  final WidgetBuilder? continueTo;
+  final VoidCallback? onEntered;
   final int variant;
   final String? favoriteId;
   @override
@@ -45,6 +53,7 @@ class _GuestPageState extends State<GuestPage> {
   ];
   void openAuth(bool register) {
     final store = DemoScope.of(context);
+    final navigator = Navigator.of(context);
     go(
       context,
       AuthPage(
@@ -55,6 +64,10 @@ class _GuestPageState extends State<GuestPage> {
             store.toggleFavorite(widget.favoriteId!);
           }
           store.changeTab([1, 4, 3, 2][widget.variant]);
+          widget.onEntered?.call();
+          if (widget.continueTo != null) {
+            navigator.push(MaterialPageRoute(builder: widget.continueTo!));
+          }
         },
       ),
     );
@@ -179,10 +192,12 @@ class AuthPage extends StatefulWidget {
 class _AuthPageState extends State<AuthPage> {
   final key = GlobalKey<FormState>();
   final email = TextEditingController(), password = TextEditingController();
+  final profileName = TextEditingController(text: 'Lena Demo');
   bool passwordStage = false, hidden = true, newsletter = false;
   String accountType = 'Privat';
   @override
   void dispose() {
+    profileName.dispose();
     email.dispose();
     password.dispose();
     super.dispose();
@@ -195,9 +210,19 @@ class _AuthPageState extends State<AuthPage> {
       return;
     }
     final store = DemoScope.of(context);
-    store.signIn();
-    widget.onSuccess?.call();
+    if (widget.register) {
+      store.registerLocal(
+        profileName.text,
+        business: accountType == 'Gewerblich',
+        news: newsletter,
+      );
+    } else {
+      store.signIn();
+    }
+    email.clear();
+    password.clear();
     Navigator.popUntil(context, (r) => r.isFirst);
+    widget.onSuccess?.call();
     toast(
       context,
       'Demo-Konto geöffnet. Es wurden keine Zugangsdaten übertragen.',
@@ -230,6 +255,11 @@ class _AuthPageState extends State<AuthPage> {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             const SizedBox(height: 22),
+            if (!widget.register)
+              TextButton(
+                onPressed: () => go(context, const RecoveryPage()),
+                child: const Text('Passwort vergessen?'),
+              ),
             const Center(child: Logo(size: widgetLogoSize)),
             const SizedBox(height: widgetLogoSpacing),
             if (widget.register) ...[
@@ -363,6 +393,16 @@ class _AuthPageState extends State<AuthPage> {
               ),
             ],
             if (widget.register) ...[
+              TextFormField(
+                controller: profileName,
+                decoration: const InputDecoration(
+                  labelText: 'Lokaler Profilname',
+                ),
+                validator: validateProfileName,
+              ),
+              const SizedBox(height: 16),
+            ],
+            if (widget.register) ...[
               const SizedBox(height: 16),
               Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -376,7 +416,7 @@ class _AuthPageState extends State<AuthPage> {
                     child: Padding(
                       padding: EdgeInsets.only(top: 12),
                       child: Text(
-                        'Ja, ich freue mich auf regelmäßige Neuigkeiten per Mail aus der Unternehmensgruppe – abmelden geht jederzeit.',
+                        'Newsletter-Präferenz nur lokal speichern. Keine Anmeldung und keine E-Mail-Zustellung.',
                         style: TextStyle(fontSize: 13, height: 1.35),
                       ),
                     ),
@@ -464,85 +504,6 @@ class _AuthPageState extends State<AuthPage> {
   static const widgetLogoSize = 46.0, widgetLogoSpacing = 42.0;
 }
 
-class FavoritesPage extends StatelessWidget {
-  const FavoritesPage({super.key});
-  @override
-  Widget build(BuildContext context) {
-    final store = DemoScope.of(context);
-    final items = [
-      ...store.ownListings,
-      ...listings,
-    ].where((l) => store.favorites.contains(l.id)).toList();
-    return DefaultTabController(
-      length: 2,
-      child: Column(
-        children: [
-          AppBar(
-            title: const Text('Favoriten'),
-            automaticallyImplyLeading: false,
-            actions: [
-              TextButton(
-                onPressed: () => go(context, const SettingsPage()),
-                child: const Text('HILFE'),
-              ),
-            ],
-          ),
-          const TabBar(
-            tabs: [
-              Tab(text: 'Merkliste'),
-              Tab(text: 'Suchaufträge'),
-            ],
-          ),
-          Expanded(
-            child: TabBarView(
-              children: [
-                items.isEmpty
-                    ? const _EmptyState(
-                        icon: Icons.favorite_border,
-                        title: 'Hier wohnen deine Lieblingsanzeigen',
-                        body:
-                            'Tippe auf das Herz einer Anzeige, um sie lokal zu merken.',
-                      )
-                    : ListView.builder(
-                        itemCount: items.length,
-                        itemBuilder: (context, i) => ListingCard(
-                          listing: items[i],
-                          compact: true,
-                          onOpen: () =>
-                              go(context, ListingPage(listing: items[i])),
-                          onFavorite: () => store.toggleFavorite(items[i].id),
-                        ),
-                      ),
-                store.savedSearches.isEmpty
-                    ? const _EmptyState(
-                        icon: Icons.manage_search,
-                        title: 'Keine Suchaufträge',
-                        body:
-                            'Speichere eine Suche, damit du sie hier wiederfindest.',
-                      )
-                    : ListView(
-                        children: [
-                          for (final s in store.savedSearches)
-                            RowLink(
-                              s.label,
-                              icon: Icons.search,
-                              trailing: const Icon(Icons.bookmark_border),
-                              onTap: () {
-                                store.restoreSearch(s);
-                                go(context, const SearchPage());
-                              },
-                            ),
-                        ],
-                      ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
 class AccountPage extends StatelessWidget {
   const AccountPage({super.key});
   @override
@@ -582,8 +543,8 @@ class AccountPage extends StatelessWidget {
                         fontWeight: FontWeight.w800,
                       ),
                     ),
-                    const Text(
-                      'Privater Demo-Anbieter',
+                    Text(
+                      '${store.commercial ? 'Gewerblicher' : 'Privater'} Demo-Anbieter',
                       style: TextStyle(fontSize: 13, color: Brand.muted),
                     ),
                   ],
@@ -612,8 +573,7 @@ class AccountPage extends StatelessWidget {
               EditProfilePage(initial: store.name),
             );
             if (result != null && context.mounted) {
-              store.name = result;
-              store.signIn();
+              store.updateProfile(result);
             }
           },
         ),
@@ -626,6 +586,22 @@ class AccountPage extends StatelessWidget {
         ),
         const Divider(),
         RowLink(
+          'Mein Demo-Profil',
+          icon: Icons.person_outline,
+          onTap: () => go(context, const SelfProfilePage()),
+        ),
+        RowLink(
+          'Zuletzt angesehen',
+          icon: Icons.history,
+          onTap: () => go(context, const RecentPage()),
+        ),
+        RowLink(
+          'Benachrichtigungen',
+          icon: Icons.notifications_none,
+          onTap: () => go(context, const NotificationsPage()),
+        ),
+        const Divider(),
+        RowLink(
           'Einstellungen & Hilfe',
           icon: Icons.settings_outlined,
           onTap: () => go(context, const SettingsPage()),
@@ -633,377 +609,6 @@ class AccountPage extends StatelessWidget {
         const Divider(),
         RowLink('Ausloggen', icon: Icons.logout, onTap: store.signOut),
       ],
-    );
-  }
-}
-
-class MessagesPage extends StatelessWidget {
-  const MessagesPage({super.key});
-  @override
-  Widget build(BuildContext context) {
-    final store = DemoScope.of(context);
-    final threads = [...store.ownListings, ...listings]
-        .where(
-          (listing) =>
-              listing.id == listings.first.id ||
-              store.messages.any((message) => message.listingId == listing.id),
-        )
-        .toList();
-    return Column(
-      children: [
-        AppBar(
-          title: const Text('Nachrichten'),
-          automaticallyImplyLeading: false,
-          actions: [
-            TextButton(
-              onPressed: () => go(context, const SettingsPage()),
-              child: const Text('HILFE'),
-            ),
-          ],
-        ),
-        const Padding(
-          padding: EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-          child: Text(
-            'Fiktive Unterhaltung – keine echten Nachrichten',
-            style: TextStyle(color: Brand.muted, fontSize: 12),
-          ),
-        ),
-        Expanded(
-          child: ListView(
-            children: [
-              for (final listing in threads) ...[
-                RowLink(
-                  '${listing.seller} · ${listing.title}',
-                  icon: Icons.account_circle_outlined,
-                  subtitle: store.messagesFor(listing.id).isEmpty
-                      ? 'Schreibe deine erste Demo-Nachricht'
-                      : store.messagesFor(listing.id).last,
-                  onTap: () => go(context, MessagePage(listing: listing)),
-                ),
-                const Divider(),
-              ],
-              if (store.messages.isEmpty)
-                const _EmptyState(
-                  icon: Icons.forum_outlined,
-                  title: 'Alles an einem Ort',
-                  body: 'Deine Demo-Nachrichten bleiben nur in dieser Sitzung.',
-                ),
-            ],
-          ),
-        ),
-      ],
-    );
-  }
-}
-
-class MessagePage extends StatefulWidget {
-  const MessagePage({super.key, required this.listing});
-  final Listing listing;
-  @override
-  State<MessagePage> createState() => _MessagePageState();
-}
-
-class _MessagePageState extends State<MessagePage> {
-  final text = TextEditingController();
-  @override
-  void dispose() {
-    text.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final store = DemoScope.of(context);
-    return Scaffold(
-      appBar: PageHeader(widget.listing.seller),
-      body: Column(
-        children: [
-          RowLink(
-            widget.listing.title,
-            subtitle: widget.listing.formattedPrice,
-            icon: Icons.sell_outlined,
-            onTap: () => go(context, ListingPage(listing: widget.listing)),
-          ),
-          const Divider(),
-          const Padding(
-            padding: EdgeInsets.all(12),
-            child: Text(
-              'Lokaler Demo-Chat. Nachrichten werden nicht übertragen.',
-              style: TextStyle(fontSize: 12, color: Brand.muted),
-            ),
-          ),
-          Expanded(
-            child: ListView(
-              children: [
-                for (final message in store.messagesFor(widget.listing.id))
-                  Align(
-                    alignment: Alignment.centerRight,
-                    child: Container(
-                      margin: const EdgeInsets.fromLTRB(60, 5, 16, 5),
-                      padding: const EdgeInsets.all(12),
-                      decoration: BoxDecoration(
-                        color: Brand.pale,
-                        borderRadius: BorderRadius.circular(14),
-                      ),
-                      child: Text(
-                        message,
-                        style: const TextStyle(color: Brand.deep),
-                      ),
-                    ),
-                  ),
-              ],
-            ),
-          ),
-          SafeArea(
-            top: false,
-            child: Padding(
-              padding: const EdgeInsets.all(12),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: TextField(
-                      controller: text,
-                      onChanged: (_) => setState(() {}),
-                      decoration: const InputDecoration(
-                        hintText: 'Nachricht schreiben',
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                  IconButton.filled(
-                    tooltip: 'Demo-Nachricht senden',
-                    onPressed: text.text.trim().isEmpty
-                        ? null
-                        : () {
-                            store.addMessage(
-                              widget.listing.id,
-                              text.text.trim(),
-                            );
-                            text.clear();
-                            setState(() {});
-                          },
-                    icon: const Icon(Icons.send_outlined),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class NewListingPage extends StatefulWidget {
-  const NewListingPage({super.key});
-  @override
-  State<NewListingPage> createState() => _NewListingPageState();
-}
-
-class _NewListingPageState extends State<NewListingPage> {
-  final key = GlobalKey<FormState>();
-  final title = TextEditingController(),
-      price = TextEditingController(),
-      description = TextEditingController();
-  String category = 'Haus & Garten', image = 'sofa';
-  @override
-  void dispose() {
-    title.dispose();
-    price.dispose();
-    description.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) => Column(
-    children: [
-      AppBar(
-        title: const Text('Anzeige aufgeben'),
-        automaticallyImplyLeading: false,
-      ),
-      Expanded(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.all(16),
-          child: Form(
-            key: key,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                Container(
-                  padding: const EdgeInsets.all(12),
-                  color: Brand.pale,
-                  child: const Text(
-                    'Demo-Ergänzung: Die originale Erstellungsseite war nicht zugänglich. Diese Anzeige wird ausschließlich lokal hinzugefügt.',
-                    style: TextStyle(color: Brand.deep, fontSize: 12),
-                  ),
-                ),
-                const SizedBox(height: 18),
-                InkWell(
-                  onTap: () async {
-                    final value = await showModalBottomSheet<String>(
-                      context: context,
-                      builder: (_) => Padding(
-                        padding: const EdgeInsets.all(16),
-                        child: GridView.count(
-                          crossAxisCount: 3,
-                          mainAxisSpacing: 8,
-                          crossAxisSpacing: 8,
-                          children: [
-                            for (final i in [
-                              'sofa',
-                              'bike',
-                              'bike_city',
-                              'room',
-                              'plant',
-                              'camera',
-                              'books',
-                              'car',
-                              'shoes',
-                            ])
-                              InkWell(
-                                onTap: () => Navigator.pop(context, i),
-                                child: ProductImage(i),
-                              ),
-                          ],
-                        ),
-                      ),
-                    );
-                    if (value != null && mounted) setState(() => image = value);
-                  },
-                  child: Column(
-                    children: [
-                      ClipRRect(
-                        borderRadius: BorderRadius.circular(10),
-                        child: SizedBox(
-                          height: 170,
-                          width: double.infinity,
-                          child: ProductImage(image),
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-                      const Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Icon(Icons.add_photo_alternate_outlined, size: 18),
-                          SizedBox(width: 6),
-                          Flexible(
-                            child: Text(
-                              'Demo-Foto auswählen',
-                              textAlign: TextAlign.center,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 20),
-                TextFormField(
-                  controller: title,
-                  decoration: const InputDecoration(labelText: 'Titel'),
-                  validator: (v) => v != null && v.trim().length >= 5
-                      ? null
-                      : 'Mindestens 5 Zeichen eingeben',
-                ),
-                const SizedBox(height: 16),
-                DropdownButtonFormField<String>(
-                  initialValue: category,
-                  isExpanded: true,
-                  decoration: const InputDecoration(labelText: 'Kategorie'),
-                  items: [
-                    for (final c in categoryNames.skip(1))
-                      DropdownMenuItem(
-                        value: c,
-                        child: Text(c, overflow: TextOverflow.ellipsis),
-                      ),
-                  ],
-                  onChanged: (v) => setState(() => category = v!),
-                ),
-                const SizedBox(height: 16),
-                TextFormField(
-                  controller: price,
-                  keyboardType: const TextInputType.numberWithOptions(
-                    decimal: true,
-                  ),
-                  decoration: const InputDecoration(
-                    labelText: 'Preis',
-                    suffixText: '€',
-                  ),
-                  validator: (v) {
-                    final n = double.tryParse((v ?? '').replaceAll(',', '.'));
-                    return n != null && n.isFinite && n >= 0
-                        ? null
-                        : 'Gültigen Preis eingeben';
-                  },
-                ),
-                const SizedBox(height: 16),
-                TextFormField(
-                  controller: description,
-                  maxLines: 5,
-                  decoration: const InputDecoration(labelText: 'Beschreibung'),
-                  validator: (v) => v != null && v.trim().length >= 10
-                      ? null
-                      : 'Mindestens 10 Zeichen eingeben',
-                ),
-                const SizedBox(height: 24),
-                PrimaryButton(
-                  'Lokal veröffentlichen',
-                  onPressed: () {
-                    if (!key.currentState!.validate()) return;
-                    final store = DemoScope.of(context);
-                    store.publish(
-                      Listing(
-                        id: 'local-${DateTime.now().microsecondsSinceEpoch}',
-                        title: title.text.trim(),
-                        price: double.parse(price.text.replaceAll(',', '.')),
-                        image: image,
-                        category: category,
-                        type: category,
-                        ageHours: 0,
-                        date: 'Heute, gerade eben',
-                        seller: store.name,
-                        description: description.text.trim(),
-                      ),
-                    );
-                    toast(
-                      context,
-                      'Anzeige wurde nur in der Demo hinzugefügt.',
-                    );
-                  },
-                ),
-              ],
-            ),
-          ),
-        ),
-      ),
-    ],
-  );
-}
-
-class OwnListingsPage extends StatelessWidget {
-  const OwnListingsPage({super.key});
-  @override
-  Widget build(BuildContext context) {
-    final store = DemoScope.of(context);
-    return Scaffold(
-      appBar: const PageHeader('Meine Anzeigen'),
-      body: store.ownListings.isEmpty
-          ? const _EmptyState(
-              icon: Icons.sell_outlined,
-              title: 'Noch keine eigenen Anzeigen',
-              body: 'Über Inserieren kannst du eine fiktive Anzeige erstellen.',
-            )
-          : ListView(
-              children: [
-                for (final l in store.ownListings)
-                  ListingCard(
-                    listing: l,
-                    compact: true,
-                    onOpen: () => go(context, ListingPage(listing: l)),
-                    onFavorite: () => store.toggleFavorite(l.id),
-                  ),
-              ],
-            ),
     );
   }
 }
@@ -1031,11 +636,24 @@ class _EditProfilePageState extends State<EditProfilePage> {
       padding: const EdgeInsets.all(16),
       child: Form(
         key: key,
-        child: TextFormField(
-          controller: text,
-          decoration: const InputDecoration(labelText: 'Demo-Name'),
-          validator: (v) =>
-              v != null && v.trim().isNotEmpty ? null : 'Namen eingeben',
+        child: Column(
+          children: [
+            TextFormField(
+              controller: text,
+              decoration: const InputDecoration(labelText: 'Demo-Name'),
+              validator: validateProfileName,
+            ),
+            SwitchListTile(
+              title: const Text('Gewerblicher Demo-Anbieter'),
+              value: DemoScope.of(context).commercial,
+              onChanged: (v) => DemoScope.of(
+                context,
+              ).updateProfile(DemoScope.of(context).name, business: v),
+            ),
+            const Text(
+              'Anbieterart und Name werden nur lokal gespeichert. Keine Verifizierung oder Gewerbeanmeldung.',
+            ),
+          ],
         ),
       ),
     ),
@@ -1043,68 +661,10 @@ class _EditProfilePageState extends State<EditProfilePage> {
       'Speichern',
       onPressed: () {
         if (key.currentState!.validate()) {
+          DemoScope.of(context).updateProfile(text.text);
           Navigator.pop(context, text.text.trim());
         }
       },
-    ),
-  );
-}
-
-class NotificationsPage extends StatelessWidget {
-  const NotificationsPage({super.key});
-  @override
-  Widget build(BuildContext context) => Scaffold(
-    appBar: const PageHeader('Benachrichtigungen'),
-    body: ListView(
-      children: [
-        const Padding(
-          padding: EdgeInsets.all(16),
-          child: Text(
-            'Fiktive Benachrichtigungen',
-            style: TextStyle(color: Brand.muted, fontSize: 12),
-          ),
-        ),
-        RowLink(
-          'Willkommen in deiner Demo',
-          subtitle: 'Entdecke Anzeigen und speichere deine Favoriten.',
-          icon: Icons.notifications_none,
-          onTap: () => go(context, const SearchPage()),
-        ),
-      ],
-    ),
-  );
-}
-
-class _EmptyState extends StatelessWidget {
-  const _EmptyState({
-    required this.icon,
-    required this.title,
-    required this.body,
-  });
-  final IconData icon;
-  final String title, body;
-  @override
-  Widget build(BuildContext context) => Center(
-    child: Padding(
-      padding: const EdgeInsets.all(28),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(icon, size: 60, color: Brand.green),
-          const SizedBox(height: 18),
-          Text(
-            title,
-            textAlign: TextAlign.center,
-            style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w800),
-          ),
-          const SizedBox(height: 10),
-          Text(
-            body,
-            textAlign: TextAlign.center,
-            style: const TextStyle(color: Brand.muted),
-          ),
-        ],
-      ),
     ),
   );
 }

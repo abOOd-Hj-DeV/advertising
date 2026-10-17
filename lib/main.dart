@@ -5,6 +5,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import 'app.dart';
 import 'data/demo_store.dart';
+import 'data/media.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -20,6 +21,23 @@ Future<void> main() async {
     }
   });
   await SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
-  final preferences = await SharedPreferences.getInstance();
-  runApp(MarketplaceApp(store: DemoStore(preferences: preferences)));
+  SharedPreferences? preferences;
+  String? startupError;
+  try {
+    preferences = await SharedPreferences.getInstance();
+  } catch (_) {
+    startupError =
+        'Gerätespeicher nicht verfügbar. Änderungen bleiben nur vorübergehend.';
+  }
+  try {
+    await MediaRepository.initialize();
+  } catch (_) {
+    startupError = 'Bildspeicher nicht verfügbar. Import ist deaktiviert.';
+    MediaRepository.instance.importEnabled = false;
+  }
+  final store = DemoStore(preferences: preferences, startupError: startupError);
+  if (store.storageError == null && store.persistenceAvailable) {
+    await MediaRepository.instance.removeUnused(store.mediaReferences);
+  }
+  runApp(MarketplaceApp(store: store));
 }

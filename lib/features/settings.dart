@@ -17,6 +17,26 @@ class SettingsPage extends StatelessWidget {
     appBar: const PageHeader('Einstellungen & Hilfe'),
     body: ListView(
       children: [
+        if (DemoScope.of(context).signedIn) ...[
+          RowLink(
+            'Profil bearbeiten',
+            icon: Icons.person_outline,
+            onTap: () => go(
+              context,
+              EditProfilePage(initial: DemoScope.of(context).name),
+            ),
+          ),
+          RowLink(
+            'Benachrichtigungen',
+            icon: Icons.notifications_none,
+            onTap: () => go(context, const NotificationPreferencesPage()),
+          ),
+        ],
+        RowLink(
+          'Lokale Daten & Grenzen',
+          icon: Icons.storage_outlined,
+          onTap: () => go(context, const LocalDataPage()),
+        ),
         Container(
           color: Theme.of(context).colorScheme.surface,
           child: Column(
