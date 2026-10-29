@@ -80,7 +80,7 @@ class PageHeader extends StatelessWidget implements PreferredSizeWidget {
     leading:
         leading ??
         IconButton(
-          tooltip: 'Zurück',
+          tooltip: 'رجوع',
           onPressed: onBack ?? () => Navigator.maybePop(context),
           icon: Icon(
             Icons.arrow_back,
@@ -92,7 +92,7 @@ class PageHeader extends StatelessWidget implements PreferredSizeWidget {
         (close
             ? [
                 IconButton(
-                  tooltip: 'Schließen',
+                  tooltip: 'إغلاق',
                   onPressed: () => Navigator.pop(context),
                   icon: Icon(
                     Icons.close,
@@ -272,7 +272,7 @@ class FavoriteButton extends StatelessWidget {
     width: 36,
     height: 36,
     child: IconButton.filled(
-      tooltip: active ? 'Von Merkliste entfernen' : 'Anzeige merken',
+      tooltip: active ? 'إزالة من المفضلة' : 'أضف إلى المفضلة',
       style: IconButton.styleFrom(
         backgroundColor: Theme.of(context).colorScheme.surface,
         foregroundColor: active
@@ -367,13 +367,17 @@ class ListingCard extends StatelessWidget {
           style: TextStyle(fontSize: compact ? 16 : 15, height: 1.15),
         ),
         const SizedBox(height: 4),
-        Text(
-          listing.formattedPrice,
-          style: TextStyle(
-            fontSize: compact ? 20 : 19,
-            fontWeight: FontWeight.w800,
-            color: Theme.of(context).colorScheme.primary,
-            height: 1.2,
+        FittedBox(
+          fit: BoxFit.scaleDown,
+          alignment: AlignmentDirectional.centerStart,
+          child: Text(
+            listing.formattedPrice,
+            style: TextStyle(
+              fontSize: compact ? 20 : 19,
+              fontWeight: FontWeight.w800,
+              color: Theme.of(context).colorScheme.primary,
+              height: 1.2,
+            ),
           ),
         ),
         if (compact && (listing.direct || listing.shipping))
@@ -386,7 +390,7 @@ class ListingCard extends StatelessWidget {
                 borderRadius: BorderRadius.circular(3),
               ),
               child: Text(
-                listing.direct ? '♧ Direkt kaufen' : 'Versand möglich',
+                listing.direct ? '♧ شراء مباشر' : 'شحن متاح',
                 style: TextStyle(
                   color: listing.direct ? Brand.deep : Colors.black87,
                   fontSize: 12,
@@ -654,13 +658,7 @@ class BottomTabs extends StatelessWidget {
   const BottomTabs({super.key, required this.selected, required this.onTap});
   final int selected;
   final ValueChanged<int> onTap;
-  static const labels = [
-    'بحث',
-    'المفضلة',
-    'أضف إعلانًا',
-    'الرسائل',
-    'حسابي',
-  ];
+  static const labels = ['بحث', 'المفضلة', 'أضف إعلانًا', 'الرسائل', 'حسابي'];
   static const icons = [
     Icons.search,
     Icons.favorite_border,

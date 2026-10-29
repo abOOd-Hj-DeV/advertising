@@ -16,7 +16,7 @@ class FileMediaStorage implements MediaStorage {
   final Directory directory;
   File file(String id) {
     if (!RegExp(r'^media-[0-9]+$').hasMatch(id)) {
-      throw ArgumentError('Ungültige Bild-ID');
+      throw ArgumentError('معرّف صورة غير صالح');
     }
     return File('${directory.path}/$id');
   }

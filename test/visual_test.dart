@@ -14,15 +14,15 @@ void main() {
   final pages = <String, Widget Function(DemoStore)>{
     'home': (_) => const MarketplaceShell(),
     'search': (store) {
-      store.search('Fahrrad');
+      store.search('دراجة');
       return const SearchPage();
     },
     'filters': (store) => FiltersPage(
       initial: SearchFilters(
-        city: 'Berlin',
-        minimum: 50,
-        maximum: 200,
-        category: 'Fahrräder & Zubehör',
+        city: 'دمشق',
+        minimum: 500000,
+        maximum: 1500000,
+        category: 'دراجات وملحقات',
       ),
     ),
     'guest': (_) => const GuestPage(),

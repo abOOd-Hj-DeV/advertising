@@ -217,7 +217,14 @@ class _ListingPageState extends State<ListingPage> {
                         children: [
                           const Icon(Icons.calendar_today_outlined, size: 15),
                           const SizedBox(width: 6),
-                          Text(l.date, style: const TextStyle(fontSize: 11)),
+                          Flexible(
+                            child: Text(
+                              l.date,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: const TextStyle(fontSize: 11),
+                            ),
+                          ),
                           const SizedBox(width: 16),
                           const Icon(Icons.visibility_outlined, size: 16),
                           const SizedBox(width: 5),

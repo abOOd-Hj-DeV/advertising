@@ -183,6 +183,8 @@ class _HomePageState extends State<HomePage> {
                             Text(
                               name,
                               textAlign: TextAlign.center,
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
                               style: TextStyle(
                                 fontSize: 12,
                                 height: 1.1,
@@ -245,7 +247,7 @@ class _HomePageState extends State<HomePage> {
                 child: Padding(
                   padding: const EdgeInsets.fromLTRB(42, 0, 42, 4),
                   child: Container(
-                    height: 142,
+                    height: 165,
                     padding: const EdgeInsets.all(14),
                     decoration: BoxDecoration(
                       color: const Color(0xfff7f3e8),

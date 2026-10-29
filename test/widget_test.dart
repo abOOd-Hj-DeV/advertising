@@ -35,16 +35,10 @@ void main() {
   ) async {
     final store = DemoStore();
     await start(tester, store);
-    expect(find.text('Wie möchtest du Kleinanzeigen nutzen?'), findsOneWidget);
-    await tester.tap(find.text('Alle ablehnen und fortfahren'));
+    expect(find.text('كيف تريد استخدام سوقنا؟'), findsOneWidget);
+    await tester.tap(find.text('رفض الكل والمتابعة'));
     await tester.pumpAndSettle();
-    for (final tab in [
-      'Suchen',
-      'Favoriten',
-      'Inserieren',
-      'Nachrichten',
-      'Meins',
-    ]) {
+    for (final tab in ['بحث', 'المفضلة', 'أضف إعلانًا', 'الرسائل', 'حسابي']) {
       expect(find.text(tab), findsOneWidget);
     }
     expect(store.analytics, isFalse);
@@ -55,10 +49,10 @@ void main() {
     (tester) async {
       final store = readyStore();
       await start(tester, store);
-      await tester.tap(find.text('Favoriten'));
+      await tester.tap(find.text('المفضلة'));
       await tester.pumpAndSettle();
-      expect(find.text('All deine Lieblinge auf einen Blick'), findsOneWidget);
-      await tester.tap(find.text('Registrieren'));
+      expect(find.text('كل مفضّلاتك بلمحة واحدة'), findsOneWidget);
+      await tester.tap(find.text('إنشاء حساب'));
       await tester.pumpAndSettle();
       await tester.enterText(
         find.byType(TextFormField).at(0),
@@ -68,12 +62,12 @@ void main() {
         find.byType(TextFormField).at(1),
         'demo-only-password',
       );
-      await tester.ensureVisible(find.text('Registrieren'));
-      await tester.tap(find.text('Registrieren'));
+      await tester.ensureVisible(find.text('إنشاء حساب'));
+      await tester.tap(find.text('إنشاء حساب'));
       await tester.pumpAndSettle();
       expect(store.signedIn, isTrue);
       expect(store.selectedTab, 1);
-      expect(find.text('Merkliste'), findsOneWidget);
+      expect(find.text('البحوث المحفوظة'), findsOneWidget);
       expect(tester.takeException(), isNull);
     },
   );
@@ -82,32 +76,32 @@ void main() {
     (tester) async {
       final store = readyStore();
       await start(tester, store);
-      await tester.tap(find.text('Suche in ganz Deutschland'));
+      await tester.tap(find.text('ابحث في كل سوريا'));
       await tester.pumpAndSettle();
-      await tester.enterText(find.byType(TextField).first, 'Fahrrad');
+      await tester.enterText(find.byType(TextField).first, 'دراجة');
       await tester.testTextInput.receiveAction(TextInputAction.search);
       await tester.pumpAndSettle();
-      expect(find.text('8 Ergebnisse'), findsOneWidget);
-      await tester.tap(find.text('Filter'));
+      expect(find.text('8 نتيجة'), findsOneWidget);
+      await tester.tap(find.text('الفلاتر'));
       await tester.pumpAndSettle();
-      await tester.tap(find.text('Preis'));
+      await tester.tap(find.text('السعر'));
       await tester.pumpAndSettle();
-      await tester.enterText(find.byType(TextFormField).at(0), '50');
-      await tester.enterText(find.byType(TextFormField).at(1), '200');
-      await tester.tap(find.text('Ergebnisse anzeigen'));
+      await tester.enterText(find.byType(TextFormField).at(0), '500000');
+      await tester.enterText(find.byType(TextFormField).at(1), '1500000');
+      await tester.tap(find.text('عرض النتائج'));
       await tester.pumpAndSettle();
-      await tester.tap(find.text('Kategorie'));
+      await tester.tap(find.text('القسم'));
       await tester.pumpAndSettle();
-      await tester.tap(find.text('Auto, Rad & Boot'));
+      await tester.tap(find.text('سيارات ودراجات وقوارب'));
       await tester.pumpAndSettle();
-      await tester.tap(find.text('Fahrräder & Zubehör'));
+      await tester.tap(find.text('دراجات وملحقات'));
       await tester.pumpAndSettle();
-      expect(find.text('50–200 €'), findsOneWidget);
-      await tester.tap(find.text('5 Ergebnisse anzeigen'));
+      expect(find.text('500,000–1,500,000 ل.س'), findsOneWidget);
+      await tester.tap(find.text('عرض 5 نتيجة'));
       await tester.pumpAndSettle();
-      expect(store.filters.maximum, 200);
-      expect(store.filters.category, 'Fahrräder & Zubehör');
-      expect(find.text('5 Ergebnisse'), findsOneWidget);
+      expect(store.filters.maximum, 1500000);
+      expect(store.filters.category, 'دراجات وملحقات');
+      expect(find.text('5 نتيجة'), findsOneWidget);
       expect(tester.takeException(), isNull);
     },
   );
@@ -139,16 +133,16 @@ void main() {
       );
       await tester.tap(find.text('Open'));
       await tester.pumpAndSettle();
-      await tester.tap(find.text('Preis'));
+      await tester.tap(find.text('السعر'));
       await tester.pumpAndSettle();
       await tester.enterText(find.byType(TextFormField).at(0), '200');
       await tester.enterText(find.byType(TextFormField).at(1), '50');
-      await tester.tap(find.text('Ergebnisse anzeigen'));
+      await tester.tap(find.text('عرض النتائج'));
       await tester.pumpAndSettle();
-      expect(find.text('Minimum liegt über Maximum'), findsWidgets);
-      await tester.tap(find.byTooltip('Schließen'));
+      expect(find.text('الحد الأدنى أكبر من الحد الأعلى'), findsWidgets);
+      await tester.tap(find.byTooltip('إغلاق'));
       await tester.pumpAndSettle();
-      await tester.tap(find.byTooltip('Zurück'));
+      await tester.tap(find.byTooltip('رجوع'));
       await tester.pumpAndSettle();
       expect(store.filters.minimum, isNull);
       expect(store.filters.maximum, isNull);
@@ -160,18 +154,18 @@ void main() {
   ) async {
     final store = readyStore();
     await start(tester, store);
-    await tester.tap(find.text('Meins'));
+    await tester.tap(find.text('حسابي'));
     await tester.pumpAndSettle();
-    await tester.tap(find.text('HILFE'));
+    await tester.tap(find.text('مساعدة'));
     await tester.pumpAndSettle();
-    await tester.tap(find.text('Design'));
+    await tester.tap(find.text('المظهر'));
     await tester.pumpAndSettle();
-    await tester.tap(find.text('Dunkles Design'));
+    await tester.tap(find.text('مظهر داكن'));
     await tester.pumpAndSettle();
     expect(store.themeMode, ThemeMode.dark);
-    expect(find.text('Helles Design'), findsOneWidget);
+    expect(find.text('مظهر فاتح'), findsOneWidget);
     expect(
-      Theme.of(tester.element(find.text('Design'))).brightness,
+      Theme.of(tester.element(find.text('المظهر'))).brightness,
       Brightness.dark,
     );
     expect(tester.takeException(), isNull);
@@ -192,24 +186,24 @@ void main() {
     await tester.tap(find.byType(ProductImage).first);
     await tester.pumpAndSettle();
     expect(find.text('1/3'), findsOneWidget);
-    await tester.tap(find.byTooltip('Nächstes Foto'));
+    await tester.tap(find.byTooltip('الصورة التالية'));
     await tester.pumpAndSettle();
     expect(find.text('2/3'), findsOneWidget);
-    await tester.tap(find.byTooltip('Galerie schließen'));
+    await tester.tap(find.byTooltip('إغلاق المعرض'));
     await tester.pumpAndSettle();
     await tester.scrollUntilVisible(
-      find.text('Alle Anzeigen von Lena'),
+      find.text('كل إعلانات لينا'),
       500,
       scrollable: find.byType(Scrollable).first,
     );
-    await tester.tap(find.text('Alle Anzeigen von Lena'));
+    await tester.tap(find.text('كل إعلانات لينا'));
     await tester.pumpAndSettle();
-    await tester.tap(find.text('Über'));
+    await tester.tap(find.text('نبذة'));
     await tester.pumpAndSettle();
-    expect(find.text('Unternehmensbeschreibung'), findsOneWidget);
-    await tester.tap(find.text('Kontakt'));
+    expect(find.text('وصف النشاط التجاري'), findsOneWidget);
+    await tester.tap(find.text('التواصل'));
     await tester.pumpAndSettle();
-    expect(find.textContaining('Musterstraße 12'), findsOneWidget);
+    expect(find.textContaining('شارع المثال 12'), findsOneWidget);
     expect(tester.takeException(), isNull);
   });
   testWidgets('chat sends a local message without a backend', (tester) async {
@@ -227,13 +221,13 @@ void main() {
     await tester.pumpAndSettle();
     await tester.enterText(
       find.byType(TextField),
-      'Hallo, ist das Fahrrad noch da?',
+      'مرحباً، هل الدراجة ما زالت متوفرة؟',
     );
     await tester.pump();
-    await tester.tap(find.byTooltip('Demo-Nachricht senden'));
+    await tester.tap(find.byTooltip('إرسال رسالة تجريبية'));
     await tester.pumpAndSettle();
-    expect(store.messagesFor('b1'), ['Hallo, ist das Fahrrad noch da?']);
-    expect(find.text('Hallo, ist das Fahrrad noch da?'), findsOneWidget);
+    expect(store.messagesFor('b1'), ['مرحباً، هل الدراجة ما زالت متوفرة؟']);
+    expect(find.text('مرحباً، هل الدراجة ما زالت متوفرة؟'), findsOneWidget);
   });
 
   testWidgets(
@@ -245,27 +239,27 @@ void main() {
       await start(tester, store);
       await tester.enterText(
         find.byType(TextFormField).at(0),
-        'Test Sofa zu verkaufen',
+        'كنبة تجريبية للبيع',
       );
       await tester.enterText(find.byType(TextFormField).at(1), '55,50');
       await tester.enterText(
         find.byType(TextFormField).at(3),
-        'Eine lokale Testanzeige ohne echtes Inserieren.',
+        'إعلان تجريبي محلي دون نشر حقيقي.',
       );
-      await tester.ensureVisible(find.text('Vorschau'));
-      await tester.tap(find.text('Vorschau'));
+      await tester.ensureVisible(find.text('معاينة'));
+      await tester.tap(find.text('معاينة'));
       await tester.pumpAndSettle();
       expect(store.ownListings, isEmpty);
-      await tester.ensureVisible(find.text('Lokal veröffentlichen'));
-      await tester.tap(find.text('Lokal veröffentlichen'));
+      await tester.ensureVisible(find.text('نشر محلياً'));
+      await tester.tap(find.text('نشر محلياً'));
       await tester.pumpAndSettle();
-      expect(store.ownListings.single.title, 'Test Sofa zu verkaufen');
+      expect(store.ownListings.single.title, 'كنبة تجريبية للبيع');
       expect(store.ownListings.single.price, 55.5);
       expect(store.ownListings.single.ageHours, 0);
       expect(store.selectedTab, 4);
-      await tester.tap(find.text('Meine Anzeigen'));
+      await tester.tap(find.text('إعلاناتي'));
       await tester.pumpAndSettle();
-      expect(find.text('Test Sofa zu verkaufen'), findsOneWidget);
+      expect(find.text('كنبة تجريبية للبيع'), findsOneWidget);
       expect(tester.takeException(), isNull);
     },
   );
@@ -304,14 +298,14 @@ void main() {
       );
       await tester.pumpAndSettle();
       await tester.scrollUntilVisible(
-        find.text('Kategorie'),
+        find.text('القسم'),
         200,
         scrollable: find.byType(Scrollable).first,
       );
-      expect(find.text('Unisex'), findsNothing);
-      expect(find.text('Kategorie'), findsOneWidget);
-      expect(find.text('Haus & Garten'), findsOneWidget);
-      expect(sofa.title, contains('Grün'));
+      expect(find.text('للجنسين'), findsNothing);
+      expect(find.text('القسم'), findsOneWidget);
+      expect(find.text('المنزل والحديقة'), findsOneWidget);
+      expect(sofa.title, contains('أخضر'));
       expect(tester.takeException(), isNull);
     },
   );
@@ -327,9 +321,9 @@ void main() {
     await tester.pumpAndSettle();
     await tester.enterText(find.byType(TextFormField).at(0), '200');
     await tester.enterText(find.byType(TextFormField).at(1), '50');
-    await tester.tap(find.text('Ergebnisse anzeigen'));
+    await tester.tap(find.text('عرض النتائج'));
     await tester.pumpAndSettle();
-    final errors = find.text('Minimum liegt über Maximum');
+    final errors = find.text('الحد الأدنى أكبر من الحد الأعلى');
     expect(errors, findsNWidgets(2));
     for (final error in tester.widgetList<Text>(errors)) {
       expect(error.maxLines, 3);
@@ -345,30 +339,33 @@ void main() {
           final store = readyStore();
           store.signedIn = signedIn;
           await start(tester, store);
-          await tester.tap(find.text('Meins'));
+          await tester.tap(find.text('حسابي'));
           await tester.pumpAndSettle();
           await tester.tap(
-            signedIn ? find.byTooltip('Einstellungen') : find.text('HILFE'),
+            signedIn ? find.byTooltip('الإعدادات') : find.text('مساعدة'),
           );
           await tester.pumpAndSettle();
-          await tester.scrollUntilVisible(find.text('Über diese Demo'), 300);
-          await tester.tap(find.text('Über diese Demo'));
+          await tester.scrollUntilVisible(
+            find.text('حول هذا العرض التجريبي'),
+            300,
+          );
+          await tester.tap(find.text('حول هذا العرض التجريبي'));
           await tester.pumpAndSettle();
-          await tester.tap(find.text('Startseite im Fehlerzustand'));
+          await tester.tap(find.text('الصفحة الرئيسية في حالة خطأ'));
           await tester.pumpAndSettle();
           expect(find.byType(ErrorPage), findsOneWidget);
           await tester.tap(
             tab == null
-                ? find.text('Nochmals versuchen')
+                ? find.text('إعادة المحاولة')
                 : find.descendant(
                     of: find.byType(BottomTabs),
                     matching: find.text(
                       [
-                        'Suchen',
-                        'Favoriten',
-                        'Inserieren',
-                        'Nachrichten',
-                        'Meins',
+                        'بحث',
+                        'المفضلة',
+                        'أضف إعلانًا',
+                        'الرسائل',
+                        'حسابي',
                       ][tab],
                     ),
                   ),
@@ -413,13 +410,14 @@ void main() {
     'search': () => const SearchPage(),
     'filters': () => FiltersPage(initial: SearchFilters()),
     'categories': () => const CategoryPage(),
-    'bicycle categories': () => const CategoryPage(parent: 'Auto, Rad & Boot'),
+    'bicycle categories': () =>
+        const CategoryPage(parent: 'سيارات ودراجات وقوارب'),
     'sort': () => const OptionPage(
-      title: 'Sortierung',
-      selected: 'Empfohlen',
-      options: ['Empfohlen', 'Neueste', 'Niedrigster Preis', 'Höchster Preis'],
+      title: 'الترتيب',
+      selected: 'مقترح',
+      options: ['مقترح', 'الأحدث', 'الأقل سعراً', 'الأعلى سعراً'],
     ),
-    'location': () => LocationPage(initial: SearchFilters(city: 'Berlin')),
+    'location': () => LocationPage(initial: SearchFilters(city: 'دمشق')),
     'guest': () => const GuestPage(),
     'login': () => const AuthPage(),
     'register': () => const AuthPage(register: true),
@@ -433,19 +431,19 @@ void main() {
     'about': () => const AboutPage(),
     'help menu': () => const HelpMenuPage(),
     'help center': () => const HelpCenterPage(),
-    'help articles': () => const HelpTopicPage(topic: 'Anzeigen'),
+    'help articles': () => const HelpTopicPage(topic: 'الإعلانات'),
     'resolution error': () => const ErrorPage(),
     'privacy policy': () => const LegalPage(kind: 'Datenschutzerklärung'),
     'terms': () => const LegalPage(kind: 'Messaging-Nutzungsbedingungen'),
     'imprint': () => const LegalPage(kind: 'Impressum'),
     'copyright': () => const LegalPage(kind: 'Copyright'),
-    'web consent': () => const WebConsentPage(title: 'Karriereseite'),
+    'web consent': () => const WebConsentPage(title: 'الوظائف'),
     'favorites': () => const FavoritesPage(),
     'account': () => const AccountPage(),
     'messages': () => const MessagesPage(),
     'create': () => const NewListingPage(),
     'notifications': () => const NotificationsPage(),
-    'feedback': () => const FeedbackPage(title: 'Gib uns Feedback'),
+    'feedback': () => const FeedbackPage(title: 'أرسل ملاحظاتك'),
     'own listings': () => const OwnListingsPage(),
     'demo info': () => const DemoInfoPage(),
     'pur': () => const PurPage(),

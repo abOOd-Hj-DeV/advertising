@@ -39,9 +39,7 @@ class MediaRepository {
       _ordered(() => _importImage(filename, bytes));
   Future<String> _importImage(String filename, Uint8List bytes) async {
     if (!importEnabled) {
-      throw const FormatException(
-        'Bildspeicher nicht verfügbar. Import deaktiviert.',
-      );
+      throw const FormatException('تخزين الصور غير متاح. الاستيراد معطّل.');
     }
     final ext = filename.toLowerCase().split('.').last;
     final png =
@@ -56,12 +54,10 @@ class MediaRepository {
         bytes[1] == 216 &&
         bytes[2] == 255;
     if (!['jpg', 'jpeg', 'png'].contains(ext) || (!png && !jpeg)) {
-      throw const FormatException(
-        'Nur echte JPEG- und PNG-Bilder werden unterstützt.',
-      );
+      throw const FormatException('تُدعم صور JPEG وPNG الحقيقية فقط.');
     }
     if (bytes.length > maxFileBytes) {
-      throw const FormatException('Maximal 2 MB pro Bild.');
+      throw const FormatException('حد أقصى 2 ميغابايت لكل صورة.');
     }
     ui.Codec? codec;
     ui.Image? image;
@@ -72,16 +68,14 @@ class MediaRepository {
           width > 4096 ||
           height > 4096 ||
           width * height > 12000000) {
-        throw const FormatException(
-          'Maximal 4096 Pixel je Seite und 12 Megapixel.',
-        );
+        throw const FormatException('حد أقصى 4096 بكسل لكل جانب و12 ميغابكسل.');
       }
       codec = await ui.instantiateImageCodec(bytes);
       image = (await codec.getNextFrame()).image;
     } on FormatException {
       rethrow;
     } catch (_) {
-      throw const FormatException('Das Bild ist beschädigt oder nicht lesbar.');
+      throw const FormatException('الصورة تالفة أو غير قابلة للقراءة.');
     } finally {
       image?.dispose();
       codec?.dispose();
@@ -92,7 +86,7 @@ class MediaRepository {
     }
     if (total > maxTotalBytes) {
       throw const FormatException(
-        'Der lokale Bildspeicher ist voll (24 MB). Entferne nicht benötigte Anzeigen/Entwürfe.',
+        'مخزن الصور المحلي ممتلئ (24 ميغابايت). احذف الإعلانات أو المسودات غير المطلوبة.',
       );
     }
     final id = 'media-${DateTime.now().microsecondsSinceEpoch}';
@@ -113,7 +107,7 @@ class MediaRepository {
       return true;
     } catch (_) {
       cleanupWarning =
-          'Nicht benötigte Bilder konnten nicht vollständig entfernt werden. Bitte Speicher prüfen und erneut versuchen.';
+          'تعذّر حذف الصور غير المطلوبة بالكامل. تحقق من التخزين وحاول مجدداً.';
       return false;
     }
   });
@@ -121,7 +115,7 @@ class MediaRepository {
 
 // Web cannot read ImageDescriptor dimensions; check headers before decoding.
 (int, int) imageDimensions(Uint8List bytes) {
-  const bad = FormatException('Ungültiger JPEG-/PNG-Bildkopf.');
+  const bad = FormatException('ترويسة صورة JPEG/PNG غير صالحة.');
   if (bytes.length >= 24 &&
       bytes[0] == 137 &&
       bytes[1] == 80 &&

@@ -9,22 +9,27 @@ void main() {
     expect(listings.map((l) => l.id).toSet().length, listings.length);
     expect(listings.every((l) => l.price >= 0 && l.gallery.isNotEmpty), isTrue);
   });
-  test('search is German case-insensitive and umlaut tolerant', () {
-    final store = DemoStore()..search('FAHRRAD');
+  test('search is Arabic tolerant and matches bike fixtures', () {
+    final store = DemoStore()..search('دراجة');
     expect(store.results().length, 8);
     expect(
-      store.results().every((l) => l.category == 'Fahrräder & Zubehör'),
+      store.results().every((l) => l.category == 'دراجات وملحقات'),
       isTrue,
     );
-    store.search('fahrräder');
+    store.search('دراجه');
     expect(store.results().length, 8);
-    store.search('nicht-vorhandener-suchbegriff');
+    store.search('كلمة-بحث-غير-موجودة');
     expect(store.results(), isEmpty);
   });
   test('price, city, radius and category combine without losing price', () {
-    final store = DemoStore()..search('Fahrrad');
+    final store = DemoStore()..search('دراجة');
     store.changeFilters(
-      SearchFilters(city: 'Berlin', radius: 15, minimum: 50, maximum: 200),
+      SearchFilters(
+        city: 'دمشق',
+        radius: 15,
+        minimum: 500000,
+        maximum: 1500000,
+      ),
     );
     expect(store.results().map((l) => l.id).toSet(), {
       'b1',
@@ -33,46 +38,46 @@ void main() {
       'b6',
       'b8',
     });
-    store.changeFilters(store.filters.copy()..category = 'Fahrräder & Zubehör');
-    expect(store.filters.maximum, 200);
+    store.changeFilters(store.filters.copy()..category = 'دراجات وملحقات');
+    expect(store.filters.maximum, 1500000);
     expect(store.results().length, 5);
     store.changeFilters(store.filters.copy()..radius = 3);
     expect(store.results().single.id, 'b2');
   });
-  test('Hamburg radius is relative to the listing city', () {
+  test('Aleppo radius is relative to the listing city', () {
     final store = DemoStore();
-    store.changeFilters(SearchFilters(city: 'Hamburg', radius: 15));
+    store.changeFilters(SearchFilters(city: 'حلب', radius: 15));
     expect(store.results().single.id, 'b5');
   });
   test('15 percent budget allowance expands the upper bound', () {
-    final f = SearchFilters(maximum: 160);
+    final f = SearchFilters(maximum: 1300000);
     expect(f.accepts(listings.first), isFalse);
     f.extraBudget = true;
     expect(f.accepts(listings.first), isTrue);
   });
   test('price sorting and newest sorting use real fields', () {
     final store = DemoStore();
-    for (final sort in ['Niedrigster Preis', 'Höchster Preis']) {
+    for (final sort in ['الأقل سعراً', 'الأعلى سعراً']) {
       store.changeFilters(SearchFilters(sort: sort));
       final prices = store.results().map((l) => l.price).toList();
       for (var i = 1; i < prices.length; i++) {
         expect(
-          sort == 'Niedrigster Preis'
+          sort == 'الأقل سعراً'
               ? prices[i] >= prices[i - 1]
               : prices[i] <= prices[i - 1],
           isTrue,
         );
       }
     }
-    store.changeFilters(SearchFilters(sort: 'Neueste'));
+    store.changeFilters(SearchFilters(sort: 'الأحدث'));
     expect(store.results().first.ageHours, 1);
     store.publish(
       const Listing(
         id: 'new',
-        title: 'Neue Anzeige',
+        title: 'إعلان جديد',
         price: 10,
         image: 'sofa',
-        category: 'Haus & Garten',
+        category: 'المنزل والحديقة',
         ageHours: 0,
       ),
     );
@@ -82,10 +87,10 @@ void main() {
     final store = DemoStore();
     store.changeFilters(
       SearchFilters(
-        category: 'Fahrräder & Zubehör',
-        type: 'Cityräder',
-        kind: 'Damen',
-        condition: 'Gut',
+        category: 'دراجات وملحقات',
+        type: 'دراجات مدينة',
+        kind: 'نسائي',
+        condition: 'جيد',
       ),
     );
     expect(store.results().single.id, 'b6');
@@ -100,14 +105,14 @@ void main() {
         isTrue,
       );
     }
-    store.changeFilters(SearchFilters(shipping: 'Nur Abholung'));
+    store.changeFilters(SearchFilters(shipping: 'استلام شخصي فقط'));
     expect(store.results().every((l) => !l.shipping), isTrue);
   });
   test('commercial, wanted and direct purchase filters combine', () {
     final store = DemoStore();
-    store.changeFilters(SearchFilters(seller: 'Gewerblich', direct: true));
+    store.changeFilters(SearchFilters(seller: 'تجاري', direct: true));
     expect(store.results().single.id, 'b7');
-    store.changeFilters(SearchFilters(offer: 'Gesuche'));
+    store.changeFilters(SearchFilters(offer: 'طلبات'));
     expect(store.results().single.id, 'b8');
   });
   test('draft filters do not mutate live state', () {
@@ -119,15 +124,15 @@ void main() {
     expect(store.filters.maximum, 100);
   });
   test('saved searches retain and restore the complete filter snapshot', () {
-    final store = DemoStore()..search('Fahrrad');
+    final store = DemoStore()..search('دراجة');
     store.changeFilters(
       SearchFilters(
-        city: 'Berlin',
-        category: 'Fahrräder & Zubehör',
-        minimum: 50,
-        maximum: 200,
-        type: 'Cityräder',
-        sort: 'Niedrigster Preis',
+        city: 'دمشق',
+        category: 'دراجات وملحقات',
+        minimum: 500000,
+        maximum: 1500000,
+        type: 'دراجات مدينة',
+        sort: 'الأقل سعراً',
         direct: true,
       ),
     );
@@ -135,10 +140,10 @@ void main() {
     store.saveSearch();
     store.saveSearch();
     expect(store.savedSearches.length, 1);
-    store.search('Sofa');
+    store.search('أريكة');
     store.changeFilters(SearchFilters());
     store.restoreSearch(store.savedSearches.single);
-    expect(store.query, 'Fahrrad');
+    expect(store.query, 'دراجة');
     expect(store.filters.toJson(), expected);
   });
   test(
@@ -151,7 +156,7 @@ void main() {
       store.toggleFavorite('b1');
       store.acceptConsent();
       store.setPrivacy(personalized: true, analytics: false);
-      store.search('Fahrrad');
+      store.search('دراجة');
       store.saveSearch();
       await store.flush();
       final restored = DemoStore(preferences: prefs);
@@ -160,7 +165,7 @@ void main() {
       expect(restored.consentAccepted, isTrue);
       expect(restored.personalized, isTrue);
       expect(restored.analytics, isFalse);
-      expect(restored.savedSearches.single.query, 'Fahrrad');
+      expect(restored.savedSearches.single.query, 'دراجة');
       expect(restored.signedIn, isFalse);
       expect(
         prefs.getKeys().any(
@@ -179,7 +184,7 @@ void main() {
   });
   test('guest session signs out and clears message state', () {
     final store = DemoStore()..signIn();
-    store.addMessage('b1', 'Hallo');
+    store.addMessage('b1', 'مرحباً');
     store.changeTab(3);
     store.signOut();
     expect(store.signedIn, isFalse);
@@ -188,20 +193,20 @@ void main() {
   });
   test('search history deduplicates and can be cleared', () {
     final store = DemoStore()
-      ..search('Fahrrad')
-      ..search('Sofa')
-      ..search('Fahrrad');
-    expect(store.searchHistory, ['Fahrrad', 'Sofa']);
+      ..search('دراجة')
+      ..search('أريكة')
+      ..search('دراجة');
+    expect(store.searchHistory, ['دراجة', 'أريكة']);
     store.clearHistory();
     expect(store.searchHistory, isEmpty);
   });
   test('messages stay isolated per listing and ignore empty sends', () {
     final store = DemoStore()..signIn();
-    store.addMessage('b1', 'Hallo Fahrrad');
-    store.addMessage('c1', 'Hallo Auto');
+    store.addMessage('b1', 'رسالة دراجة');
+    store.addMessage('c1', 'رسالة سيارة');
     store.addMessage('b1', '  ');
-    expect(store.messagesFor('b1'), ['Hallo Fahrrad']);
-    expect(store.messagesFor('c1'), ['Hallo Auto']);
+    expect(store.messagesFor('b1'), ['رسالة دراجة']);
+    expect(store.messagesFor('c1'), ['رسالة سيارة']);
     expect(store.messagesFor('s1'), isEmpty);
     expect(store.messages.length, 2);
   });

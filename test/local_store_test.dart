@@ -7,7 +7,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 Listing own(
   String id, {
-  String title = 'Lokales Sofa',
+  String title = 'أريكة محلية',
   PriceType priceType = PriceType.fixed,
 }) => Listing(
   id: id,
@@ -15,9 +15,9 @@ Listing own(
   price: 55.5,
   image: 'sofa',
   images: const ['sofa', 'plant'],
-  category: 'Haus & Garten',
-  city: 'Berlin',
-  description: 'Eine vollständig lokale Beschreibung.',
+  category: 'المنزل والحديقة',
+  city: 'دمشق',
+  description: 'وصف محلي كامل.',
   priceType: priceType,
   shipping: true,
   carrier: 'DPD',
@@ -39,7 +39,7 @@ void main() {
         ListingDraft(
           id: 'draft',
           values: {
-            'title': 'Mein Entwurf',
+            'title': 'مسودتي',
             'images': ['sofa'],
           },
         ),
@@ -52,9 +52,12 @@ void main() {
       store.editListing(
         store
             .findListing('local-1')!
-            .copyWith(title: 'Anderer Titel', priceType: PriceType.negotiable),
+            .copyWith(title: 'عنوان آخر', priceType: PriceType.negotiable),
       );
-      expect(store.findListing('local-1')!.formattedPrice, '55,50 € VB');
+      expect(
+        store.findListing('local-1')!.formattedPrice,
+        '55.50 ل.س قابل للتفاوض',
+      );
       store.setListingStatus('local-1', ListingStatus.reserved);
       expect(store.results().any((l) => l.id == 'local-1'), isFalse);
       store.setListingStatus('local-1', ListingStatus.active);
@@ -63,7 +66,7 @@ void main() {
       expect(await store.flush(), isTrue);
       final restored = DemoStore(preferences: p)..signIn();
       final l = restored.findListing('local-1')!;
-      expect(l.title, 'Anderer Titel');
+      expect(l.title, 'عنوان آخر');
       expect(l.status, ListingStatus.sold);
       expect(l.gallery, ['sofa', 'plant']);
       expect(l.shipping, isTrue);
@@ -95,8 +98,8 @@ void main() {
           id: 'edit',
           editingId: 'mine',
           values: {
-            'title': 'Unfertig',
-            'priceText': 'ungültig',
+            'title': 'غير مكتمل',
+            'priceText': 'غير صالح',
             'images': ['media-123', 'sofa'],
             'wanted': true,
           },
@@ -106,7 +109,7 @@ void main() {
         ListingDraft(
           id: 'other',
           values: {
-            'title': 'Zweiter',
+            'title': 'الثاني',
             'images': ['plant'],
           },
         ),
@@ -115,7 +118,7 @@ void main() {
       final restored = DemoStore(preferences: p)..signIn();
       expect(restored.drafts.last.editingId, 'mine');
       expect(restored.drafts.last.values['images'], ['media-123', 'sofa']);
-      expect(restored.findListing('mine')!.title, 'Lokales Sofa');
+      expect(restored.findListing('mine')!.title, 'أريكة محلية');
       restored.deleteDraft('other');
       expect(restored.drafts.single.id, 'edit');
       restored.deleteListing('mine');
@@ -130,22 +133,22 @@ void main() {
     () async {
       final p = await prefs();
       final store = DemoStore(preferences: p);
-      store.registerLocal('Mira Lokal', business: true, news: true);
+      store.registerLocal('ميرا المحلية', business: true, news: true);
       store.publish(own('self-ad'));
       expect(store.updateProfile('demo@example.test'), isFalse);
       expect(store.updateProfile('123456789'), isFalse);
       expect(store.updateProfile('L'), isFalse);
-      expect(store.updateProfile('Garten Team', business: false), isTrue);
+      expect(store.updateProfile('فريق الحديقة', business: false), isTrue);
       store.setNotifications(alerts: false, email: true);
       await store.flush();
       final restored = DemoStore(preferences: p);
       expect(restored.signedIn, isFalse);
-      expect(restored.name, 'Garten Team');
+      expect(restored.name, 'فريق الحديقة');
       expect(restored.commercial, isFalse);
       expect(restored.newsletter, isTrue);
       expect(restored.emailPreference, isTrue);
       expect(restored.localAlerts, isFalse);
-      expect(restored.sellerListings('self').single.seller, 'Garten Team');
+      expect(restored.sellerListings('self').single.seller, 'فريق الحديقة');
       expect(restored.ownListings.single.commercial, isFalse);
       final encoded = p.getString(DemoStore.storageKey)!;
       expect(encoded, isNot(contains('password')));
@@ -163,12 +166,12 @@ void main() {
       final a = s.ensureConversation(
         s.findListing('mine')!,
         participantId: 'buyer-a',
-        participant: 'Mara',
+        participant: 'لمى',
       );
       final b = s.ensureConversation(
         s.findListing('mine')!,
         participantId: 'buyer-b',
-        participant: 'Paul',
+        participant: 'باسل',
       );
       expect(a.id, isNot(b.id));
       expect(
@@ -180,17 +183,17 @@ void main() {
             .id,
         a.id,
       );
-      s.sendMessage(a.id, 'Nur für Mara');
-      s.sendMessage(b.id, 'Nur für Paul', incoming: true);
-      s.setChatDraft(a.id, 'Ungesendeter Text');
-      expect(a.messages.single.text, 'Nur für Mara');
+      s.sendMessage(a.id, 'للمى فقط');
+      s.sendMessage(b.id, 'لباسل فقط', incoming: true);
+      s.setChatDraft(a.id, 'نص غير مرسل');
+      expect(a.messages.single.text, 'للمى فقط');
       expect(a.unread, 0);
       expect(b.unread, 1);
       s.archiveChat(a.id, true);
       s.markRead(b.id);
       await s.flush();
       final r = DemoStore(preferences: p)..signIn();
-      expect(r.findConversation(a.id)!.draft, 'Ungesendeter Text');
+      expect(r.findConversation(a.id)!.draft, 'نص غير مرسل');
       expect(r.findConversation(a.id)!.archived, isTrue);
       expect(r.findConversation(b.id)!.unread, 0);
       expect(r.findConversation(b.id)!.messages.single.incoming, isTrue);
@@ -200,7 +203,7 @@ void main() {
       r.signOut();
       expect(r.messages, isEmpty);
       r.signIn();
-      expect(r.findConversation(b.id)!.messages.single.text, 'Nur für Paul');
+      expect(r.findConversation(b.id)!.messages.single.text, 'لباسل فقط');
       await r.flush();
       s.dispose();
       r.dispose();
@@ -220,27 +223,20 @@ void main() {
       expect(s.sendMessage(c.id, '  '), isFalse);
       expect(s.sendMessage(c.id, 'x' * 2001), isFalse);
       s.toggleBlock('buyer');
-      expect(s.sendMessage(c.id, 'Hallo'), isFalse);
-      expect(s.sendMessage(c.id, 'Fiktiv', incoming: true), isFalse);
-      s.report(
-        target: 'buyer',
-        reason: 'Betrugsverdacht',
-        details: 'Nur lokal',
-      );
+      expect(s.sendMessage(c.id, 'مرحباً'), isFalse);
+      expect(s.sendMessage(c.id, 'افتراضي', incoming: true), isFalse);
+      s.report(target: 'buyer', reason: 'اشتباه احتيال', details: 'محلي فقط');
       await s.flush();
       final r = DemoStore(preferences: p)..signIn();
       expect(r.blockedParticipants, {'buyer'});
-      expect(r.reports.single['details'], 'Nur lokal');
+      expect(r.reports.single['details'], 'محلي فقط');
       r.toggleBlock('buyer');
-      expect(r.sendMessage(c.id, 'Nach dem Entsperren'), isTrue);
+      expect(r.sendMessage(c.id, 'بعد إلغاء الحظر'), isTrue);
       r.setListingStatus('mine', ListingStatus.sold);
-      expect(r.sendMessage(c.id, 'Nicht senden'), isFalse);
+      expect(r.sendMessage(c.id, 'لا ترسل'), isFalse);
       r.deleteListing('mine');
-      expect(
-        r.findConversation(c.id)!.messages.single.text,
-        'Nach dem Entsperren',
-      );
-      expect(r.sendMessage(c.id, 'Gelöscht'), isFalse);
+      expect(r.findConversation(c.id)!.messages.single.text, 'بعد إلغاء الحظر');
+      expect(r.sendMessage(c.id, 'محذوف'), isFalse);
       await r.flush();
       s.dispose();
       r.dispose();
@@ -256,13 +252,13 @@ void main() {
       s.viewListing('b1');
       s.viewListing('b2');
       s.viewListing('b1');
-      s.search('Fahrrad');
+      s.search('دراجة');
       s.changeFilters(
         SearchFilters(
-          city: 'Berlin',
+          city: 'دمشق',
           maximum: 200,
-          type: 'Cityräder',
-          category: 'Fahrräder & Zubehör',
+          type: 'دراجات مدينة',
+          category: 'دراجات وملحقات',
         ),
       );
       s.saveSearch();
@@ -273,18 +269,18 @@ void main() {
       final r = DemoStore(preferences: p)..signIn();
       expect(r.followedSellers, {listings.first.identity});
       expect(r.recentlyViewed, ['b1', 'b2']);
-      expect(r.searchHistory, ['Fahrrad']);
+      expect(r.searchHistory, ['دراجة']);
       final saved = r.savedSearches.single;
       expect(saved.alerts, isFalse);
       r.restoreSearch(saved);
       expect(r.filters.maximum, 200);
-      expect(r.filters.type, 'Cityräder');
+      expect(r.filters.type, 'دراجات مدينة');
       expect(r.notifications.single.read, isTrue);
       r.dismissNotice(r.notifications.single);
       r.clearRecent();
       r.deleteSearch(saved);
       expect(r.favorites, {'b2'});
-      expect(r.searchHistory, ['Fahrrad']);
+      expect(r.searchHistory, ['دراجة']);
       expect(r.followedSellers, isNotEmpty);
       r.setNotifications(alerts: false);
       r.seedNotice();
@@ -297,7 +293,7 @@ void main() {
   test(
     'legacy preferences migrate while malformed records do not discard healthy siblings',
     () async {
-      final legacy = SavedSearch('Sofa', SearchFilters(maximum: 100));
+      final legacy = SavedSearch('أريكة', SearchFilters(maximum: 100));
       final p = await prefs({
         'theme': 'dark',
         'favorites': ['b1'],
@@ -305,7 +301,7 @@ void main() {
       });
       final s = DemoStore(preferences: p);
       expect(s.themeMode, ThemeMode.dark);
-      expect(s.savedSearches.single.query, 'Sofa');
+      expect(s.savedSearches.single.query, 'أريكة');
       expect(s.storageError, isNotNull);
       await s.retrySave();
       final data =
@@ -320,7 +316,7 @@ void main() {
         false,
         {
           'id': 'd',
-          'values': {'title': 'Safe'},
+          'values': {'title': 'سليم'},
         },
       ];
       data['favorites'] = ['b1', null, 'missing'];
@@ -375,14 +371,14 @@ void main() {
           return true;
         },
       );
-      s.updateProfile('Erster Name');
-      s.updateProfile('Letzter Name');
+      s.updateProfile('الاسم الأول');
+      s.updateProfile('الاسم الأخير');
       await Future<void>.delayed(Duration.zero);
       expect(writes, isEmpty);
       gate.complete();
       expect(await s.flush(), isTrue);
       expect(maxActive, 1);
-      expect(writes.map((j) => j['name']), ['Erster Name', 'Letzter Name']);
+      expect(writes.map((j) => j['name']), ['الاسم الأول', 'الاسم الأخير']);
       s.dispose();
       var attempt = 0;
       final failing = DemoStore(
@@ -424,7 +420,7 @@ void main() {
         },
       )..signIn();
       s.publish(own('before-reset'));
-      s.saveDraft(ListingDraft(id: 'draft', values: {'title': 'Before'}));
+      s.saveDraft(ListingDraft(id: 'draft', values: {'title': 'قبل'}));
       s.seedConversations();
       s.toggleFollow(listings.first.identity);
       final reset = s.resetLocalData();
@@ -447,31 +443,28 @@ void main() {
     },
   );
   test('explicit price types do not infer VB from a numeric threshold', () {
-    expect(own('fixed').formattedPrice, '55,50 €');
-    expect(
-      own('free', priceType: PriceType.free).formattedPrice,
-      'Zu verschenken',
-    );
+    expect(own('fixed').formattedPrice, '55.50 ل.س');
+    expect(own('free', priceType: PriceType.free).formattedPrice, 'مجاني');
     expect(
       own('vb', priceType: PriceType.negotiable).formattedPrice,
-      '55,50 € VB',
+      '55.50 ل.س قابل للتفاوض',
     );
   });
   test(
     'saved-search notices require a matching new listing and local alert preference',
     () async {
       final s = DemoStore()..signIn();
-      s.search('Sofa');
-      s.changeFilters(SearchFilters(city: 'Berlin', maximum: 100));
+      s.search('أريكة');
+      s.changeFilters(SearchFilters(city: 'دمشق', maximum: 100));
       s.saveSearch();
       s.publish(own('match'));
       List<LocalNotice> matches() => s.notifications
-          .where((n) => n.title.startsWith('Lokaler Suchtreffer:'))
+          .where((n) => n.title.startsWith('نتيجة جديدة لبحثك:'))
           .toList();
       expect(matches().single.listingId, 'match');
-      s.publish(own('wrong-title', title: 'Fahrrad'));
+      s.publish(own('wrong-title', title: 'دراجة'));
       expect(matches().length, 1);
-      s.publish(own('wrong-city').copyWith(city: 'Hamburg'));
+      s.publish(own('wrong-city').copyWith(city: 'حلب'));
       expect(matches().length, 1);
       s.toggleSearchAlerts(s.savedSearches.single);
       s.publish(own('disabled-search'));
@@ -487,7 +480,7 @@ void main() {
   test(
     'unavailable preferences never report successful durable writes or reset',
     () async {
-      final s = DemoStore(startupError: 'Speicher nicht verfügbar')..signIn();
+      final s = DemoStore(startupError: 'التخزين غير متاح')..signIn();
       s.publish(own('temporary'));
       expect(await s.flush(), isFalse);
       expect(s.persistenceAvailable, isFalse);

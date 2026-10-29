@@ -141,9 +141,13 @@ class SettingsPage extends StatelessWidget {
             children: [
               Icon(Icons.devices_outlined, size: 19, color: Brand.muted),
               SizedBox(width: 8),
-              Text(
-                '1.0.0 (1) · واجهة Flutter تجريبية',
-                style: TextStyle(color: Brand.muted, fontSize: 12),
+              Flexible(
+                child: Text(
+                  '1.0.0 (1) · واجهة Flutter تجريبية',
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(color: Brand.muted, fontSize: 12),
+                ),
               ),
             ],
           ),

@@ -51,33 +51,29 @@ Future<void> tapVisible(WidgetTester tester, String label) async {
 }
 
 Future<void> localLogin(WidgetTester tester) async {
-  await tapVisible(tester, 'Einloggen');
+  await tapVisible(tester, 'تسجيل الدخول');
   await tester.enterText(find.byType(TextFormField).first, 'demo@example.test');
-  await tapVisible(tester, 'Weiter');
+  await tapVisible(tester, 'متابعة');
   await tester.enterText(find.byType(TextFormField).at(1), 'fiktiv-12345');
-  final login = find.widgetWithText(FilledButton, 'Einloggen');
+  final login = find.widgetWithText(FilledButton, 'تسجيل الدخول');
   await tester.ensureVisible(login);
   await tester.tap(login);
   await tester.pumpAndSettle();
-  expect(find.text('Bitte eine gültige E-Mail eingeben'), findsNothing);
-  expect(find.text('Mindestens 8 Zeichen verwenden'), findsNothing);
+  expect(find.text('يرجى إدخال بريد إلكتروني صحيح'), findsNothing);
+  expect(find.text('استخدم 8 أحرف على الأقل'), findsNothing);
 }
 
 Listing own(String id) => Listing(
   id: id,
-  title: 'Mein lokales Sofa',
+  title: 'كنبتي المحلية',
   price: 90,
   image: 'sofa',
-  category: 'Haus & Garten',
-  description: 'Eine ausreichend lange lokale Beschreibung.',
+  category: 'المنزل والحديقة',
+  description: 'وصف محلي طويل بما فيه الكفاية.',
 );
 void main() {
   setUpAll(loadTestFonts);
-  for (final choice in [
-    'Entwurf speichern',
-    'Verwerfen',
-    'Weiter bearbeiten',
-  ]) {
+  for (final choice in ['حفظ المسودة', 'تجاهل', 'متابعة التحرير']) {
     testWidgets('root editor Android back safely handles $choice', (
       tester,
     ) async {
@@ -86,15 +82,15 @@ void main() {
       await page(tester, s, const Scaffold());
       await tester.pumpWidget(MarketplaceApp(store: s));
       await tester.pumpAndSettle();
-      await tester.enterText(field('Titel'), 'Android Durable Draft');
+      await tester.enterText(field('العنوان'), 'Android Durable Draft');
       await tester.pumpAndSettle();
       await tester.binding.handlePopRoute();
       await tester.pumpAndSettle();
-      expect(find.text('Änderungen behalten?'), findsOneWidget);
+      expect(find.text('الاحتفاظ بالتغييرات؟'), findsOneWidget);
       await tapVisible(tester, choice);
       expect(find.byType(MarketplaceShell), findsOneWidget);
-      expect(s.selectedTab, choice == 'Weiter bearbeiten' ? 2 : 4);
-      if (choice == 'Entwurf speichern') {
+      expect(s.selectedTab, choice == 'متابعة التحرير' ? 2 : 4);
+      if (choice == 'حفظ المسودة') {
         expect(s.drafts.single.values['title'], 'Android Durable Draft');
       } else {
         expect(s.drafts, isEmpty);
@@ -123,10 +119,10 @@ void main() {
       width: 320,
     );
     final paragraph = tester.renderObject<RenderParagraph>(
-      find.text('Nachrichten'),
+      find.text('الرسائل'),
     );
     final lines = paragraph.getBoxesForSelection(
-      const TextSelection(baseOffset: 0, extentOffset: 11),
+      const TextSelection(baseOffset: 0, extentOffset: 7),
     );
     expect(lines.map((box) => box.top).toSet(), hasLength(1));
     expect(tester.takeException(), isNull);
@@ -138,7 +134,7 @@ void main() {
       await page(tester, s, const Scaffold());
       await tester.pumpWidget(MarketplaceApp(store: s));
       await tester.pumpAndSettle();
-      await tester.tap(find.byTooltip('Benachrichtigungen'));
+      await tester.tap(find.byTooltip('الإشعارات'));
       await tester.pumpAndSettle();
       await localLogin(tester);
       expect(s.signedIn, isTrue);
@@ -152,7 +148,7 @@ void main() {
     (tester) async {
       final s = DemoStore()..acceptConsent();
       await page(tester, s, ListingPage(listing: listings.first));
-      await tester.tap(find.text('Nachricht'));
+      await tester.tap(find.text('مراسلة'));
       await tester.pumpAndSettle();
       await localLogin(tester);
       expect(find.byType(MessagePage), findsOneWidget);
@@ -175,13 +171,13 @@ void main() {
         find.byType(TextFormField).at(1),
         'fiktiv-nicht-speichern',
       );
-      await tester.enterText(field('Lokaler Profilname'), 'Lokal Team');
-      await tapVisible(tester, 'Gewerblich');
+      await tester.enterText(field('اسم الملف الشخصي المحلي'), 'فريق محلي');
+      await tapVisible(tester, 'تجاري');
       await tester.ensureVisible(find.byType(Switch));
       await tester.tap(find.byType(Switch));
-      await tapVisible(tester, 'Registrieren');
+      await tapVisible(tester, 'إنشاء حساب');
       await s.flush();
-      expect(s.name, 'Lokal Team');
+      expect(s.name, 'فريق محلي');
       expect(s.commercial, isTrue);
       expect(s.newsletter, isTrue);
       final raw = p.getString(DemoStore.storageKey)!;
@@ -201,37 +197,34 @@ void main() {
         ..changeTab(2);
       await tester.pumpWidget(MarketplaceApp(store: s));
       await tester.pumpAndSettle();
-      await tester.enterText(field('Titel'), 'Ein lokaler Entwurf');
-      await tester.tap(find.text('Meins'));
+      await tester.enterText(field('العنوان'), 'مسودة محلية');
+      await tester.tap(find.text('حسابي'));
       await tester.pumpAndSettle();
-      expect(find.text('Änderungen behalten?'), findsOneWidget);
-      await tapVisible(tester, 'Weiter bearbeiten');
+      expect(find.text('الاحتفاظ بالتغييرات؟'), findsOneWidget);
+      await tapVisible(tester, 'متابعة التحرير');
       expect(s.selectedTab, 2);
-      await tester.tap(find.text('Meins'));
+      await tester.tap(find.text('حسابي'));
       await tester.pumpAndSettle();
-      await tapVisible(tester, 'Entwurf speichern');
+      await tapVisible(tester, 'حفظ المسودة');
       expect(s.selectedTab, 4);
       await s.flush();
       final restored = DemoStore(preferences: p)
         ..acceptConsent()
         ..signIn();
-      expect(restored.drafts.single.values['title'], 'Ein lokaler Entwurf');
+      expect(restored.drafts.single.values['title'], 'مسودة محلية');
       await page(
         tester,
         restored,
         ListingEditor(draft: restored.drafts.single),
       );
-      await tester.enterText(field('Preis'), '123,45');
-      await tester.enterText(
-        field('Beschreibung'),
-        'Nur lokal, eine vollständige Beschreibung.',
-      );
-      await tapVisible(tester, 'Vorschau');
+      await tester.enterText(field('السعر'), '123,45');
+      await tester.enterText(field('الوصف'), 'محلي فقط، وصف كامل.');
+      await tapVisible(tester, 'معاينة');
       expect(find.byType(ListingPreviewPage), findsOneWidget);
       expect(restored.ownListings, isEmpty);
-      await tapVisible(tester, 'Weiter bearbeiten');
+      await tapVisible(tester, 'متابعة التحرير');
       expect(restored.ownListings, isEmpty);
-      expect(field('Titel'), findsOneWidget);
+      expect(field('العنوان'), findsOneWidget);
       expect(tester.takeException(), isNull);
     },
   );
@@ -244,18 +237,18 @@ void main() {
         s,
         const ListingEditor(listingId: 'own', embedded: true),
       );
-      await tester.enterText(field('Titel'), 'Bearbeitetes lokales Sofa');
-      await tapVisible(tester, 'Vorschau');
-      expect(s.findListing('own')!.title, 'Mein lokales Sofa');
-      await tapVisible(tester, 'Änderungen lokal speichern');
+      await tester.enterText(field('العنوان'), 'كنبة محلية معدّلة');
+      await tapVisible(tester, 'معاينة');
+      expect(s.findListing('own')!.title, 'كنبتي المحلية');
+      await tapVisible(tester, 'حفظ التغييرات محلياً');
       expect(s.ownListings.single.id, 'own');
-      expect(s.ownListings.single.title, 'Bearbeitetes lokales Sofa');
+      expect(s.ownListings.single.title, 'كنبة محلية معدّلة');
       final value = s.ownListings.single;
       await page(tester, s, ListingPage(listing: value));
       s.deleteListing('own');
       await tester.pumpAndSettle();
-      expect(find.text('Anzeige nicht verfügbar'), findsOneWidget);
-      expect(find.text('Nachricht'), findsNothing);
+      expect(find.text('الإعلان غير متاح'), findsOneWidget);
+      expect(find.text('مراسلة'), findsNothing);
       expect(s.findListing('own'), isNull);
       expect(tester.takeException(), isNull);
     },
@@ -266,38 +259,38 @@ void main() {
       final s = ready();
       final a = s.ensureConversation(listings.first);
       final b = s.ensureConversation(listings[8]);
-      s.sendMessage(a.id, 'Nur im ersten Thread', incoming: true);
-      s.sendMessage(b.id, 'Nur im zweiten Thread', incoming: true);
+      s.sendMessage(a.id, 'في المحادثة الأولى فقط', incoming: true);
+      s.sendMessage(b.id, 'في المحادثة الثانية فقط', incoming: true);
       await page(tester, s, MessagePage(threadId: a.id));
       expect(a.unread, 0);
       expect(b.unread, 1);
-      expect(find.text('Nur im ersten Thread'), findsOneWidget);
-      expect(find.text('Nur im zweiten Thread'), findsNothing);
-      await tester.enterText(find.byType(TextField), 'Ungesendeter Entwurf');
-      expect(a.draft, 'Ungesendeter Entwurf');
+      expect(find.text('في المحادثة الأولى فقط'), findsOneWidget);
+      expect(find.text('في المحادثة الثانية فقط'), findsNothing);
+      await tester.enterText(find.byType(TextField), 'مسودة غير مرسلة');
+      expect(a.draft, 'مسودة غير مرسلة');
       expect(b.draft, isEmpty);
-      await tester.tap(find.byTooltip('Gespräch verwalten'));
+      await tester.tap(find.byTooltip('إدارة المحادثة'));
       await tester.pumpAndSettle();
-      await tapVisible(tester, 'Lokal blockieren');
-      await tapVisible(tester, 'Blockieren');
+      await tapVisible(tester, 'حظر محلياً');
+      await tapVisible(tester, 'حظر');
       expect(s.blockedParticipants, contains(a.participantId));
       expect(
         tester
             .widget<IconButton>(
               find.byWidgetPredicate(
-                (w) => w is IconButton && w.tooltip == 'Demo-Nachricht senden',
+                (w) => w is IconButton && w.tooltip == 'إرسال رسالة تجريبية',
               ),
             )
             .onPressed,
         isNull,
       );
-      await tester.tap(find.byTooltip('Gespräch verwalten'));
+      await tester.tap(find.byTooltip('إدارة المحادثة'));
       await tester.pumpAndSettle();
-      await tapVisible(tester, 'Lokal entsperren');
-      await tapVisible(tester, 'Entsperren');
-      await tester.tap(find.byTooltip('Demo-Nachricht senden'));
+      await tapVisible(tester, 'إلغاء الحظر المحلي');
+      await tapVisible(tester, 'إلغاء الحظر');
+      await tester.tap(find.byTooltip('إرسال رسالة تجريبية'));
       await tester.pumpAndSettle();
-      expect(a.messages.last.text, 'Ungesendeter Entwurf');
+      expect(a.messages.last.text, 'مسودة غير مرسلة');
       expect(a.draft, isEmpty);
       expect(tester.takeException(), isNull);
     },
@@ -309,12 +302,16 @@ void main() {
         ..publish(own('keep'))
         ..toggleFavorite('b1');
       await page(tester, s, const LocalDataPage());
-      await tapVisible(tester, 'Lokale Demo-Daten zurücksetzen');
-      await tapVisible(tester, 'Abbrechen');
+      await tester.scrollUntilVisible(
+        find.text('إعادة تعيين بيانات العرض المحلية'),
+        300,
+      );
+      await tapVisible(tester, 'إعادة تعيين بيانات العرض المحلية');
+      await tapVisible(tester, 'إلغاء');
       expect(s.ownListings.single.id, 'keep');
       expect(s.favorites, {'b1'});
-      await tapVisible(tester, 'Lokale Demo-Daten zurücksetzen');
-      await tapVisible(tester, 'Alles lokal zurücksetzen');
+      await tapVisible(tester, 'إعادة تعيين بيانات العرض المحلية');
+      await tapVisible(tester, 'إعادة تعيين الكل محلياً');
       expect(s.ownListings, isEmpty);
       expect(s.favorites, isEmpty);
       expect(s.signedIn, isFalse);
@@ -325,9 +322,9 @@ void main() {
     'recovery screen explains there is no password storage or email delivery',
     (tester) async {
       await page(tester, ready(), const AuthPage());
-      await tapVisible(tester, 'Passwort vergessen?');
+      await tapVisible(tester, 'نسيت كلمة المرور؟');
       expect(find.byType(RecoveryPage), findsOneWidget);
-      expect(find.text('Kein echtes Passwort gespeichert'), findsOneWidget);
+      expect(find.text('لا تُحفَظ أي كلمة مرور حقيقية'), findsOneWidget);
       expect(find.byType(TextFormField), findsNothing);
       expect(tester.takeException(), isNull);
     },
@@ -358,7 +355,7 @@ void main() {
           ..seedConversations()
           ..seedNotice();
         s.saveDraft(
-          ListingDraft(id: 'pending', values: {'title': 'Unfertige Anzeige'}),
+          ListingDraft(id: 'pending', values: {'title': 'إعلان غير مكتمل'}),
         );
         await page(tester, s, entry.value, width: 320);
         expect(tester.takeException(), isNull);
