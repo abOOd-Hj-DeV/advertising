@@ -853,7 +853,7 @@ class BackendStore extends DemoStore {
       type: '',
       kind: '',
       carrier: j['carrier'] as String? ?? '',
-      condition: (j['attributes'] as Map?)?['condition'] as String? ?? '',
+      condition: j['attributes'] is Map ? j['attributes']['condition'] as String? ?? '' : '',
       shipping: (j['shipping_available'] as bool?) ?? false,
       commercial: (seller?['account_type'] == 'commercial') ||
           (j['seller_commercial'] as bool? ?? false),
