@@ -14,12 +14,12 @@ class SettingsPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Scaffold(
     backgroundColor: panelBackground(context),
-    appBar: const PageHeader('Einstellungen & Hilfe'),
+    appBar: const PageHeader('الإعدادات والمساعدة'),
     body: ListView(
       children: [
         if (DemoScope.of(context).signedIn) ...[
           RowLink(
-            'Profil bearbeiten',
+            'تعديل الملف الشخصي',
             icon: Icons.person_outline,
             onTap: () => go(
               context,
@@ -27,13 +27,13 @@ class SettingsPage extends StatelessWidget {
             ),
           ),
           RowLink(
-            'Benachrichtigungen',
+            'الإشعارات',
             icon: Icons.notifications_none,
             onTap: () => go(context, const NotificationPreferencesPage()),
           ),
         ],
         RowLink(
-          'Lokale Daten & Grenzen',
+          'البيانات المحلية والحدود',
           icon: Icons.storage_outlined,
           onTap: () => go(context, const LocalDataPage()),
         ),
@@ -42,7 +42,7 @@ class SettingsPage extends StatelessWidget {
           child: Column(
             children: [
               RowLink(
-                'Such-Historie löschen',
+                'حذف سجل البحث',
                 icon: Icons.manage_search,
                 trailing: const SizedBox.shrink(),
                 onTap: () async {
@@ -50,18 +50,18 @@ class SettingsPage extends StatelessWidget {
                   final yes = await showDialog<bool>(
                     context: context,
                     builder: (_) => AlertDialog(
-                      title: const Text('Such-Historie löschen?'),
+                      title: const Text('حذف سجل البحث؟'),
                       content: const Text(
-                        'Nur die Suchbegriffe dieser lokalen Demo werden entfernt.',
+                        'ستُحذف فقط عبارات البحث المحفوظة محليًا في هذا العرض التجريبي.',
                       ),
                       actions: [
                         TextButton(
                           onPressed: () => Navigator.pop(context, false),
-                          child: const Text('Abbrechen'),
+                          child: const Text('إلغاء'),
                         ),
                         TextButton(
                           onPressed: () => Navigator.pop(context, true),
-                          child: const Text('Löschen'),
+                          child: const Text('حذف'),
                         ),
                       ],
                     ),
@@ -69,64 +69,64 @@ class SettingsPage extends StatelessWidget {
                   if (yes == true) {
                     store.clearHistory();
                     if (context.mounted) {
-                      toast(context, 'Lokale Such-Historie gelöscht');
+                      toast(context, 'تم حذف سجل البحث المحلي');
                     }
                   }
                 },
               ),
               const Divider(indent: 16),
               RowLink(
-                'Kleinanzeigen Pur',
-                subtitle: 'Abo',
+                'سوقنا بلس',
+                subtitle: 'اشتراك',
                 icon: Icons.auto_awesome_outlined,
                 trailing: const SizedBox.shrink(),
                 onTap: () => go(context, const PurPage()),
               ),
               const Divider(indent: 16),
               RowLink(
-                'Datenschutz',
-                subtitle: 'Datenschutzeinstellungen · Datenschutzerklärung',
+                'الخصوصية',
+                subtitle: 'إعدادات الخصوصية · سياسة الخصوصية',
                 icon: Icons.lock_outline,
                 trailing: const SizedBox.shrink(),
                 onTap: () => go(context, const PrivacyPage()),
               ),
               const Divider(indent: 16),
               RowLink(
-                'Design',
-                subtitle: 'Helles Design · Dunkles Design',
+                'المظهر',
+                subtitle: 'مظهر فاتح · مظهر داكن',
                 icon: Icons.light_mode_outlined,
                 trailing: const SizedBox.shrink(),
                 onTap: () => go(context, const DesignPage()),
               ),
               const Divider(indent: 16),
               RowLink(
-                'Über Kleinanzeigen',
-                subtitle: 'Impressum · Karriereseite · Barrierefreiheit',
+                'حول سوقنا',
+                subtitle: 'البيان القانوني · الوظائف · إمكانية الوصول',
                 icon: Icons.star_outline,
                 trailing: const SizedBox.shrink(),
                 onTap: () => go(context, const AboutPage()),
               ),
               const Divider(indent: 16),
               RowLink(
-                'Hilfe und Feedback',
-                subtitle: 'Hilfebereich · Störung melden · Gib uns Feedback',
+                'المساعدة والملاحظات',
+                subtitle: 'قسم المساعدة · الإبلاغ عن عطل · أرسل ملاحظاتك',
                 icon: Icons.support,
                 trailing: const SizedBox.shrink(),
                 onTap: () => go(context, const HelpMenuPage()),
               ),
               const Divider(indent: 16),
               RowLink(
-                'Vertrag widerrufen',
+                'إلغاء العقد',
                 icon: Icons.info_outline,
                 trailing: const SizedBox.shrink(),
                 onTap: () => go(
                   context,
                   const InformationPage(
-                    title: 'Vertrag widerrufen',
+                    title: 'إلغاء العقد',
                     paragraphs: [
-                      'Es besteht kein Vertrag in dieser Demo',
-                      'Es gibt keine echten Abonnements, Zahlungen oder Vertragsbeziehungen. '
-                          'Dieser lokale Informationsbildschirm ist eine Demo-Ergänzung.',
+                      'لا يوجد عقد في هذا العرض التجريبي',
+                      'لا توجد اشتراكات أو مدفوعات أو علاقات تعاقدية حقيقية. '
+                          'شاشة المعلومات المحلية هذه إضافة تجريبية.',
                     ],
                   ),
                 ),
@@ -142,7 +142,7 @@ class SettingsPage extends StatelessWidget {
               Icon(Icons.devices_outlined, size: 19, color: Brand.muted),
               SizedBox(width: 8),
               Text(
-                '1.0.0 (1) · Flutter UI-Demo',
+                '1.0.0 (1) · واجهة Flutter تجريبية',
                 style: TextStyle(color: Brand.muted, fontSize: 12),
               ),
             ],
@@ -152,7 +152,7 @@ class SettingsPage extends StatelessWidget {
           child: TextButton(
             onPressed: () => go(context, const DemoInfoPage()),
             child: const Text(
-              'Über diese Demo',
+              'حول هذا العرض التجريبي',
               style: TextStyle(fontSize: 12),
             ),
           ),
@@ -167,27 +167,27 @@ class PrivacyPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Scaffold(
     backgroundColor: panelBackground(context),
-    appBar: const PageHeader('Datenschutz'),
+    appBar: const PageHeader('الخصوصية'),
     body: Container(
       color: Theme.of(context).colorScheme.surface,
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
           RowLink(
-            'Datenschutzeinstellungen, Messung & Analyse',
+            'إعدادات الخصوصية والقياس والتحليل',
             trailing: const SizedBox.shrink(),
             onTap: () => go(context, const ConsentSettingsPage()),
           ),
           const Divider(indent: 16, endIndent: 16),
           RowLink(
-            'Datenschutzerklärung',
+            'سياسة الخصوصية',
             trailing: const Icon(Icons.open_in_new, size: 18),
             onTap: () =>
                 go(context, const LegalPage(kind: 'Datenschutzerklärung')),
           ),
           const Divider(indent: 16, endIndent: 16),
           RowLink(
-            'Nutzungsbedingungen',
+            'شروط الاستخدام',
             trailing: const Icon(Icons.open_in_new, size: 18),
             onTap: () => go(
               context,
@@ -216,7 +216,7 @@ class ConsentIntroPage extends StatelessWidget {
               const Logo(size: 46),
               const SizedBox(height: 42),
               const Text(
-                'Wie möchtest du Kleinanzeigen nutzen?',
+                'كيف تريد استخدام سوقنا؟',
                 style: TextStyle(
                   fontSize: 26,
                   fontWeight: FontWeight.w900,
@@ -225,55 +225,55 @@ class ConsentIntroPage extends StatelessWidget {
               ),
               const SizedBox(height: 24),
               const Text(
-                'Willkommen bei Kleinanzeigen',
+                'أهلاً بك في سوقنا',
                 style: TextStyle(fontSize: 19, fontWeight: FontWeight.w800),
               ),
               const SizedBox(height: 16),
               const Text(
-                'Mit Werbung und Tracking wie gewohnt',
+                'بالإعلانات والتتبع كالمعتاد',
                 style: TextStyle(fontWeight: FontWeight.w800),
               ),
               const SizedBox(height: 10),
               const Text(
-                'In der Referenz werden hier Informationen zu Werbung und Datenschutz angezeigt. '
-                'Diese lokale Demo verwendet keine Werbenetzwerke, keine Analyse und keine Server. Deine Auswahl bleibt auf diesem Gerät.',
+                'في النسخة المرجعية تُعرض هنا معلومات عن الإعلانات والخصوصية. '
+                'هذا العرض التجريبي المحلي لا يستخدم شبكات إعلانية ولا تحليلات ولا خوادم. يبقى اختيارك على هذا الجهاز.',
                 style: TextStyle(fontSize: 14, height: 1.5),
               ),
               const SizedBox(height: 22),
               PrimaryButton(
-                'Alle akzeptieren',
+                'قبول الكل',
                 onPressed: () => store.acceptConsent(all: true),
               ),
               const SizedBox(height: 10),
               PrimaryButton(
-                'Alle ablehnen und fortfahren',
+                'رفض الكل والمتابعة',
                 onPressed: () => store.acceptConsent(),
               ),
               const SizedBox(height: 10),
               OutlinedButton(
                 onPressed: () => go(context, const ConsentSettingsPage()),
-                child: const Text('Datenschutzeinstellungen'),
+                child: const Text('إعدادات الخصوصية'),
               ),
               const SizedBox(height: 28),
               const Divider(),
               const SizedBox(height: 20),
               const Text(
-                'Ohne Werbung mit Kleinanzeigen Pur',
+                'بدون إعلانات مع سوقنا بلس',
                 style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800),
               ),
               const SizedBox(height: 10),
               const Text(
-                'Eine rein visuelle Vorschau. Es gibt kein echtes Abo und keine Zahlung.',
+                'معاينة مرئية فقط. لا يوجد اشتراك حقيقي ولا دفع.',
                 style: TextStyle(fontSize: 14, height: 1.5),
               ),
               const SizedBox(height: 14),
               OutlinedButton(
                 onPressed: () => go(context, const PurPage()),
-                child: const Text('Kleinanzeigen Pur ansehen'),
+                child: const Text('عرض سوقنا بلس'),
               ),
               const SizedBox(height: 18),
               const Text(
-                'Inoffizielle UI-Studie mit fiktiven Inhalten.',
+                'دراسة واجهة غير رسمية بمحتوى افتراضي.',
                 textAlign: TextAlign.center,
                 style: TextStyle(color: Brand.muted, fontSize: 11),
               ),
@@ -307,12 +307,12 @@ class _ConsentSettingsPageState extends State<ConsentSettingsPage> {
   Widget build(BuildContext context) {
     final store = DemoScope.of(context);
     return Scaffold(
-      appBar: const PageHeader('Datenschutzeinstellungen'),
+      appBar: const PageHeader('إعدادات الخصوصية'),
       body: ListView(
         padding: const EdgeInsets.all(20),
         children: [
           const Text(
-            'Werbung und damit verbundene persönliche Einstellungen',
+            'الإعلانات والإعدادات الشخصية المرتبطة بها',
             style: TextStyle(
               fontSize: 21,
               fontWeight: FontWeight.w800,
@@ -321,12 +321,12 @@ class _ConsentSettingsPageState extends State<ConsentSettingsPage> {
           ),
           const SizedBox(height: 12),
           const Text(
-            'Dieser Inhalt und die folgenden Einstellungen betreffen unsere Demo im Europäischen Wirtschaftsraum (EWR).',
+            'هذا المحتوى والإعدادات التالية تخص عرضنا التجريبي.',
             style: TextStyle(fontSize: 13, height: 1.5),
           ),
           const SizedBox(height: 16),
           const Text(
-            'Kontrolliere, welche Informationen wir nutzen können, um das Nutzererlebnis für dich zu personalisieren',
+            'تحكّم في المعلومات التي يمكننا استخدامها لتخصيص تجربتك',
             style: TextStyle(
               fontSize: 17,
               fontWeight: FontWeight.w800,
@@ -335,76 +335,73 @@ class _ConsentSettingsPageState extends State<ConsentSettingsPage> {
           ),
           const SizedBox(height: 12),
           const Text(
-            'Hier wählst du, welche Einstellungen lokal dargestellt werden. In dieser Demo greifen keine Partner '
-            'auf dein Gerät zu. Cookies, Werbeprofile und Drittanbieter-Tracking sind nicht implementiert.',
+            'هنا تختار الإعدادات المعروضة محليًا. في هذا العرض التجريبي لا يصل أي شركاء '
+            'إلى جهازك. ملفات تعريف الارتباط وملفات الإعلانات وتتبّع الطرف الثالث غير مُطبَّقة.',
             style: TextStyle(fontSize: 14, height: 1.5),
           ),
           const SizedBox(height: 14),
-          PrimaryButton('Alle akzeptieren', onPressed: () => save(all: true)),
+          PrimaryButton('قبول الكل', onPressed: () => save(all: true)),
           const SizedBox(height: 8),
           PrimaryButton(
-            'Alle ablehnen und fortfahren',
+            'رفض الكل والمتابعة',
             onPressed: () => save(all: false),
           ),
           const SizedBox(height: 8),
           OutlinedButton(
             onPressed: () => save(),
-            child: const Text('Speichern und fortfahren'),
+            child: const Text('حفظ ومتابعة'),
           ),
           OutlinedButton(
             onPressed: () => go(context, const PurPage()),
-            child: const Text('Kleinanzeigen Pur abonnieren'),
+            child: const Text('اشترك في سوقنا بلس'),
           ),
           const SizedBox(height: 20),
           const Text(
-            'Berechtigtes Interesse',
+            'المصلحة المشروعة',
             style: TextStyle(fontSize: 17, fontWeight: FontWeight.w800),
           ),
           const SizedBox(height: 12),
           const Text(
-            'Die folgenden Schalter sind ausschließlich eine lokale Demonstration.',
+            'المفاتيح التالية للعرض المحلي فقط.',
             style: TextStyle(fontSize: 13, height: 1.5),
           ),
           SwitchListTile(
             contentPadding: EdgeInsets.zero,
-            title: const Text(
-              'Personalisierte Inhalte',
-              style: TextStyle(fontSize: 15),
-            ),
+            title: const Text('محتوى مخصّص', style: TextStyle(fontSize: 15)),
             value: personalized ?? store.personalized,
             onChanged: (v) => setState(() => personalized = v),
           ),
           SwitchListTile(
             contentPadding: EdgeInsets.zero,
             title: const Text(
-              'Messung & Analyse',
+              'القياس والتحليل',
               style: TextStyle(fontSize: 15),
             ),
             value: analytics ?? store.analytics,
             onChanged: (v) => setState(() => analytics = v),
           ),
           RowLink(
-            'Zweck-Ansicht',
+            'عرض الأغراض',
             onTap: () => go(
               context,
               const InformationPage(
-                title: 'Zweck-Ansicht',
+                title: 'عرض الأغراض',
                 paragraphs: [
-                  'Lokale Beispieldaten',
-                  'Die Schalter verändern nur Demo-Einstellungen. Es werden keine Nutzungsdaten übertragen.',
+                  'بيانات مثال محلية',
+                  'تغيّر المفاتيح إعدادات العرض التجريبي فقط. لا تُنقل أي بيانات استخدام.',
                 ],
               ),
             ),
           ),
           RowLink(
-            'Partner-Ansicht',
+            'عرض الشركاء',
             onTap: () => go(
               context,
               const InformationPage(
-                title: 'Partner-Ansicht',
+                title: 'عرض الشركاء',
                 paragraphs: [
-                  'Keine Partner in dieser Demo',
-                  'Die App enthält keine Werbe-SDKs und keine Datenübertragung an Partner.',
+                  'لا شركاء في هذا العرض التجريبي',
+                  'لا يحتوي التطبيق على حزم إعلانية ولا ينقل بيانات إلى شركاء.',
                 ],
               ),
             ),
@@ -422,7 +419,7 @@ class DesignPage extends StatelessWidget {
     final store = DemoScope.of(context);
     return Scaffold(
       backgroundColor: panelBackground(context),
-      appBar: const PageHeader('Design'),
+      appBar: const PageHeader('المظهر'),
       body: Container(
         color: Theme.of(context).colorScheme.surface,
         child: Column(
@@ -431,15 +428,15 @@ class DesignPage extends StatelessWidget {
             const Padding(
               padding: EdgeInsets.all(16),
               child: Text(
-                'Das dunkle Design schont deinen Akku und spart damit richtig Energie. '
-                'Gut für dich, gut für die Umwelt.',
+                'المظهر الداكن يحافظ على بطاريتك ويوفر الطاقة فعلًا. '
+                'مفيد لك وللبيئة.',
                 style: TextStyle(fontSize: 14, height: 1.3),
               ),
             ),
             for (final entry in {
-              ThemeMode.system: 'Systemeinstellungen verwenden',
-              ThemeMode.dark: 'Dunkles Design',
-              ThemeMode.light: 'Helles Design',
+              ThemeMode.system: 'استخدام إعدادات النظام',
+              ThemeMode.dark: 'مظهر داكن',
+              ThemeMode.light: 'مظهر فاتح',
             }.entries)
               Column(
                 children: [
@@ -466,31 +463,31 @@ class AboutPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Scaffold(
     backgroundColor: panelBackground(context),
-    appBar: const PageHeader('Über Kleinanzeigen'),
+    appBar: const PageHeader('حول سوقنا'),
     body: Container(
       color: Theme.of(context).colorScheme.surface,
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          for (final title in [
-            'Impressum',
-            'Karriereseite',
-            'Barrierefreiheitserklärung',
-            'Copyright',
+          for (final item in [
+            (label: 'البيان القانوني', kind: 'Impressum'),
+            (label: 'الوظائف', kind: 'Karriereseite'),
+            (label: 'بيان إمكانية الوصول', kind: 'Barrierefreiheitserklärung'),
+            (label: 'حقوق النشر', kind: 'Copyright'),
           ])
             Column(
               children: [
                 RowLink(
-                  title,
-                  trailing: title == 'Copyright'
+                  item.label,
+                  trailing: item.kind == 'Copyright'
                       ? const SizedBox.shrink()
                       : const Icon(Icons.open_in_new, size: 18),
                   onTap: () => go(
                     context,
-                    title == 'Karriereseite' ||
-                            title == 'Barrierefreiheitserklärung'
-                        ? WebConsentPage(title: title)
-                        : LegalPage(kind: title),
+                    item.kind == 'Karriereseite' ||
+                            item.kind == 'Barrierefreiheitserklärung'
+                        ? WebConsentPage(title: item.label)
+                        : LegalPage(kind: item.kind),
                   ),
                 ),
                 const Divider(indent: 16, endIndent: 16),
@@ -507,36 +504,36 @@ class HelpMenuPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Scaffold(
     backgroundColor: panelBackground(context),
-    appBar: const PageHeader('Hilfe und Feedback'),
+    appBar: const PageHeader('المساعدة والملاحظات'),
     body: Container(
       color: Theme.of(context).colorScheme.surface,
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
           RowLink(
-            'Lösungscenter',
+            'مركز الحلول',
             trailing: const SizedBox.shrink(),
             onTap: () => go(context, const ErrorPage()),
           ),
           const Divider(indent: 16, endIndent: 16),
           RowLink(
-            'Hilfebereich',
+            'قسم المساعدة',
             trailing: const Icon(Icons.open_in_new, size: 18),
             onTap: () => go(context, const HelpCenterPage()),
           ),
           const Divider(indent: 16, endIndent: 16),
           RowLink(
-            'Störung melden',
+            'الإبلاغ عن عطل',
             trailing: const SizedBox.shrink(),
             onTap: () =>
-                go(context, const FeedbackPage(title: 'Störung melden')),
+                go(context, const FeedbackPage(title: 'الإبلاغ عن عطل')),
           ),
           const Divider(indent: 16, endIndent: 16),
           RowLink(
-            'Gib uns Feedback',
+            'أرسل ملاحظاتك',
             trailing: const SizedBox.shrink(),
             onTap: () =>
-                go(context, const FeedbackPage(title: 'Gib uns Feedback')),
+                go(context, const FeedbackPage(title: 'أرسل ملاحظاتك')),
           ),
         ],
       ),
@@ -545,32 +542,16 @@ class HelpMenuPage extends StatelessWidget {
 }
 
 const helpTopics = {
-  'Anzeigen': [
-    'Wie gebe ich eine Anzeige auf?',
-    'Wie bearbeite ich meine Anzeige?',
-    'Wie lösche ich eine Anzeige?',
+  'الإعلانات': ['كيف أنشر إعلانًا؟', 'كيف أعدّل إعلاني؟', 'كيف أحذف إعلانًا؟'],
+  'حساب المستخدم': [
+    'كيف أنشئ حسابًا؟',
+    'كيف أعدّل ملفي الشخصي؟',
+    'كيف أسجّل الخروج؟',
   ],
-  'Nutzerkonto': [
-    'Wie registriere ich mich?',
-    'Wie ändere ich mein Profil?',
-    'Wie melde ich mich ab?',
-  ],
-  'Sicherheit': [
-    'Wie erkenne ich sichere Angebote?',
-    'Wie schütze ich meine Daten?',
-  ],
-  'Sicher bezahlen': [
-    'Wie funktioniert Sicher bezahlen?',
-    'Welche Zahlungsmethoden gibt es?',
-  ],
-  'Versand': [
-    'Wie vereinbare ich eine Abholung?',
-    'Wie funktioniert der Versand?',
-  ],
-  'Kleinanzeigen Pur': [
-    'Was ist Kleinanzeigen Pur?',
-    'Wie verwalte ich mein Abo?',
-  ],
+  'الأمان': ['كيف أميّز العروض الموثوقة؟', 'كيف أحمي بياناتي؟'],
+  'الدفع الآمن': ['كيف يعمل الدفع الآمن؟', 'ما طرق الدفع المتاحة؟'],
+  'الشحن': ['كيف أرتّب الاستلام الشخصي؟', 'كيف يتم الشحن؟'],
+  'سوقنا بلس': ['ما هو سوقنا بلس؟', 'كيف أدير اشتراكي؟'],
 };
 
 class HelpCenterPage extends StatefulWidget {
@@ -588,7 +569,7 @@ class _HelpCenterPageState extends State<HelpCenterPage> {
         for (final article in group.value) article,
     ];
     return Scaffold(
-      appBar: const PageHeader('Kleinanzeigen Hilfe-Center', close: true),
+      appBar: const PageHeader('مركز مساعدة سوقنا', close: true),
       body: ListView(
         children: [
           Container(
@@ -599,7 +580,7 @@ class _HelpCenterPageState extends State<HelpCenterPage> {
                 const Logo(size: 36, color: Colors.white),
                 const SizedBox(height: 22),
                 const Text(
-                  'Wie können wir dir helfen?',
+                  'كيف نستطيع مساعدتك؟',
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     color: Colors.white,
@@ -612,7 +593,7 @@ class _HelpCenterPageState extends State<HelpCenterPage> {
                   onChanged: (v) => setState(() => query = v),
                   style: const TextStyle(color: Colors.black),
                   decoration: InputDecoration(
-                    hintText: 'Suchbegriff eingeben',
+                    hintText: 'أدخل كلمة البحث',
                     hintStyle: const TextStyle(color: Brand.muted),
                     prefixIcon: const Icon(Icons.search, color: Brand.green),
                     filled: true,
@@ -633,7 +614,7 @@ class _HelpCenterPageState extends State<HelpCenterPage> {
           const Padding(
             padding: EdgeInsets.fromLTRB(16, 18, 16, 0),
             child: Text(
-              'Lokale Hilfe-Vorschau · Artikel sind Demo-Ergänzungen',
+              'معاينة مساعدة محلية · المقالات إضافات تجريبية',
               style: TextStyle(color: Brand.muted, fontSize: 11),
             ),
           ),
@@ -649,8 +630,8 @@ class _HelpCenterPageState extends State<HelpCenterPage> {
                     title: a,
                     paragraphs: [
                       a,
-                      'Diese Demo zeigt die Bedienung mit fiktiven Daten. '
-                          'Anzeigen, Nachrichten und Kontoaktionen bleiben lokal; es sind keine echten Käufe oder Zahlungen möglich.',
+                      'يعرض هذا التطبيق التجريبي الاستخدام ببيانات افتراضية. '
+                          'تبقى الإعلانات والرسائل وإجراءات الحساب محلية؛ لا يمكن إجراء مشتريات أو مدفوعات حقيقية.',
                     ],
                   ),
                 ),
@@ -660,7 +641,7 @@ class _HelpCenterPageState extends State<HelpCenterPage> {
             ))
               const Padding(
                 padding: EdgeInsets.all(30),
-                child: Text('Keine passenden Hilfeartikel gefunden.'),
+                child: Text('لا توجد مقالات مساعدة مطابقة.'),
               ),
           ] else
             for (final topic in helpTopics.keys)
@@ -674,7 +655,7 @@ class _HelpCenterPageState extends State<HelpCenterPage> {
                   ),
                   child: RowLink(
                     topic,
-                    subtitle: 'Antworten zu $topic',
+                    subtitle: 'إجابات عن $topic',
                     icon: Icons.help_outline,
                     onTap: () => go(context, HelpTopicPage(topic: topic)),
                   ),
@@ -706,8 +687,8 @@ class HelpTopicPage extends StatelessWidget {
                     title: article,
                     paragraphs: [
                       article,
-                      'Hier findest du eine fiktive Erklärung für die lokale UI-Demo. '
-                          'Die echte Hilfe wurde nicht übernommen. Alle Demo-Aktionen bleiben auf deinem Gerät.',
+                      'ستجد هنا شرحًا افتراضيًا للعرض التجريبي المحلي. '
+                          'لم تُنقل المساعدة الحقيقية. تبقى جميع إجراءات العرض على جهازك.',
                     ],
                   ),
                 ),
@@ -726,7 +707,7 @@ class ErrorPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Scaffold(
-    appBar: PageHeader(home ? 'Suchen' : 'Lösungscenter', center: true),
+    appBar: PageHeader(home ? 'بحث' : 'مركز الحلول', center: true),
     body: Center(
       child: SingleChildScrollView(
         child: Padding(
@@ -737,7 +718,7 @@ class ErrorPage extends StatelessWidget {
               const ErrorArtwork(),
               const SizedBox(height: 36),
               Text(
-                home ? 'Etwas ist schief gelaufen' : 'Technisches Problem',
+                home ? 'حدث خطأ ما' : 'مشكلة تقنية',
                 textAlign: TextAlign.center,
                 style: const TextStyle(
                   fontSize: 20,
@@ -747,8 +728,8 @@ class ErrorPage extends StatelessWidget {
               const SizedBox(height: 12),
               Text(
                 home
-                    ? 'Bitte versuche es noch einmal.'
-                    : 'Es gibt ein technisches Problem, welches derzeit behoben wird.\nEin App-Update ist nicht erforderlich.',
+                    ? 'يرجى المحاولة مرة أخرى.'
+                    : 'هناك مشكلة تقنية قيد الإصلاح حاليًا.\nلا حاجة لتحديث التطبيق.',
                 textAlign: TextAlign.center,
                 style: const TextStyle(fontSize: 14, height: 1.5),
               ),
@@ -767,11 +748,11 @@ class ErrorPage extends StatelessWidget {
                   }
                 },
                 style: OutlinedButton.styleFrom(shape: const StadiumBorder()),
-                child: const Text('Nochmals versuchen'),
+                child: const Text('إعادة المحاولة'),
               ),
               const SizedBox(height: 16),
               const Text(
-                'Simulierter Fehlerzustand · Wiederholen öffnet die lokale Demo.',
+                'حالة خطأ محاكاة · إعادة المحاولة تفتح العرض المحلي.',
                 textAlign: TextAlign.center,
                 style: TextStyle(color: Brand.muted, fontSize: 11),
               ),
@@ -913,33 +894,52 @@ class LegalPage extends StatelessWidget {
   final String kind;
   @override
   Widget build(BuildContext context) {
-    final privacy = kind == 'Datenschutzerklärung';
+    // `kind` is a cross-file key (other pages pass German values); it is not
+    // shown to the user. `displayKind` is the Arabic title rendered instead.
+    final displayKind = switch (kind) {
+      'Datenschutzerklärung' => 'سياسة الخصوصية',
+      'Messaging-Nutzungsbedingungen' => 'شروط استخدام المراسلات',
+      'Nutzungsbedingungen' => 'شروط الاستخدام',
+      'Impressum' => 'البيان القانوني',
+      'Copyright' => 'حقوق النشر',
+      _ => kind,
+    };
+    final privacy = displayKind == 'سياسة الخصوصية';
     final sections = privacy
         ? [
-            'Anwendungsbereich und Aktualisierung dieser Datenschutzerklärung',
-            'Verantwortlicher',
-            'Datenschutzbeauftragte und Kontakt',
-            'Welche personenbezogenen Daten wir erheben und verarbeiten',
-            'Zwecke und Rechtsgrundlagen der Datenverarbeitung',
-            'Internationale Datentransfers',
-            'Speicherdauer und Löschung',
-            'Rechte als betroffene Person',
-            'Cookies und ähnliche Technologien',
-            'Datensicherheit',
+            'نطاق تطبيق سياسة الخصوصية هذه وتحديثها',
+            'الجهة المسؤولة',
+            'مسؤول حماية البيانات والتواصل',
+            'البيانات الشخصية التي نجمعها ونعالجها',
+            'أغراض معالجة البيانات وأسسها القانونية',
+            'نقل البيانات دوليًا',
+            'مدة التخزين والحذف',
+            'حقوقك كصاحب بيانات',
+            'ملفات تعريف الارتباط والتقنيات المشابهة',
+            'أمن البيانات',
           ]
-        : kind == 'Copyright'
-        ? ['Flutter', 'Nunito Sans', 'Unsplash-Fotos', 'UI-Referenz und Marken']
-        : kind == 'Impressum'
-        ? ['Impressum der Demo', 'Kontakt', 'Hinweise zur UI-Studie']
+        : displayKind == 'حقوق النشر'
+        ? [
+            'Flutter',
+            'Nunito Sans',
+            'صور Unsplash',
+            'مرجع الواجهة والعلامات التجارية',
+          ]
+        : displayKind == 'البيان القانوني'
+        ? [
+            'البيان القانوني للعرض التجريبي',
+            'التواصل',
+            'ملاحظات حول دراسة الواجهة',
+          ]
         : [
-            'Geltungsbereich',
-            'Lokale Demo-Nachrichten',
-            'Verantwortung und Sicherheit',
-            'Keine echten Verträge',
+            'نطاق التطبيق',
+            'الرسائل المحلية التجريبية',
+            'المسؤولية والأمان',
+            'لا عقود حقيقية',
           ];
     final anchorKeys = [for (final _ in sections) GlobalKey()];
     return Scaffold(
-      appBar: const PageHeader('Kleinanzeigen'),
+      appBar: const PageHeader('سوقنا'),
       body: SingleChildScrollView(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -953,10 +953,10 @@ class LegalPage extends StatelessWidget {
                   TextButton.icon(
                     onPressed: () => toast(
                       context,
-                      'Dieser lokale Demo-Text hat keinen externen Link.',
+                      'هذا النص التجريبي المحلي ليس له رابط خارجي.',
                     ),
                     icon: const Icon(Icons.share_outlined, size: 15),
-                    label: const Text('Teilen', style: TextStyle(fontSize: 12)),
+                    label: const Text('مشاركة', style: TextStyle(fontSize: 12)),
                   ),
                 ],
               ),
@@ -965,7 +965,7 @@ class LegalPage extends StatelessWidget {
               padding: const EdgeInsets.all(16),
               color: Brand.pale,
               child: const Text(
-                'Beispielinhalt einer inoffiziellen UI-Demo. Kein rechtsverbindlicher Text von Kleinanzeigen.',
+                'محتوى مثال لعرض واجهة غير رسمي. ليس نصًا قانونيًا ملزمًا من سوقنا.',
                 style: TextStyle(color: Brand.deep, fontSize: 12),
               ),
             ),
@@ -976,7 +976,7 @@ class LegalPage extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     const Text(
-                      'Inhaltsverzeichnis',
+                      'المحتويات',
                       style: TextStyle(
                         fontSize: 17,
                         fontWeight: FontWeight.w800,
@@ -986,7 +986,7 @@ class LegalPage extends StatelessWidget {
                     for (var i = 0; i < sections.length; i++)
                       TextButton.icon(
                         style: TextButton.styleFrom(
-                          alignment: Alignment.centerLeft,
+                          alignment: AlignmentDirectional.centerStart,
                           padding: EdgeInsets.zero,
                         ),
                         onPressed: () => Scrollable.ensureVisible(
@@ -1006,8 +1006,8 @@ class LegalPage extends StatelessWidget {
             Padding(
               padding: const EdgeInsets.fromLTRB(20, 32, 20, 20),
               child: Text(
-                kind,
-                textAlign: privacy ? TextAlign.center : TextAlign.left,
+                displayKind,
+                textAlign: privacy ? TextAlign.center : TextAlign.start,
                 style: const TextStyle(
                   fontSize: 27,
                   fontWeight: FontWeight.w800,
@@ -1030,25 +1030,25 @@ class LegalPage extends StatelessWidget {
                     ),
                     const SizedBox(height: 12),
                     Text(
-                      kind == 'Copyright'
+                      displayKind == 'حقوق النشر'
                           ? switch (i) {
                               0 =>
-                                'Flutter ist ein Open-Source-Framework. Die Bibliotheken behalten ihre jeweiligen Lizenzen.',
+                                'Flutter إطار عمل مفتوح المصدر. تحتفظ المكتبات بتراخيصها الخاصة.',
                               1 =>
-                                'Nunito Sans wird unter der SIL Open Font License 1.1 verwendet. Der Lizenztext liegt im Projekt.',
+                                'يُستخدم خط Nunito Sans بموجب رخصة SIL Open Font License 1.1. نص الرخصة موجود في المشروع.',
                               2 =>
-                                'Die lokal gebündelten Beispielbilder stammen von Unsplash. Quellen stehen in ASSET_CREDITS.md.',
+                                'الصور المثال المضمّنة محليًا من Unsplash. المصادر في ملف ASSET_CREDITS.md.',
                               _ =>
-                                'Marken gehören ihren jeweiligen Eigentümern. Diese Demo ist kein offizielles Kleinanzeigen-Produkt.',
+                                'العلامات التجارية ملك لأصحابها. هذا العرض التجريبي ليس منتجًا رسميًا من سوقنا.',
                             }
-                          : kind == 'Impressum'
-                          ? 'Fiktiver Demo-Anbieter\nMusterstraße 12 · 10115 Berlin\ndemo@example.test\n\n'
-                                'Dies sind bewusst erfundene Angaben. Es wird kein echter Marktplatz betrieben.'
-                          : 'Diese Demo verarbeitet keine Daten auf einem Server. Suchbegriffe, Kontoansicht und Nachrichten sind '
-                                'fiktive, lokale Zustände. Das eingegebene Passwort wird nicht gespeichert. Theme, Merkliste, gespeicherte '
-                                'Suchen und die Datenschutz-Auswahl können auf deinem Gerät gespeichert werden. '
-                                'Du kannst diese Daten über die App-Einstellungen oder den Browser-Speicher entfernen. '
-                                'Dies ist ein Beispieltext, keine Rechtsberatung und keine kopierte Richtlinie.',
+                          : displayKind == 'البيان القانوني'
+                          ? 'مزوّد تجريبي افتراضي\nشارع المثال 12 · دمشق\ndemo@example.test\n\n'
+                                'هذه بيانات مختلقة عمدًا. لا يُدار سوق حقيقي.'
+                          : 'لا يعالج هذا العرض التجريبي بيانات على خادم. عبارات البحث وعرض الحساب والرسائل '
+                                'حالات محلية افتراضية. لا تُحفظ كلمة المرور المُدخلة. يمكن حفظ المظهر والمفضلة '
+                                'وعمليات البحث المحفوظة وخيار الخصوصية على جهازك. '
+                                'يمكنك إزالة هذه البيانات من إعدادات التطبيق أو ذاكرة المتصفح. '
+                                'هذا نص مثال، ليس استشارة قانونية ولا سياسة منسوخة.',
                       style: const TextStyle(fontSize: 14, height: 1.6),
                     ),
                     const SizedBox(height: 12),
@@ -1082,29 +1082,29 @@ class _WebConsentPageState extends State<WebConsentPage> {
         const SizedBox(height: 24),
         if (!accepted) ...[
           const Text(
-            'Willkommen bei Kleinanzeigen',
+            'أهلاً بك في سوقنا',
             style: TextStyle(fontSize: 23, fontWeight: FontWeight.w800),
           ),
           const SizedBox(height: 18),
           const Text(
-            'Mit Werbung und Tracking wie gewohnt',
+            'بالإعلانات والتتبع كالمعتاد',
             style: TextStyle(fontWeight: FontWeight.w800),
           ),
           const SizedBox(height: 12),
           const Text(
-            'Der Referenztest zeigte hier eine eigenständige Web-Consent-Seite. '
-            'Die folgende Vorschau ist lokal und verwendet keine Cookies oder externe Dienste.',
+            'أظهر الفحص المرجعي هنا صفحة موافقة ويب مستقلة. '
+            'المعاينة التالية محلية ولا تستخدم ملفات تعريف ارتباط أو خدمات خارجية.',
             style: TextStyle(fontSize: 14, height: 1.5),
           ),
           const SizedBox(height: 20),
           PrimaryButton(
-            'Alle akzeptieren',
+            'قبول الكل',
             onPressed: () => setState(() => accepted = true),
           ),
           const SizedBox(height: 10),
           OutlinedButton(
             onPressed: () => setState(() => accepted = true),
-            child: const Text('Alle ablehnen und fortfahren'),
+            child: const Text('رفض الكل والمتابعة'),
           ),
         ] else ...[
           Text(
@@ -1113,12 +1113,12 @@ class _WebConsentPageState extends State<WebConsentPage> {
           ),
           const SizedBox(height: 16),
           Text(
-            widget.title == 'Karriereseite'
-                ? 'Demo-Ergänzung: Gemeinsam gestalten wir die Zukunft. '
-                      'Diese Vorschau enthält keine echten Stellenangebote.'
-                : 'Demo-Ergänzung: Die Oberfläche unterstützt Scrollen, '
-                      'Semantik-Labels, größere Texte und kontrastreiche Farben. '
-                      'Dies ist keine offizielle Barrierefreiheitserklärung.',
+            widget.title == 'الوظائف'
+                ? 'إضافة تجريبية: نصنع المستقبل معًا. '
+                      'لا تحتوي هذه المعاينة على وظائف حقيقية.'
+                : 'إضافة تجريبية: تدعم الواجهة التمرير وملصقات الدلالة '
+                      'والنصوص الأكبر والألوان عالية التباين. '
+                      'هذا ليس بيان إمكانية وصول رسميًا.',
             style: const TextStyle(fontSize: 15, height: 1.5),
           ),
         ],
@@ -1155,13 +1155,11 @@ class _FeedbackPageState extends State<FeedbackPage> {
                 Icon(Icons.check_circle_outline, size: 70, color: Brand.green),
                 SizedBox(height: 20),
                 Text(
-                  'Danke für dein Demo-Feedback!',
+                  'شكرًا لملاحظاتك على العرض التجريبي!',
                   style: TextStyle(fontSize: 22, fontWeight: FontWeight.w800),
                 ),
                 SizedBox(height: 12),
-                Text(
-                  'Es wurde nichts übertragen. Beim Schließen wird diese Eingabe verworfen.',
-                ),
+                Text('لم يُرسل شيء. سيُتجاهل هذا الإدخال عند الإغلاق.'),
               ],
             )
           : Form(
@@ -1169,7 +1167,7 @@ class _FeedbackPageState extends State<FeedbackPage> {
               child: ListView(
                 children: [
                   const Text(
-                    'Diese Eingabe bleibt nur in dieser Ansicht. Es wird kein Bericht gesendet.',
+                    'يبقى هذا الإدخال في هذه الشاشة فقط. لن يُرسل أي تقرير.',
                     style: TextStyle(color: Brand.muted, fontSize: 13),
                   ),
                   if (widget.subject.isNotEmpty) ...[
@@ -1183,16 +1181,14 @@ class _FeedbackPageState extends State<FeedbackPage> {
                   TextFormField(
                     controller: text,
                     maxLines: 7,
-                    decoration: const InputDecoration(
-                      labelText: 'Deine Nachricht',
-                    ),
+                    decoration: const InputDecoration(labelText: 'رسالتك'),
                     validator: (v) => v != null && v.trim().length >= 10
                         ? null
-                        : 'Bitte mindestens 10 Zeichen eingeben',
+                        : 'أدخل 10 أحرف على الأقل',
                   ),
                   const SizedBox(height: 20),
                   PrimaryButton(
-                    'Demo-Feedback bestätigen',
+                    'تأكيد ملاحظات العرض',
                     onPressed: () {
                       if (key.currentState!.validate()) {
                         setState(() => sent = true);
@@ -1210,7 +1206,7 @@ class PurPage extends StatelessWidget {
   const PurPage({super.key});
   @override
   Widget build(BuildContext context) => Scaffold(
-    appBar: const PageHeader('Kleinanzeigen Pur'),
+    appBar: const PageHeader('سوقنا بلس'),
     body: ListView(
       padding: const EdgeInsets.all(24),
       children: [
@@ -1218,7 +1214,7 @@ class PurPage extends StatelessWidget {
         const Logo(size: 46),
         const SizedBox(height: 32),
         const Text(
-          'Deine Lieblingsstücke.\nOhne Ablenkung.',
+          'قطعك المفضلة.\nبدون مشتتات.',
           style: TextStyle(
             fontSize: 31,
             fontWeight: FontWeight.w800,
@@ -1227,26 +1223,26 @@ class PurPage extends StatelessWidget {
         ),
         const SizedBox(height: 24),
         const Text(
-          'Vorschau einer Abo-Seite. Kein echtes Abonnement, keine Zahlung. Diese Ansicht ist eine Demo-Ergänzung.',
+          'معاينة لصفحة اشتراك. لا اشتراك حقيقي ولا دفع. هذه الشاشة إضافة تجريبية.',
           style: TextStyle(fontSize: 15, height: 1.5),
         ),
         const SizedBox(height: 24),
         const RowLink(
-          'Keine externe Werbung',
+          'لا إعلانات خارجية',
           icon: Icons.check,
           trailing: SizedBox.shrink(),
         ),
         const RowLink(
-          'Keine Weitergabe an Werbepartner',
+          'لا مشاركة مع شركاء إعلانيين',
           icon: Icons.check,
           trailing: SizedBox.shrink(),
         ),
         const SizedBox(height: 24),
         PrimaryButton(
-          'Demo ansehen',
+          'مشاهدة العرض التجريبي',
           onPressed: () => toast(
             context,
-            'Die Demo ist bereits vollständig offline und werbefrei.',
+            'العرض التجريبي يعمل دون اتصال وخالٍ من الإعلانات أصلًا.',
           ),
         ),
       ],
@@ -1258,39 +1254,39 @@ class DemoInfoPage extends StatelessWidget {
   const DemoInfoPage({super.key});
   @override
   Widget build(BuildContext context) => Scaffold(
-    appBar: const PageHeader('Über diese Demo'),
+    appBar: const PageHeader('حول هذا العرض التجريبي'),
     body: ListView(
       padding: const EdgeInsets.all(16),
       children: [
         const Text(
-          'Flutter UI-Studie',
+          'دراسة واجهة Flutter',
           style: TextStyle(fontSize: 25, fontWeight: FontWeight.w800),
         ),
         const SizedBox(height: 16),
         const Text(
-          'Basierend auf einer visuellen Laufzeitprüfung. Keine Extraktion von Code oder Ressourcen. '
-          'Alle Anzeigen, Konten, Texte und Unterhaltungen sind fiktiv. Keine Netzwerk-API oder echte Zahlungen.',
+          'مبني على فحص مرئي أثناء التشغيل. دون استخراج أي كود أو موارد. '
+          'جميع الإعلانات والحسابات والنصوص والمحادثات افتراضية. لا توجد واجهة برمجة شبكة ولا مدفوعات حقيقية.',
           style: TextStyle(fontSize: 15, height: 1.5),
         ),
         const SizedBox(height: 16),
         const Text(
-          'Nicht beobachtete Ansichten wie Konto-Inhalte, Inserieren und tiefere Hilfeartikel '
-          'sind ausdrücklich Demo-Ergänzungen. Fotos und Schrift sind lizenzierte Ersatz-Assets.',
+          'الشاشات غير الملاحَظة مثل محتوى الحساب ونشر الإعلانات ومقالات المساعدة الأعمق '
+          'هي صراحةً إضافات تجريبية. الصور والخط أصول بديلة مرخّصة.',
           style: TextStyle(fontSize: 15, height: 1.5),
         ),
         const SizedBox(height: 16),
         RowLink(
-          'Startseite im Fehlerzustand',
+          'الصفحة الرئيسية في حالة خطأ',
           icon: Icons.error_outline,
           onTap: () => go(context, const ErrorPage(home: true)),
         ),
         RowLink(
-          'Lösungscenter im Fehlerzustand',
+          'مركز الحلول في حالة خطأ',
           icon: Icons.support,
           onTap: () => go(context, const ErrorPage()),
         ),
         RowLink(
-          'Lizenzen',
+          'التراخيص',
           icon: Icons.description_outlined,
           onTap: () => go(context, const LegalPage(kind: 'Copyright')),
         ),
