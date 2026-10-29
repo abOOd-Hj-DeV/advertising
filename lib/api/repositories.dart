@@ -71,7 +71,7 @@ class ApiRepositories {
 
   // ── Favorites / engagement ───────────────────────────────
   Future<void> favorite(String listingId) =>
-      client.post('/favorites/$listingId');
+      client.put('/favorites/$listingId').then((_) {});
 
   Future<void> unfavorite(String listingId) =>
       client.delete('/favorites/$listingId');

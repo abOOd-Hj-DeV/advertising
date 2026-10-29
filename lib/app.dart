@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter/services.dart';
 import 'data/demo_store.dart';
+import 'api/backend_store.dart';
 import 'features/account.dart';
 import 'features/listing_editor.dart';
 import 'features/discovery.dart';
@@ -20,6 +21,7 @@ class MarketplaceApp extends StatelessWidget {
       listenable: store,
       builder: (context, _) => MaterialApp(
         debugShowCheckedModeBanner: false,
+        scaffoldMessengerKey: BackendStore.messengerKey,
         title: 'سوقنا',
         locale: const Locale('ar'),
         supportedLocales: const [Locale('ar')],

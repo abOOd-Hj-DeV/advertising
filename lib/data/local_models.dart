@@ -6,17 +6,17 @@ enum PriceType { fixed, negotiable, free }
 
 extension ListingStatusLabel on ListingStatus {
   String get label => switch (this) {
-    ListingStatus.active => 'Aktiv',
-    ListingStatus.reserved => 'Reserviert',
-    ListingStatus.sold => 'Verkauft',
+    ListingStatus.active => 'نشط',
+    ListingStatus.reserved => 'محجوز',
+    ListingStatus.sold => 'مباع',
   };
 }
 
 extension PriceTypeLabel on PriceType {
   String get label => switch (this) {
-    PriceType.fixed => 'Festpreis',
-    PriceType.negotiable => 'VB',
-    PriceType.free => 'Zu verschenken',
+    PriceType.fixed => 'سعر ثابت',
+    PriceType.negotiable => 'قابل للتفاوض',
+    PriceType.free => 'مجاني',
   };
 }
 
@@ -26,8 +26,8 @@ String? validateProfileName(String? value) {
       name.length > 40 ||
       name.contains('@') ||
       RegExp(r'\d{3,}').hasMatch(name) ||
-      !RegExp(r'[a-zA-ZÀ-ž]').hasMatch(name)) {
-    return '2–40 Zeichen, keine E-Mail-Adresse oder Telefonnummer';
+      !RegExp(r'[a-zA-ZÀ-ž\u0600-\u06FF]').hasMatch(name)) {
+    return 'من 2 إلى 40 حرفًا، بدون بريد إلكتروني أو رقم هاتف';
   }
   return null;
 }

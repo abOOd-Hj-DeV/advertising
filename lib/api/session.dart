@@ -65,6 +65,12 @@ class ApiSession {
     return _user ?? {};
   }
 
+  /// Stores a token+user pair returned by a custom call (register with extra fields).
+  Future<void> adopt(Map<String, dynamic> res) async {
+    await _saveToken(res['token'] as String);
+    _user = res['user'] as Map<String, dynamic>?;
+  }
+
   /// Refreshes the cached user via GET /me; returns null when unauthenticated.
   Future<Map<String, dynamic>?> refreshUser() async {
     if (!isAuthenticated) return null;

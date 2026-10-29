@@ -44,6 +44,34 @@ class ApiClient {
           {Map<String, dynamic>? body, String? ifMatch}) =>
       _send('PATCH', path, body: body, ifMatch: ifMatch);
 
+  Future<Map<String, dynamic>> put(String path, {Map<String, dynamic>? body}) =>
+      _send('PUT', path, body: body, emptyOk: true);
+
+  /// Multipart upload (POST /media). Returns the decoded JSON body.
+  Future<Map<String, dynamic>> upload(
+    String path, {
+    required List<int> bytes,
+    required String filename,
+    String field = 'file',
+    String? idempotencyKey,
+  }) async {
+    final request =
+        http.MultipartRequest('POST', Uri.parse('$baseUrl/api/v1$path'))
+          ..headers.addAll({
+            'Accept': 'application/json',
+            'Accept-Language': 'ar',
+            if (_token != null) 'Authorization': 'Bearer $_token',
+            'Idempotency-Key': ?idempotencyKey,
+          })
+          ..files.add(
+            http.MultipartFile.fromBytes(field, bytes, filename: filename),
+          );
+    final response = await _http
+        .send(request)
+        .timeout(const Duration(seconds: 60));
+    return _decode(response.statusCode, await response.stream.bytesToString());
+  }
+
   Future<void> delete(String path, {String? idempotencyKey}) =>
       _send('DELETE', path, idempotencyKey: idempotencyKey, emptyOk: true)
           .then((_) {});
@@ -73,24 +101,31 @@ class ApiClient {
           ..body = body == null ? '' : jsonEncode(body))
         .timeout(const Duration(seconds: 20));
 
-    final raw = await response.stream.bytesToString();
-    if (response.statusCode >= 400) {
+    return _decode(
+      response.statusCode,
+      await response.stream.bytesToString(),
+      emptyOk: emptyOk,
+    );
+  }
+
+  Map<String, dynamic> _decode(int status, String raw, {bool emptyOk = false}) {
+    if (status >= 400) {
       Map<String, dynamic> problem = const {};
       try {
         problem = jsonDecode(raw) as Map<String, dynamic>;
       } catch (_) {}
       throw ApiException(
-        response.statusCode,
-        problem['code'] as String? ?? 'http.${response.statusCode}',
+        status,
+        problem['code'] as String? ?? 'http.$status',
         problem['detail'] as String? ??
             problem['title'] as String? ??
-            'خطأ غير متوقع (${response.statusCode})',
+            'خطأ غير متوقع ($status)',
         errors: (problem['errors'] as Map?)?.map(
           (k, v) => MapEntry('$k', (v as List).map((e) => '$e').toList()),
         ),
       );
     }
-    if (response.statusCode == 204 || (emptyOk && raw.isEmpty)) {
+    if (status == 204 || (emptyOk && raw.isEmpty)) {
       return const {};
     }
     return raw.isEmpty ? const {} : jsonDecode(raw) as Map<String, dynamic>;

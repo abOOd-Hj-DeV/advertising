@@ -6,6 +6,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'app.dart';
 import 'data/demo_store.dart';
 import 'api/api_store.dart';
+import 'api/backend_store.dart';
 import 'data/media.dart';
 
 Future<void> main() async {
@@ -28,20 +29,22 @@ Future<void> main() async {
     preferences = await SharedPreferences.getInstance();
   } catch (_) {
     startupError =
-        'Gerätespeicher nicht verfügbar. Änderungen bleiben nur vorübergehend.';
+        'تعذّر الوصول للتخزين. التغييرات مؤقتة فقط.';
   }
   try {
     await MediaRepository.initialize();
   } catch (_) {
-    startupError = 'Bildspeicher nicht verfügbar. Import ist deaktiviert.';
+    startupError = 'تعذّر الوصول لصور الجهاز. الاستيراد معطّل.';
     MediaRepository.instance.importEnabled = false;
   }
-  final store = DemoStore(preferences: preferences, startupError: startupError);
+  // With --dart-define=API_BASE=... every data path goes through the backend;
+  // otherwise the app stays on the offline demo store.
+  final api = await ApiStore.boot();
+  final DemoStore store = api == null
+      ? DemoStore(preferences: preferences, startupError: startupError)
+      : BackendStore(api, preferences: preferences);
   if (store.storageError == null && store.persistenceAvailable) {
     await MediaRepository.instance.removeUnused(store.mediaReferences);
   }
-  // When built with --dart-define=API_BASE=... the API layer boots and
-  // restores the stored session token; screens fall back to DemoStore data.
-  await ApiStore.boot();
   runApp(MarketplaceApp(store: store));
 }

@@ -13,19 +13,19 @@ class DemoStore extends ChangeNotifier {
         if (version > 2) {
           readOnlyStorage = true;
           storageError =
-              'Neuere Datenversion. Bitte diese App aktualisieren; Daten bleiben unverändert.';
+              'إصدار بيانات أحدث. حدّث التطبيق؛ البيانات تبقى كما هي.';
         } else {
           _restore(data);
         }
       } catch (_) {
         storageError =
-            'Lokale Daten teilweise unlesbar. Nutzbare Daten bleiben erhalten; Zurücksetzen ist unter Einstellungen möglich.';
+            'بعض البيانات المحلية غير مقروءة. البيانات الصالحة محفوظة، ويمكن إعادة التعيين من الإعدادات.';
         _legacy();
       }
     } else {
       if (raw != null) {
         storageError =
-            'Ungültiger lokaler Datensatz; ältere Einstellungen wurden geprüft.';
+            'سجل بيانات محلي غير صالح؛ تم فحص الإعدادات القديمة.';
       }
       _legacy();
     }
@@ -49,7 +49,7 @@ class DemoStore extends ChangeNotifier {
   bool signedIn = false, commercial = false, newsletter = false;
   bool localAlerts = true, emailPreference = false;
   bool readOnlyStorage = false;
-  String name = 'Lena Demo';
+  String name = 'بائع تجريبي';
   int selectedTab = 0;
   String query = '';
   SearchFilters filters = SearchFilters();
@@ -80,7 +80,7 @@ class DemoStore extends ChangeNotifier {
       final value = preferences?.get(key);
       if (value == null || value is T) return value as T?;
       storageError =
-          'Einige ältere Einstellungen waren unlesbar und wurden ausgelassen.';
+          'بعض الإعدادات القديمة غير مقروءة وتم تجاوزها.';
       return null;
     }
 
@@ -98,7 +98,7 @@ class DemoStore extends ChangeNotifier {
         savedSearches.add(SavedSearch.decode(encoded));
       } catch (_) {
         storageError =
-            'Ein älterer Suchauftrag war unlesbar und wurde ausgelassen.';
+            'بحث محفوظ قديم غير مقروء وتم تجاوزه.';
       }
     }
   }
@@ -110,7 +110,7 @@ class DemoStore extends ChangeNotifier {
         apply(j[key]);
       } catch (_) {
         storageError =
-            'Einige lokale Einträge waren unlesbar und wurden ausgelassen.';
+            'بعض العناصر المحلية غير مقروءة وتم تجاوزها.';
       }
     }
 
@@ -121,7 +121,7 @@ class DemoStore extends ChangeNotifier {
             target.add(parse(row));
           } catch (_) {
             storageError =
-                'Einige lokale Einträge waren unlesbar und wurden ausgelassen.';
+                'بعض العناصر المحلية غير مقروءة وتم تجاوزها.';
           }
         }
       });
@@ -132,7 +132,7 @@ class DemoStore extends ChangeNotifier {
         if (item is String) {
           target.add(item);
         } else {
-          storageError = 'Ungültiger Listeneintrag ausgelassen.';
+          storageError = 'تم تجاوز عنصر غير صالح.';
         }
       }
     });
@@ -228,7 +228,7 @@ class DemoStore extends ChangeNotifier {
       } catch (_) {
         _writeFailed = true;
         storageError =
-            'Speichern fehlgeschlagen. Änderungen sind vorerst nur im Speicher. Bitte erneut versuchen.';
+            'فشل الحفظ. التغييرات في الذاكرة مؤقتًا فقط. حاول مرة أخرى.';
       }
       _notify();
     });
@@ -276,11 +276,11 @@ class DemoStore extends ChangeNotifier {
         )
         .toList();
     switch (f.sort) {
-      case 'Niedrigster Preis':
+      case 'الأقل سعراً':
         result.sort((a, b) => a.price.compareTo(b.price));
-      case 'Höchster Preis':
+      case 'الأعلى سعراً':
         result.sort((a, b) => b.price.compareTo(a.price));
-      case 'Neueste':
+      case 'الأحدث':
         result.sort((a, b) => a.ageHours.compareTo(b.ageHours));
       default:
         result.sort(
@@ -414,7 +414,7 @@ class DemoStore extends ChangeNotifier {
     );
     drafts.removeWhere((d) => d.id == draftId);
     selectedTab = 4;
-    _notice('Anzeige lokal erstellt', listingId: l.id);
+    _notice('تم إنشاء الإعلان', listingId: l.id);
     final published = ownListings.first;
     for (final saved in savedSearches) {
       if (saved.alerts &&
@@ -422,7 +422,7 @@ class DemoStore extends ChangeNotifier {
           saved.filters.accepts(published) &&
           _matchesQuery(published, saved.query)) {
         _notice(
-          'Lokaler Suchtreffer: ${saved.query.isEmpty ? saved.filters.category : saved.query}',
+          'نتيجة جديدة لبحثك: ${saved.query.isEmpty ? saved.filters.category : saved.query}',
           listingId: l.id,
         );
       }
@@ -552,7 +552,7 @@ class DemoStore extends ChangeNotifier {
     c.archived = false;
     if (incoming) {
       c.unread++;
-      _notice('Fiktive Nachricht von ${c.participant}', threadId: c.id);
+      _notice('رسالة جديدة من ${c.participant}', threadId: c.id);
     } else {
       c.draft = '';
     }
@@ -565,11 +565,11 @@ class DemoStore extends ChangeNotifier {
     final c = ensureConversation(listings.first);
     sendMessage(
       c.id,
-      'Hallo! Dies ist eine fiktive eingehende Demo-Nachricht.',
+      'مرحبًا! هذه رسالة تجريبية واردة.',
       incoming: true,
     );
     final d = ensureConversation(listings[8]);
-    sendMessage(d.id, 'Ist eine Abholung möglich? (lokale Demo)');
+    sendMessage(d.id, 'هل يمكن الاستلام شخصيًا؟ (تجريبي)');
   }
 
   void setChatDraft(String id, String text) {
@@ -634,7 +634,7 @@ class DemoStore extends ChangeNotifier {
   }
 
   void seedNotice() {
-    _notice('Willkommen in deiner lokalen Demo');
+    _notice('أهلًا بك في سوقنا');
     _save();
   }
 
@@ -669,7 +669,7 @@ class DemoStore extends ChangeNotifier {
     reports.clear();
     signedIn = false;
     selectedTab = 0;
-    name = 'Lena Demo';
+    name = 'بائع تجريبي';
     commercial = false;
     newsletter = false;
     localAlerts = true;
@@ -686,7 +686,7 @@ class DemoStore extends ChangeNotifier {
     if (ok && preferences != null) {
       for (final key in legacyKeys) {
         if (!await preferences!.remove(key)) {
-          storageError = 'Ältere Einstellungen konnten nicht entfernt werden.';
+          storageError = 'تعذّر حذف الإعدادات القديمة.';
           _notify();
           return false;
         }
@@ -700,7 +700,11 @@ class DemoStore extends ChangeNotifier {
       .replaceAll('ä', 'a')
       .replaceAll('ö', 'o')
       .replaceAll('ü', 'u')
-      .replaceAll('ß', 'ss');
+      .replaceAll('ß', 'ss')
+      .replaceAll(RegExp('[\u064B-\u0652\u0640]'), '')
+      .replaceAll(RegExp('[أإآ]'), 'ا')
+      .replaceAll('ة', 'ه')
+      .replaceAll('ى', 'ي');
   @override
   void dispose() {
     _disposed = true;

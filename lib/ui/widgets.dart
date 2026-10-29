@@ -240,6 +240,15 @@ class ProductImage extends StatelessWidget {
             : missing(),
       );
     }
+    if (image.startsWith('http://') || image.startsWith('https://')) {
+      return Image.network(
+        image,
+        fit: fit,
+        height: height,
+        width: width,
+        errorBuilder: (_, _, _) => missing(),
+      );
+    }
     return Image.asset(
       'assets/images/$image.jpg',
       fit: fit,
