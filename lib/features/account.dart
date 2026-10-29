@@ -571,7 +571,9 @@ class AccountPage extends StatelessWidget {
                       ),
                     ),
                     Text(
-                      'بائع تجريبي — حساب ${store.commercial ? 'تجاري' : 'فردي'}',
+                      store.isLive
+                          ? 'حساب ${store.commercial ? 'تجاري' : 'فردي'}'
+                          : 'بائع تجريبي — حساب ${store.commercial ? 'تجاري' : 'فردي'}',
                       style: TextStyle(fontSize: 13, color: Brand.muted),
                     ),
                   ],
@@ -619,6 +621,18 @@ class AccountPage extends StatelessWidget {
           icon: Icons.person_outline,
           onTap: () => go(context, const SelfProfilePage()),
         ),
+        if (store.isLive || store.commercial)
+          RowLink(
+            'الملف التجاري',
+            subtitle: switch (store.businessStatus) {
+              'verified' => 'موثّق ✓',
+              'pending' => 'قيد المراجعة',
+              'rejected' => 'مرفوض — عدّل البيانات',
+              _ => 'سجّل كتاجر موثّق',
+            },
+            icon: Icons.storefront_outlined,
+            onTap: () => go(context, const BusinessProfilePage()),
+          ),
         RowLink(
           'شوهد مؤخراً',
           icon: Icons.history,
@@ -698,4 +712,212 @@ class _EditProfilePageState extends State<EditProfilePage> {
       },
     ),
   );
+}
+
+// ── Merchant business profile ─────────────────────────────
+
+class BusinessProfilePage extends StatefulWidget {
+  const BusinessProfilePage({super.key});
+  @override
+  State<BusinessProfilePage> createState() => _BusinessProfilePageState();
+}
+
+class _BusinessProfilePageState extends State<BusinessProfilePage> {
+  final key = GlobalKey<FormState>();
+  late final storeName = TextEditingController(),
+      legalName = TextEditingController(),
+      city = TextEditingController(),
+      address = TextEditingController(),
+      phone = TextEditingController(),
+      email = TextEditingController(),
+      registerNumber = TextEditingController();
+  late String governorate;
+  bool compliance = false;
+
+  @override
+  void initState() {
+    super.initState();
+    final p = DemoScope.of(context).businessProfile;
+    governorate = p?['governorate'] as String? ?? syrianGovernorates.first;
+    if (!syrianGovernorates.contains(governorate)) {
+      governorate = syrianGovernorates.first;
+    }
+    storeName.text = p?['store_name'] as String? ?? '';
+    legalName.text = p?['legal_name'] as String? ?? '';
+    city.text = p?['city'] as String? ?? '';
+    address.text = p?['address'] as String? ?? '';
+    phone.text = p?['public_phone'] as String? ?? '';
+    email.text = p?['public_email'] as String? ?? '';
+    registerNumber.text = p?['register_number'] as String? ?? '';
+    compliance = p != null;
+  }
+
+  @override
+  void dispose() {
+    for (final c in [
+      storeName,
+      legalName,
+      city,
+      address,
+      phone,
+      email,
+      registerNumber,
+    ]) {
+      c.dispose();
+    }
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final store = DemoScope.of(context);
+    final (label, color, detail) = switch (store.businessStatus) {
+      'verified' => (
+          'تاجر موثّق',
+          Brand.lime,
+          'وثّقت الإدارة ملفك — تظهر شارة التوثيق على إعلاناتك.',
+        ),
+      'pending' => (
+          'قيد المراجعة',
+          Brand.green,
+          'طلبك قيد مراجعة فريق «سوقنا».',
+        ),
+      'rejected' => (
+          'مرفوض',
+          Colors.red.shade700,
+          store.businessReviewNote ?? 'رفضت الإدارة الملف. عدّل البيانات وأرسل مجددًا.',
+        ),
+      _ => (
+          'غير مسجّل',
+          Brand.muted,
+          'قدّم بيانات متجرك للحصول على شارة «تاجر موثّق» بعد مراجعة الإدارة.',
+        ),
+    };
+    return Scaffold(
+      appBar: PageHeader(store.isLive ? 'الملف التجاري' : 'ملف تجاري تجريبي'),
+      body: Form(
+        key: key,
+        child: ListView(
+          padding: const EdgeInsets.all(16),
+          children: [
+            Container(
+              padding: const EdgeInsets.all(12),
+              color: Brand.pale,
+              child: Row(
+                children: [
+                  Icon(Icons.verified_outlined, color: color),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          label,
+                          style: TextStyle(
+                            fontWeight: FontWeight.w800,
+                            color: color,
+                          ),
+                        ),
+                        Text(
+                          detail,
+                          style: TextStyle(fontSize: 12, color: Brand.deep),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 16),
+            TextFormField(
+              controller: storeName,
+              decoration: const InputDecoration(labelText: 'اسم المتجر *'),
+              validator: (v) =>
+                  (v ?? '').trim().isEmpty ? 'أدخل اسم المتجر' : null,
+            ),
+            TextFormField(
+              controller: legalName,
+              decoration: const InputDecoration(
+                labelText: 'الاسم القانوني (اختياري)',
+              ),
+            ),
+            const SizedBox(height: 8),
+            DropdownButtonFormField<String>(
+              initialValue: governorate,
+              decoration: const InputDecoration(labelText: 'المحافظة *'),
+              items: [
+                for (final g in syrianGovernorates)
+                  DropdownMenuItem(value: g, child: Text(g)),
+              ],
+              onChanged: (v) => governorate = v ?? governorate,
+            ),
+            TextFormField(
+              controller: city,
+              decoration: const InputDecoration(labelText: 'المدينة *'),
+              validator: (v) =>
+                  (v ?? '').trim().isEmpty ? 'أدخل المدينة' : null,
+            ),
+            TextFormField(
+              controller: address,
+              decoration: const InputDecoration(
+                labelText: 'العنوان (اختياري)',
+              ),
+            ),
+            TextFormField(
+              controller: phone,
+              keyboardType: TextInputType.phone,
+              decoration: const InputDecoration(labelText: 'هاتف المتجر *'),
+              validator: (v) =>
+                  (v ?? '').trim().isEmpty ? 'أدخل هاتف المتجر' : null,
+            ),
+            TextFormField(
+              controller: email,
+              keyboardType: TextInputType.emailAddress,
+              decoration: const InputDecoration(
+                labelText: 'بريد المتجر (اختياري)',
+              ),
+            ),
+            TextFormField(
+              controller: registerNumber,
+              decoration: const InputDecoration(
+                labelText: 'رقم السجل التجاري (اختياري)',
+              ),
+            ),
+            CheckboxListTile(
+              value: compliance,
+              onChanged: (v) => setState(() => compliance = v ?? false),
+              title: const Text(
+                'أؤكد أنني أبيع بصفة تجارية وأن بياناتي صحيحة، '
+                'وأوافق على عرض بيانات الاتصال على إعلاناتي.',
+                style: TextStyle(fontSize: 13),
+              ),
+              controlAffinity: ListTileControlAffinity.leading,
+            ),
+          ],
+        ),
+      ),
+      bottomNavigationBar: BottomAction(
+        store.businessStatus == 'none' ? 'تقديم للتوثيق' : 'حفظ التغييرات',
+        onPressed: () {
+          if (!compliance) {
+            toast(context, 'أكّد بياناتك التجارية أولاً.');
+            return;
+          }
+          if (key.currentState!.validate()) {
+            store.submitBusinessProfile({
+              'store_name': storeName.text.trim(),
+              'legal_name': legalName.text.trim(),
+              'governorate': governorate,
+              'city': city.text.trim(),
+              'address': address.text.trim(),
+              'public_phone': phone.text.trim(),
+              'public_email': email.text.trim(),
+              'register_number': registerNumber.text.trim(),
+            });
+            Navigator.pop(context);
+          }
+        },
+      ),
+    );
+  }
 }

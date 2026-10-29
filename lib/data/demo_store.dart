@@ -44,6 +44,8 @@ class Listing {
     this.views = -1,
     this.favoritesCount = -1,
     this.memberSince = '',
+    this.sellerVerified = false,
+    this.sellerStoreName = '',
     this.description =
         'بحالة جيدة وجاهز لصاحب جديد. '
         'نعرض هذا الغرض الجميل لأننا نريد إخلاء مكان. '
@@ -72,6 +74,8 @@ class Listing {
   // -1 = unknown (demo data); real counts come from the backend
   final int views, favoritesCount;
   final String memberSince;
+  final bool sellerVerified;
+  final String sellerStoreName;
   final bool shipping, direct, commercial, wanted, featured;
   final List<String> images;
   List<String> get gallery => images.isEmpty ? [image] : images;
@@ -107,6 +111,8 @@ class Listing {
     'views': views,
     'favoritesCount': favoritesCount,
     'memberSince': memberSince,
+    'sellerVerified': sellerVerified,
+    'sellerStoreName': sellerStoreName,
   };
   factory Listing.fromJson(Map<String, dynamic> j) {
     final price = (j['price'] as num).toDouble();
@@ -143,6 +149,8 @@ class Listing {
       views: (j['views'] as num?)?.toInt() ?? -1,
       favoritesCount: (j['favoritesCount'] as num?)?.toInt() ?? -1,
       memberSince: j['memberSince'] as String? ?? '',
+      sellerVerified: j['sellerVerified'] as bool? ?? false,
+      sellerStoreName: j['sellerStoreName'] as String? ?? '',
     );
   }
   Listing copyWith({
@@ -194,6 +202,8 @@ class Listing {
     views: views,
     favoritesCount: favoritesCount,
     memberSince: memberSince,
+    sellerVerified: sellerVerified,
+    sellerStoreName: sellerStoreName,
   );
 }
 
@@ -546,6 +556,23 @@ class SavedSearch {
     )..alerts = json['alerts'] as bool? ?? true;
   }
 }
+
+const syrianGovernorates = <String>[
+  'دمشق',
+  'ريف دمشق',
+  'حلب',
+  'حمص',
+  'حماة',
+  'اللاذقية',
+  'طرطوس',
+  'إدلب',
+  'درعا',
+  'السويداء',
+  'القنيطرة',
+  'دير الزور',
+  'الرقة',
+  'الحسكة',
+];
 
 class DemoScope extends InheritedNotifier<DemoStore> {
   const DemoScope({super.key, required DemoStore store, required super.child})

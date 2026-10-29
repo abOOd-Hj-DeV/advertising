@@ -310,6 +310,7 @@ class BackendStore extends DemoStore {
       _loadBlocks(),
       refreshConversations(),
       refreshNotifications(),
+      _loadBusiness(),
     ]);
     _poll?.cancel();
     _poll = Timer.periodic(const Duration(seconds: 20), (_) {
@@ -329,6 +330,57 @@ class BackendStore extends DemoStore {
     } catch (e) {
       _fail(e);
     }
+  }
+
+  Future<void> _loadBusiness() async {
+    try {
+      final s = await _client.get('/me/business/status');
+      businessStatus = s['status'] as String? ?? 'none';
+      businessReviewNote = s['review_note'] as String?;
+      if (businessStatus != 'none') {
+        final p = await _client.get('/me/business');
+        businessProfile = Map<String, dynamic>.from(p);
+      } else {
+        businessProfile = null;
+      }
+      notifyListeners();
+    } catch (_) {
+      businessStatus = 'none';
+      businessProfile = null;
+    }
+  }
+
+  @override
+  void submitBusinessProfile(Map<String, String> data) {
+    if (!signedIn) return;
+    businessStatus = 'pending';
+    businessProfile = Map<String, dynamic>.from(data);
+    commercial = true;
+    notifyListeners();
+    unawaited(
+      _client
+          .put('/me/business', body: {
+            'legal_name': data['legal_name']?.isEmpty == true
+                ? null
+                : data['legal_name'],
+            'store_name': data['store_name'],
+            'address': data['address']?.isEmpty == true
+                ? null
+                : data['address'],
+            'governorate': data['governorate'],
+            'city': data['city'],
+            'public_phone': data['public_phone'],
+            'public_email': data['public_email']?.isEmpty == true
+                ? null
+                : data['public_email'],
+            'register_number': data['register_number']?.isEmpty == true
+                ? null
+                : data['register_number'],
+            'compliance_confirmed': true,
+          })
+          .then((_) => _loadBusiness())
+          .onError((e, st) { _fail(e as Object); }),
+    );
   }
 
   Future<void> _loadFavorites() async {
@@ -889,6 +941,8 @@ class BackendStore extends DemoStore {
       views: (j['views_count'] as num?)?.toInt() ?? -1,
       favoritesCount: (j['favorites_count'] as num?)?.toInt() ?? -1,
       memberSince: (seller?['member_since'] ?? j['member_since']) as String? ?? '',
+      sellerVerified: (seller?['business'] as Map?)?['verified'] as bool? ?? false,
+      sellerStoreName: (seller?['business'] as Map?)?['store_name'] as String? ?? '',
       description: j['description'] as String? ?? '',
     );
   }

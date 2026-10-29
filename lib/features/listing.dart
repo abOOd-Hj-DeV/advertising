@@ -359,9 +359,9 @@ class _ListingPageState extends State<ListingPage> {
           ),
           SliverToBoxAdapter(
             child: RowLink(
-              l.seller,
+              '${l.sellerStoreName.isEmpty ? l.seller : l.sellerStoreName}${l.sellerVerified ? ' ✓' : ''}',
               subtitle:
-                  '${l.commercial ? 'بائع تجاري' : 'بائع فردي'}${l.memberSince.isEmpty ? '' : ' · عضو منذ ${l.memberSince.substring(0, 4)}'}',
+                  '${l.commercial ? (l.sellerVerified ? 'تاجر موثّق' : 'بائع تجاري') : 'بائع فردي'}${l.memberSince.isEmpty ? '' : ' · عضو منذ ${l.memberSince.substring(0, 4)}'}',
               icon: Icons.account_circle_outlined,
               onTap: () => go(context, SellerPage(listing: l)),
             ),

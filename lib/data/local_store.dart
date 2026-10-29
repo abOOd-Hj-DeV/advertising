@@ -48,6 +48,10 @@ class DemoStore extends ChangeNotifier {
   bool consentAccepted = false, personalized = false, analytics = false;
   bool signedIn = false, commercial = false, newsletter = false;
   bool get isLive => false; // BackendStore overrides → real API mode
+  // Merchant profile: none | pending | verified | rejected
+  String businessStatus = 'none';
+  Map<String, dynamic>? businessProfile;
+  String? businessReviewNote;
   bool localAlerts = true, emailPreference = false;
   bool readOnlyStorage = false;
   String name = 'بائع تجريبي';
@@ -148,6 +152,9 @@ class DemoStore extends ChangeNotifier {
       name = v;
     });
     field('commercial', (v) => commercial = v as bool);
+    field('businessStatus', (v) => businessStatus = v as String);
+    field('businessReviewNote', (v) => businessReviewNote = v as String?);
+    field('businessProfile', (v) => businessProfile = Map<String, dynamic>.from(v as Map));
     field('newsletter', (v) => newsletter = v as bool);
     field('localAlerts', (v) => localAlerts = v as bool);
     field('emailPreference', (v) => emailPreference = v as bool);
@@ -196,6 +203,9 @@ class DemoStore extends ChangeNotifier {
     'analytics': analytics,
     'name': name,
     'commercial': commercial,
+    'businessStatus': businessStatus,
+    'businessReviewNote': businessReviewNote,
+    'businessProfile': businessProfile,
     'newsletter': newsletter,
     'localAlerts': localAlerts,
     'emailPreference': emailPreference,
@@ -603,6 +613,16 @@ class DemoStore extends ChangeNotifier {
     blockedParticipants.contains(participantId)
         ? blockedParticipants.remove(participantId)
         : blockedParticipants.add(participantId);
+    _save();
+  }
+
+  /// Submit the merchant business profile. Local store records it as
+  /// pending; BackendStore overrides to hit /me/business.
+  void submitBusinessProfile(Map<String, String> data) {
+    businessProfile = Map<String, dynamic>.from(data);
+    businessStatus = 'pending';
+    businessReviewNote = null;
+    commercial = true;
     _save();
   }
 
