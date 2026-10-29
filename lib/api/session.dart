@@ -59,6 +59,7 @@ class ApiSession {
     final res = await client.post('/auth/login', body: {
       'email': email,
       'password': password,
+      'device_name': 'flutter-app',
     });
     await _saveToken(res['token'] as String);
     _user = res['user'] as Map<String, dynamic>?;
