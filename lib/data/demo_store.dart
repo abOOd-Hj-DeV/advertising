@@ -4,6 +4,17 @@ import 'package:shared_preferences/shared_preferences.dart';
 part 'local_models.dart';
 part 'local_store.dart';
 
+String _groupDigits(double v) {
+  final s = v.toStringAsFixed(v % 1 == 0 ? 0 : 2);
+  final dot = s.indexOf('.');
+  final intPart = dot < 0 ? s : s.substring(0, dot);
+  final grouped = intPart.replaceAllMapped(
+    RegExp(r'\B(?=(\d{3})+(?!\d))'),
+    (_) => ',',
+  );
+  return dot < 0 ? grouped : '$grouped${s.substring(dot)}';
+}
+
 class Listing {
   const Listing({
     required this.id,
@@ -11,30 +22,30 @@ class Listing {
     required this.price,
     required this.image,
     required this.category,
-    this.city = 'Berlin',
-    this.district = 'Prenzlauer Berg',
+    this.city = 'دمشق',
+    this.district = 'المزة',
     this.distance = 4,
-    this.type = 'Cityräder',
-    this.kind = 'Unisex',
+    this.type = 'دراجات مدينة',
+    this.kind = 'للجنسين',
     this.carrier = 'DHL',
     this.ageHours = 2,
-    this.condition = 'Sehr gut',
+    this.condition = 'جيد جداً',
     this.shipping = true,
     this.direct = false,
     this.commercial = false,
     this.wanted = false,
     this.featured = false,
-    this.seller = 'Lena',
-    this.date = 'Heute, 10:42',
+    this.seller = 'لينا',
+    this.date = 'اليوم، 10:42',
     this.images = const [],
     this.sellerId = '',
     this.status = ListingStatus.active,
     this.priceType = PriceType.fixed,
     this.description =
-        'Gut erhalten und bereit für ein neues Zuhause. '
-        'Wir geben diesen schönen Artikel ab, weil wir Platz schaffen möchten. '
-        'Bei Fragen melde dich gerne. Abholung nach Vereinbarung. '
-        'Dies ist eine fiktive Anzeige für die lokale UI-Demo.',
+        'بحالة جيدة وجاهز لصاحب جديد. '
+        'نعرض هذا الغرض الجميل لأننا نريد إخلاء مكان. '
+        'إذا كان لديك أي سؤال راسلني. الاستلام بالاتفاق. '
+        'هذا إعلان تجريبي لواجهة السوق المحلية.',
   });
   final String id,
       title,
@@ -59,8 +70,8 @@ class Listing {
   final List<String> images;
   List<String> get gallery => images.isEmpty ? [image] : images;
   String get formattedPrice => priceType == PriceType.free
-      ? 'Zu verschenken'
-      : '${price.toStringAsFixed(price % 1 == 0 ? 0 : 2).replaceAll('.', ',')} €${priceType == PriceType.negotiable ? ' VB' : ''}';
+      ? 'مجاني'
+      : '${_groupDigits(price)} ل.س${priceType == PriceType.negotiable ? ' قابل للتفاوض' : ''}';
   Map<String, dynamic> toJson() => {
     'id': id,
     'title': title,
@@ -92,7 +103,7 @@ class Listing {
     final price = (j['price'] as num).toDouble();
     final id = j['id'] as String;
     if (id.isEmpty || !price.isFinite || price < 0) {
-      throw const FormatException('Ungültige Anzeige');
+      throw const FormatException('إعلان غير صالح');
     }
     return Listing(
       id: id,
@@ -100,15 +111,15 @@ class Listing {
       title: j['title'] as String,
       image: j['image'] as String,
       category: j['category'] as String,
-      city: j['city'] as String? ?? 'Berlin',
+      city: j['city'] as String? ?? 'دمشق',
       district: j['district'] as String? ?? '',
       type: j['type'] as String? ?? '',
       kind: j['kind'] as String? ?? '',
       carrier: j['carrier'] as String? ?? 'DHL',
-      condition: j['condition'] as String? ?? 'Gut',
-      seller: j['seller'] as String? ?? 'Lena Demo',
+      condition: j['condition'] as String? ?? 'جيد',
+      seller: j['seller'] as String? ?? 'بائع تجريبي',
       sellerId: j['sellerId'] as String? ?? 'self',
-      date: j['date'] as String? ?? 'Lokal',
+      date: j['date'] as String? ?? 'محلي',
       description: j['description'] as String? ?? '',
       shipping: j['shipping'] as bool? ?? false,
       direct: j['direct'] as bool? ?? false,
@@ -175,241 +186,241 @@ const listings = <Listing>[
   Listing(
     id: 'b1',
     priceType: PriceType.negotiable,
-    title: 'Citybike – leicht, gepflegt und sofort startklar',
-    price: 180,
+    title: 'دراجة مدينة – خفيفة ونظيفة وجاهزة فوراً',
+    price: 1400000,
     image: 'bike_city',
-    category: 'Fahrräder & Zubehör',
+    category: 'دراجات وملحقات',
     direct: true,
-    kind: 'Damen',
+    kind: 'نسائي',
     ageHours: 1,
     featured: true,
     images: ['bike_city', 'bike', 'bike_road'],
   ),
   Listing(
     id: 'b2',
-    title: 'Klassisches Fahrrad mit 7 Gängen',
-    price: 95,
+    title: 'دراجة كلاسيكية بـ 7 سرعات',
+    price: 750000,
     image: 'bike',
-    category: 'Fahrräder & Zubehör',
-    district: 'Mitte',
+    category: 'دراجات وملحقات',
+    district: 'الصالحية',
     distance: 2,
-    seller: 'Paul',
-    condition: 'Gut',
-    kind: 'Herren',
+    seller: 'باسل',
+    condition: 'جيد',
+    kind: 'رجالي',
     carrier: 'Hermes',
     ageHours: 6,
     images: ['bike', 'bike_city'],
   ),
   Listing(
     id: 'b3',
-    title: 'Trekkingrad für Stadt und kleine Abenteuer',
-    price: 320,
+    title: 'دراجة سياحية للمدينة والمشاوير القصيرة',
+    price: 2500000,
     priceType: PriceType.negotiable,
     image: 'bike_road',
-    category: 'Fahrräder & Zubehör',
-    district: 'Kreuzberg',
-    type: 'Trekkingräder',
+    category: 'دراجات وملحقات',
+    district: 'المالكي',
+    type: 'دراجات سياحية',
     featured: true,
-    seller: 'Mira',
+    seller: 'ميرا',
     distance: 9,
     images: ['bike_road', 'bike', 'bike_city'],
   ),
   Listing(
     id: 'b4',
-    title: 'Fahrrad für Kinder, guter Zustand',
-    price: 70,
+    title: 'دراجة أطفال بحالة جيدة',
+    price: 550000,
     image: 'bike_city',
-    category: 'Fahrräder & Zubehör',
-    type: 'Kinderräder',
-    kind: 'Kinder',
-    district: 'Pankow',
-    seller: 'Jonas',
+    category: 'دراجات وملحقات',
+    type: 'دراجات أطفال',
+    kind: 'أطفال',
+    district: 'الميدان',
+    seller: 'جود',
     distance: 12,
     shipping: false,
   ),
   Listing(
     id: 'b5',
-    title: 'Sportliches Rennrad – neue Reifen',
-    price: 550,
+    title: 'دراجة سباق رياضية – إطارات جديدة',
+    price: 4200000,
     priceType: PriceType.negotiable,
     image: 'bike_road',
-    category: 'Fahrräder & Zubehör',
-    type: 'Rennräder',
-    city: 'Hamburg',
-    district: 'Altona',
+    category: 'دراجات وملحقات',
+    type: 'دراجات سباق',
+    city: 'حلب',
+    district: 'الجميلية',
     distance: 3,
-    seller: 'Finn',
+    seller: 'فادي',
     direct: true,
   ),
   Listing(
     id: 'b6',
-    title: 'Fahrrad Retro – schönes Alltagsrad',
-    price: 125,
+    title: 'دراجة ريترو – جميلة للاستخدام اليومي',
+    price: 950000,
     priceType: PriceType.negotiable,
     image: 'bike',
-    category: 'Fahrräder & Zubehör',
-    district: 'Charlottenburg',
+    category: 'دراجات وملحقات',
+    district: 'كفرسوسة',
     distance: 10,
-    seller: 'Sophie',
-    condition: 'Gut',
-    kind: 'Damen',
+    seller: 'سوسن',
+    condition: 'جيد',
+    kind: 'نسائي',
     carrier: 'DPD',
   ),
   Listing(
     id: 'b7',
-    title: 'E-Bike mit Zubehör und Rechnung',
-    price: 1290,
+    title: 'دراجة كهربائية مع ملحقاتها وفاتورة الشراء',
+    price: 9500000,
     priceType: PriceType.negotiable,
     image: 'bike_city',
-    category: 'Fahrräder & Zubehör',
-    type: 'E-Bikes',
-    kind: 'Herren',
-    district: 'Friedrichshain',
+    category: 'دراجات وملحقات',
+    type: 'دراجات كهربائية',
+    kind: 'رجالي',
+    district: 'القصاع',
     direct: true,
     commercial: true,
-    seller: 'Radhaus Demo',
+    seller: 'دراجات الشام',
   ),
   Listing(
     id: 'b8',
-    title: 'Suche Fahrrad für den Weg zur Uni',
-    price: 150,
+    title: 'مطلوب دراجة للمشوار إلى الجامعة',
+    price: 1200000,
     priceType: PriceType.negotiable,
     image: 'bike',
-    category: 'Fahrräder & Zubehör',
+    category: 'دراجات وملحقات',
     wanted: true,
     shipping: false,
-    district: 'Neukölln',
-    seller: 'Alex',
+    district: 'ركن الدين',
+    seller: 'علي',
     distance: 8,
   ),
   Listing(
     id: 's1',
-    title: 'Gemütliches Sofa in sattem Grün',
-    price: 240,
+    title: 'كنبة مريحة بلون أخضر غامق',
+    price: 1800000,
     priceType: PriceType.negotiable,
     image: 'sofa',
-    type: 'Sofas & Sitzgarnituren',
-    category: 'Haus & Garten',
+    type: 'كنب وأطقم',
+    category: 'المنزل والحديقة',
     featured: true,
     shipping: false,
-    seller: 'Lena',
+    seller: 'لينا',
     images: ['sofa', 'room'],
   ),
   Listing(
     id: 'r1',
-    title: 'Helle 2-Zimmer-Wohnung mit Balkon',
-    price: 850,
+    title: 'شقة غرفتين منورة مع بلكون للإيجار',
+    price: 4000000,
     image: 'room',
-    category: 'Immobilien',
-    district: 'Mitte',
+    category: 'عقارات',
+    district: 'الصالحية',
     shipping: false,
-    type: 'Mieten',
+    type: 'للإيجار',
     images: ['room', 'sofa'],
-    seller: 'Mira',
+    seller: 'ميرا',
   ),
   Listing(
     id: 'r2',
-    title: 'Stilvolles Apartment im Grünen',
-    price: 265000,
+    title: 'شقة أنيقة بمنطقة خضراء للبيع',
+    price: 25000000,
     image: 'room',
-    category: 'Immobilien',
-    type: 'Kaufen',
+    category: 'عقارات',
+    type: 'للبيع',
     shipping: false,
-    district: 'Pankow',
+    district: 'الميدان',
     distance: 12,
-    seller: 'Paul',
+    seller: 'باسل',
   ),
   Listing(
     id: 'c1',
-    title: 'Sportwagen – gepflegt, neue Inspektion',
-    price: 23900,
+    title: 'سيارة رياضية – بحالة ممتازة وفحص جديد',
+    price: 22000000,
     priceType: PriceType.negotiable,
     image: 'car',
-    type: 'Autos',
-    category: 'Auto, Rad & Boot',
+    type: 'سيارات',
+    category: 'سيارات ودراجات وقوارب',
     shipping: false,
-    seller: 'Paul',
+    seller: 'باسل',
   ),
   Listing(
     id: 'e1',
-    title: 'Spiegelreflexkamera mit Objektiv',
-    price: 290,
+    title: 'كاميرا احترافية مع عدسة',
+    price: 2200000,
     priceType: PriceType.negotiable,
     image: 'camera',
-    type: 'Kameras',
-    category: 'Elektronik',
+    type: 'كاميرات',
+    category: 'إلكترونيات',
     direct: true,
-    seller: 'Jonas',
+    seller: 'جود',
   ),
   Listing(
     id: 'e2',
-    title: 'Notebook 13 Zoll – ideal fürs Studium',
-    price: 420,
+    title: 'لابتوب 13 إنش – مثالي للدراسة',
+    price: 3200000,
     priceType: PriceType.negotiable,
     image: 'laptop',
-    type: 'Notebooks',
+    type: 'لابتوبات',
     carrier: 'DPD',
-    category: 'Elektronik',
-    seller: 'Mira',
+    category: 'إلكترونيات',
+    seller: 'ميرا',
   ),
   Listing(
     id: 'f1',
-    title: 'Sneaker in Rot, Größe 39',
-    price: 45,
+    title: 'حذاء رياضي أحمر، قياس 39',
+    price: 550000,
     image: 'shoes',
-    type: 'Schuhe',
+    type: 'أحذية',
     carrier: 'Hermes',
-    category: 'Mode & Beauty',
-    district: 'Kreuzberg',
-    seller: 'Sophie',
+    category: 'أزياء وجمال',
+    district: 'المالكي',
+    seller: 'سوسن',
   ),
   Listing(
     id: 'p1',
-    title: 'Große Zimmerpflanze mit Übertopf',
-    price: 25,
+    title: 'نبتة منزلية كبيرة مع أصيص',
+    price: 480000,
     image: 'plant',
-    type: 'Pflanzen',
-    category: 'Haus & Garten',
+    type: 'نباتات',
+    category: 'المنزل والحديقة',
     shipping: false,
-    seller: 'Lena',
+    seller: 'لينا',
   ),
   Listing(
     id: 'm1',
-    title: 'Bücherpaket – spannende Geschichten',
-    price: 20,
+    title: 'حزمة كتب – قصص شيّقة',
+    price: 450000,
     image: 'books',
-    type: 'Bücher',
-    category: 'Musik, Filme & Bücher',
-    seller: 'Finn',
+    type: 'كتب',
+    category: 'موسيقى وأفلام وكتب',
+    seller: 'فادي',
   ),
   Listing(
     id: 'h1',
-    title: 'Hundebetreuung am Wochenende',
-    price: 30,
+    title: 'رعاية كلاب في عطلة نهاية الأسبوع',
+    price: 500000,
     image: 'dog',
-    type: 'Hundebetreuung',
-    category: 'Haustiere',
+    type: 'رعاية كلاب',
+    category: 'حيوانات أليفة',
     shipping: false,
-    seller: 'Sophie',
+    seller: 'سوسن',
   ),
 ];
 
 class SearchFilters {
   SearchFilters({
-    this.category = 'Alle Kategorien',
+    this.category = 'كل الفئات',
     this.city = '',
     this.radius = 15,
     this.minimum,
     this.maximum,
     this.extraBudget = false,
-    this.sort = 'Empfohlen',
-    this.type = 'Alle',
-    this.kind = 'Alle',
-    this.condition = 'Alle',
-    this.shipping = 'Alle',
-    this.carrier = 'Alle',
-    this.seller = 'Privat & Gewerblich',
-    this.offer = 'Angebote & Gesuche',
+    this.sort = 'مقترح',
+    this.type = 'الكل',
+    this.kind = 'الكل',
+    this.condition = 'الكل',
+    this.shipping = 'الكل',
+    this.carrier = 'الكل',
+    this.seller = 'فردي وتجاري',
+    this.offer = 'عروض وطلبات',
     this.direct = false,
   });
   String category,
@@ -443,28 +454,27 @@ class SearchFilters {
     direct: direct,
   );
   bool accepts(Listing l) =>
-      (category == 'Alle Kategorien' ||
+      (category == 'كل الفئات' ||
           l.category == category ||
-          category == 'Autos' && l.type == 'Autos' ||
-          category == 'Auto, Rad & Boot' &&
-              l.category == 'Fahrräder & Zubehör') &&
+          category == 'سيارات' && l.type == 'سيارات' ||
+          category == 'سيارات ودراجات وقوارب' &&
+              l.category == 'دراجات وملحقات') &&
       (city.isEmpty || l.city == city && l.distance <= radius) &&
       (minimum == null || l.price >= minimum!) &&
       (maximum == null || l.price <= maximum! * (extraBudget ? 1.15 : 1)) &&
-      (type == 'Alle' || l.type == type) &&
-      (condition == 'Alle' || l.condition == condition) &&
-      (kind == 'Alle' || kind == l.kind) &&
-      (shipping == 'Alle' || l.shipping == (shipping == 'Versand möglich')) &&
-      (carrier == 'Alle' || l.shipping && carrier == l.carrier) &&
-      (seller == 'Privat & Gewerblich' ||
-          l.commercial == (seller == 'Gewerblich')) &&
-      (offer == 'Angebote & Gesuche' || l.wanted == (offer == 'Gesuche')) &&
+      (type == 'الكل' || l.type == type) &&
+      (condition == 'الكل' || l.condition == condition) &&
+      (kind == 'الكل' || kind == l.kind) &&
+      (shipping == 'الكل' || l.shipping == (shipping == 'شحن متاح')) &&
+      (carrier == 'الكل' || l.shipping && carrier == l.carrier) &&
+      (seller == 'فردي وتجاري' || l.commercial == (seller == 'تجاري')) &&
+      (offer == 'عروض وطلبات' || l.wanted == (offer == 'طلبات')) &&
       (!direct || l.direct);
   String get locationLabel =>
-      city.isEmpty ? 'Ganz Deutschland' : '$city (+${radius.round()} km)';
+      city.isEmpty ? 'كل سوريا' : '$city (+${radius.round()} كم)';
   String get priceLabel => minimum == null && maximum == null
-      ? 'Beliebig'
-      : '${minimum?.round() ?? 0}–${maximum?.round() ?? '∞'} €';
+      ? 'أي سعر'
+      : '${_groupDigits(minimum ?? 0)}–${maximum == null ? '∞' : _groupDigits(maximum!)} ل.س';
   Map<String, Object?> toJson() => {
     'category': category,
     'city': city,
@@ -483,20 +493,20 @@ class SearchFilters {
     'direct': direct,
   };
   factory SearchFilters.fromJson(Map<String, dynamic> json) => SearchFilters(
-    category: json['category'] as String? ?? 'Alle Kategorien',
+    category: json['category'] as String? ?? 'كل الفئات',
     city: json['city'] as String? ?? '',
     radius: (json['radius'] as num?)?.toDouble() ?? 15,
     minimum: (json['minimum'] as num?)?.toDouble(),
     maximum: (json['maximum'] as num?)?.toDouble(),
     extraBudget: json['extraBudget'] as bool? ?? false,
-    sort: json['sort'] as String? ?? 'Empfohlen',
-    type: json['type'] as String? ?? 'Alle',
-    kind: json['kind'] as String? ?? 'Alle',
-    condition: json['condition'] as String? ?? 'Alle',
-    shipping: json['shipping'] as String? ?? 'Alle',
-    carrier: json['carrier'] as String? ?? 'Alle',
-    seller: json['seller'] as String? ?? 'Privat & Gewerblich',
-    offer: json['offer'] as String? ?? 'Angebote & Gesuche',
+    sort: json['sort'] as String? ?? 'مقترح',
+    type: json['type'] as String? ?? 'الكل',
+    kind: json['kind'] as String? ?? 'الكل',
+    condition: json['condition'] as String? ?? 'الكل',
+    shipping: json['shipping'] as String? ?? 'الكل',
+    carrier: json['carrier'] as String? ?? 'الكل',
+    seller: json['seller'] as String? ?? 'فردي وتجاري',
+    offer: json['offer'] as String? ?? 'عروض وطلبات',
     direct: json['direct'] as bool? ?? false,
   );
 }
@@ -507,7 +517,7 @@ class SavedSearch {
   final SearchFilters filters;
   bool alerts = true;
   String get label =>
-      '${query.isEmpty ? 'Alle Anzeigen' : query} · ${filters.locationLabel} · ${filters.priceLabel}';
+      '${query.isEmpty ? 'كل الإعلانات' : query} · ${filters.locationLabel} · ${filters.priceLabel}';
   String encode() => jsonEncode({
     'query': query,
     'filters': filters.toJson(),
