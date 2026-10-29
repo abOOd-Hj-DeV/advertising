@@ -13,7 +13,7 @@ class LocalEmpty extends StatelessWidget {
     this.title,
     this.body, {
     super.key,
-    this.action = 'Anzeigen entdecken',
+    this.action = 'تصفح الإعلانات',
     this.onAction,
   });
   final String title, body, action;
@@ -61,11 +61,11 @@ class FavoritesPage extends StatelessWidget {
       child: Column(
         children: [
           AppBar(
-            title: const Text('Favoriten'),
+            title: const Text('المفضلة'),
             automaticallyImplyLeading: false,
             actions: [
               IconButton(
-                tooltip: 'Zuletzt angesehen',
+                tooltip: 'شوهدت مؤخراً',
                 onPressed: () => go(context, const RecentPage()),
                 icon: const Icon(Icons.history),
               ),
@@ -75,9 +75,9 @@ class FavoritesPage extends StatelessWidget {
             isScrollable: true,
             tabAlignment: TabAlignment.start,
             tabs: [
-              Tab(text: 'Merkliste'),
-              Tab(text: 'Suchaufträge'),
-              Tab(text: 'Folge ich'),
+              Tab(text: 'المفضلة'),
+              Tab(text: 'البحوث المحفوظة'),
+              Tab(text: 'أتابعهم'),
             ],
           ),
           Expanded(
@@ -86,8 +86,8 @@ class FavoritesPage extends StatelessWidget {
                 items.isEmpty
                     ? const SingleChildScrollView(
                         child: LocalEmpty(
-                          'Hier wohnen deine Lieblingsanzeigen',
-                          'Tippe auf das Herz einer Anzeige, um sie lokal zu merken.',
+                          'إعلاناتك المفضلة تجتمع هنا',
+                          'اضغط على رمز القلب في الإعلان لحفظه محلياً.',
                         ),
                       )
                     : ListView(
@@ -105,8 +105,8 @@ class FavoritesPage extends StatelessWidget {
                 store.savedSearches.isEmpty
                     ? const SingleChildScrollView(
                         child: LocalEmpty(
-                          'Keine Suchaufträge',
-                          'Speichere eine Suche, damit du sie hier wiederfindest.',
+                          'لا بحوث محفوظة',
+                          'احفظ بحثاً لتجده هنا لاحقاً.',
                         ),
                       )
                     : ListView(
@@ -114,7 +114,7 @@ class FavoritesPage extends StatelessWidget {
                           const Padding(
                             padding: EdgeInsets.all(16),
                             child: Text(
-                              'Schalter steuern nur lokale Demo-Hinweise, keine E-Mails oder Push-Zustellung.',
+                              'المفاتيح تتحكم بالتنبيهات التجريبية المحلية فقط، لا بالبريد الإلكتروني أو الإشعارات الفورية.',
                               style: TextStyle(fontSize: 12),
                             ),
                           ),
@@ -133,19 +133,19 @@ class FavoritesPage extends StatelessWidget {
                                   children: [
                                     Expanded(
                                       child: SwitchListTile(
-                                        title: const Text('Lokale Hinweise'),
+                                        title: const Text('تنبيهات محلية'),
                                         value: s.alerts,
                                         onChanged: (_) =>
                                             store.toggleSearchAlerts(s),
                                       ),
                                     ),
                                     IconButton(
-                                      tooltip: 'Suchauftrag löschen',
+                                      tooltip: 'حذف البحث المحفوظ',
                                       onPressed: () async {
                                         if (await confirmLocal(
                                           context,
-                                          'Suchauftrag löschen?',
-                                          'Nur dieser lokale Suchauftrag wird entfernt.',
+                                          'حذف البحث المحفوظ؟',
+                                          'سيُحذف هذا البحث المحفوظ المحلي فقط.',
                                         )) {
                                           store.deleteSearch(s);
                                         }
@@ -162,8 +162,8 @@ class FavoritesPage extends StatelessWidget {
                 sellers.isEmpty
                     ? const SingleChildScrollView(
                         child: LocalEmpty(
-                          'Du folgst noch niemandem',
-                          'Öffne ein Verkäuferprofil und wähle Folgen.',
+                          'لا تتابع أحداً بعد',
+                          'افتح ملف بائع واختر «متابعة».',
                         ),
                       )
                     : ListView(
@@ -172,10 +172,10 @@ class FavoritesPage extends StatelessWidget {
                             RowLink(
                               l.seller,
                               icon: Icons.person_outline,
-                              subtitle: 'Lokal gefolgt',
+                              subtitle: 'تتابعه محلياً',
                               onTap: () => go(context, SellerPage(listing: l)),
                               trailing: IconButton(
-                                tooltip: 'Nicht mehr folgen',
+                                tooltip: 'إلغاء المتابعة',
                                 onPressed: () => store.toggleFollow(l.identity),
                                 icon: const Icon(Icons.person_remove_outlined),
                               ),
@@ -201,15 +201,15 @@ class RecentPage extends StatelessWidget {
         .whereType<Listing>();
     return Scaffold(
       appBar: PageHeader(
-        'Zuletzt angesehen',
+        'شوهدت مؤخراً',
         actions: [
           IconButton(
-            tooltip: 'Verlauf löschen',
+            tooltip: 'مسح السجل',
             onPressed: () async {
               if (await confirmLocal(
                 context,
-                'Verlauf löschen?',
-                'Nur zuletzt angesehene Anzeigen werden entfernt. Merkliste bleibt erhalten.',
+                'مسح السجل؟',
+                'ستُحذف الإعلانات المشاهَدة مؤخراً فقط، وتبقى المفضلة.',
               )) {
                 store.clearRecent();
               }
@@ -221,8 +221,8 @@ class RecentPage extends StatelessWidget {
       body: items.isEmpty
           ? const SingleChildScrollView(
               child: LocalEmpty(
-                'Noch nichts angesehen',
-                'Öffne eine Anzeige, um sie hier wiederzufinden.',
+                'لم تشاهد شيئاً بعد',
+                'افتح إعلاناً لتجده هنا لاحقاً.',
               ),
             )
           : ListView(
@@ -247,17 +247,17 @@ class OwnListingsPage extends StatelessWidget {
     final store = DemoScope.of(context);
     if (!store.signedIn) {
       return const Scaffold(
-        body: Center(child: Text('Lokaler Zugang erforderlich')),
+        body: Center(child: Text('يلزم تسجيل الدخول المحلي')),
       );
     }
     return DefaultTabController(
       length: 4,
       child: Scaffold(
         appBar: PageHeader(
-          'Meine Anzeigen',
+          'إعلاناتي',
           actions: [
             IconButton(
-              tooltip: 'Neue Anzeige',
+              tooltip: 'إعلان جديد',
               onPressed: () => go(context, const ListingEditor()),
               icon: const Icon(Icons.add),
             ),
@@ -274,7 +274,7 @@ class OwnListingsPage extends StatelessWidget {
                     text:
                         '${status.label} (${store.ownListings.where((l) => l.status == status).length})',
                   ),
-                Tab(text: 'Entwürfe (${store.drafts.length})'),
+                Tab(text: 'المسودات (${store.drafts.length})'),
               ],
             ),
             Expanded(
@@ -289,9 +289,9 @@ class OwnListingsPage extends StatelessWidget {
                         return rows.isEmpty
                             ? SingleChildScrollView(
                                 child: LocalEmpty(
-                                  'Keine ${status.label.toLowerCase()}n Anzeigen',
-                                  'Deine Anzeigen und Status bleiben auf diesem Gerät.',
-                                  action: 'Anzeige erstellen',
+                                  'لا توجد إعلانات بحالة «${status.label}»',
+                                  'تبقى إعلاناتك وحالاتها على هذا الجهاز.',
+                                  action: 'إنشاء إعلان',
                                   onAction: () =>
                                       go(context, const ListingEditor()),
                                 ),
@@ -328,7 +328,7 @@ class OwnListingsPage extends StatelessWidget {
                                                 icon: const Icon(
                                                   Icons.edit_outlined,
                                                 ),
-                                                label: const Text('Bearbeiten'),
+                                                label: const Text('تعديل'),
                                               ),
                                               ListingManagementMenu(
                                                 listingId: l.id,
@@ -346,9 +346,9 @@ class OwnListingsPage extends StatelessWidget {
                   store.drafts.isEmpty
                       ? SingleChildScrollView(
                           child: LocalEmpty(
-                            'Keine Entwürfe',
-                            'Noch nicht veröffentlichte Anzeigen findest du hier.',
-                            action: 'Entwurf beginnen',
+                            'لا مسودات',
+                            'تجد هنا الإعلانات التي لم تُنشر بعد.',
+                            action: 'بدء مسودة',
                             onAction: () => go(context, const ListingEditor()),
                           ),
                         )
@@ -359,9 +359,9 @@ class OwnListingsPage extends StatelessWidget {
                                 (d.values['title'] as String?)?.isNotEmpty ==
                                         true
                                     ? d.values['title'] as String
-                                    : 'Unbenannter Entwurf',
+                                    : 'مسودة بلا اسم',
                                 icon: Icons.edit_note,
-                                subtitle: 'Nur lokal · Fortsetzen',
+                                subtitle: 'محلية فقط · متابعة',
                                 onTap: () => go(
                                   context,
                                   ListingEditor(
@@ -370,12 +370,12 @@ class OwnListingsPage extends StatelessWidget {
                                   ),
                                 ),
                                 trailing: IconButton(
-                                  tooltip: 'Entwurf löschen',
+                                  tooltip: 'حذف المسودة',
                                   onPressed: () async {
                                     if (await confirmLocal(
                                       context,
-                                      'Entwurf löschen?',
-                                      'Dieser lokale Entwurf wird dauerhaft entfernt.',
+                                      'حذف المسودة؟',
+                                      'ستُحذف هذه المسودة المحلية نهائياً.',
                                     )) {
                                       store.deleteDraft(d.id);
                                       if (await store.flush()) {
@@ -410,11 +410,8 @@ class ListingManagementMenu extends StatelessWidget {
       return const SizedBox.shrink();
     }
     return PopupMenuButton<String>(
-      tooltip: 'Anzeige verwalten',
-      child: const Padding(
-        padding: EdgeInsets.all(12),
-        child: Text('Verwalten ⋮'),
-      ),
+      tooltip: 'إدارة الإعلان',
+      child: const Padding(padding: EdgeInsets.all(12), child: Text('إدارة ⋮')),
       onSelected: (value) async {
         if (value == 'edit') {
           go(context, ListingEditor(listingId: listingId));
@@ -423,8 +420,8 @@ class ListingManagementMenu extends StatelessWidget {
         if (value == 'delete') {
           if (await confirmLocal(
             context,
-            'Anzeige löschen?',
-            'Die lokale Anzeige wird dauerhaft gelöscht. Gesprächsverlauf bleibt erhalten.',
+            'حذف الإعلان؟',
+            'سيُحذف الإعلان المحلي نهائياً، ويبقى سجل المحادثة.',
           )) {
             store.deleteListing(listingId);
             if (await store.flush()) {
@@ -436,9 +433,9 @@ class ListingManagementMenu extends StatelessWidget {
           if (status == ListingStatus.sold &&
               !await confirmLocal(
                 context,
-                'Als verkauft markieren?',
-                'Nur lokaler Verlauf. Es findet kein Verkauf oder Zahlung statt.',
-                action: 'Als verkauft markieren',
+                'وضع علامة «مُباع»؟',
+                'سجل محلي فقط، ولن يحدث بيع أو دفع فعلي.',
+                action: 'وضع علامة «مُباع»',
               )) {
             return;
           }
@@ -446,17 +443,14 @@ class ListingManagementMenu extends StatelessWidget {
         }
       },
       itemBuilder: (_) => [
-        const PopupMenuItem(value: 'edit', child: Text('Bearbeiten')),
+        const PopupMenuItem(value: 'edit', child: Text('تعديل')),
         if (l.status != ListingStatus.reserved)
-          const PopupMenuItem(value: 'reserved', child: Text('Reservieren')),
+          const PopupMenuItem(value: 'reserved', child: Text('حجز')),
         if (l.status != ListingStatus.active)
-          const PopupMenuItem(value: 'active', child: Text('Aktivieren')),
+          const PopupMenuItem(value: 'active', child: Text('تفعيل')),
         if (l.status != ListingStatus.sold)
-          const PopupMenuItem(
-            value: 'sold',
-            child: Text('Als verkauft markieren'),
-          ),
-        const PopupMenuItem(value: 'delete', child: Text('Anzeige löschen')),
+          const PopupMenuItem(value: 'sold', child: Text('وضع علامة «مُباع»')),
+        const PopupMenuItem(value: 'delete', child: Text('حذف الإعلان')),
       ],
     );
   }
@@ -469,7 +463,7 @@ class SelfProfilePage extends StatelessWidget {
     final store = DemoScope.of(context);
     final items = store.sellerListings('self');
     return Scaffold(
-      appBar: const PageHeader('Öffentliches Demo-Profil'),
+      appBar: const PageHeader('الملف التجريبي العام'),
       body: ListView(
         children: [
           Padding(
@@ -487,22 +481,17 @@ class SelfProfilePage extends StatelessWidget {
                     fontWeight: FontWeight.bold,
                   ),
                 ),
-                Text(
-                  '${store.commercial ? 'Gewerblicher' : 'Privater'} Demo-Anbieter',
-                ),
-                Text('${items.length} aktive lokale Anzeigen'),
+                Text('بائع تجريبي ${store.commercial ? 'تجاري' : 'فردي'}'),
+                Text('إعلانات محلية نشطة: ${items.length}'),
                 const Text(
-                  'Keine echten Bewertungen oder Verifizierungen',
+                  'لا توجد تقييمات أو توثيقات حقيقية',
                   style: TextStyle(fontSize: 12),
                 ),
               ],
             ),
           ),
           if (items.isEmpty)
-            const LocalEmpty(
-              'Noch keine aktiven Anzeigen',
-              'Dein lokales Profil wird nicht veröffentlicht.',
-            ),
+            const LocalEmpty('لا إعلانات نشطة بعد', 'ملفك المحلي لن يُنشر.'),
           for (final l in items)
             ListingCard(
               listing: l,
@@ -533,19 +522,19 @@ class _MessagesPageState extends State<MessagesPage> {
     return Column(
       children: [
         AppBar(
-          title: Text(archived ? 'Archiv' : 'Nachrichten'),
+          title: Text(archived ? 'الأرشيف' : 'الرسائل'),
           automaticallyImplyLeading: false,
           actions: [
             TextButton(
               onPressed: () => setState(() => archived = !archived),
-              child: Text(archived ? 'Posteingang' : 'Archiv'),
+              child: Text(archived ? 'صندوق الوارد' : 'الأرشيف'),
             ),
           ],
         ),
         const Padding(
           padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
           child: Text(
-            'Fiktive Gespräche · keine Übertragung',
+            'محادثات افتراضية · لا تُرسَل',
             style: TextStyle(fontSize: 12, color: Brand.muted),
           ),
         ),
@@ -555,13 +544,13 @@ class _MessagesPageState extends State<MessagesPage> {
                   child: Column(
                     children: [
                       const LocalEmpty(
-                        'Alles an einem Ort',
-                        'Starte einen lokalen Chat über eine Anzeige.',
+                        'كل شيء في مكان واحد',
+                        'ابدأ محادثة محلية من داخل إعلان.',
                       ),
                       if (!archived && store.conversations.isEmpty)
                         TextButton(
                           onPressed: store.seedConversations,
-                          child: const Text('Fiktive Beispiele laden'),
+                          child: const Text('تحميل أمثلة افتراضية'),
                         ),
                     ],
                   ),
@@ -582,7 +571,7 @@ class _MessagesPageState extends State<MessagesPage> {
                           ),
                         ),
                         subtitle: Text(
-                          '${store.findListing(c.listingId)?.title ?? c.listingTitle}\n${c.draft.isNotEmpty ? 'Entwurf: ${c.draft}' : c.messages.lastOrNull?.text ?? 'Noch keine Nachricht'}',
+                          '${store.findListing(c.listingId)?.title ?? c.listingTitle}\n${c.draft.isNotEmpty ? 'مسودة: ${c.draft}' : c.messages.lastOrNull?.text ?? 'لا رسائل بعد'}',
                           maxLines: 3,
                           overflow: TextOverflow.ellipsis,
                         ),
@@ -665,15 +654,15 @@ class _MessagePageState extends State<MessagePage> {
     final c = id == null ? null : store.findConversation(id!);
     if (!store.signedIn || (initialized && id != null && c == null)) {
       return Scaffold(
-        appBar: const PageHeader('Nachrichten'),
+        appBar: const PageHeader('الرسائل'),
         body: const Center(
-          child: Text('Gespräch nicht verfügbar oder lokaler Zugang beendet.'),
+          child: Text('المحادثة غير متاحة أو انتهت الجلسة المحلية.'),
         ),
       );
     }
     if (c == null) {
       return const Scaffold(
-        body: Center(child: Text('Lokales Gespräch wird geöffnet …')),
+        body: Center(child: Text('جارٍ فتح المحادثة المحلية…')),
       );
     }
     final l = store.findListing(c.listingId);
@@ -684,7 +673,7 @@ class _MessagePageState extends State<MessagePage> {
         c.participant,
         actions: [
           PopupMenuButton<String>(
-            tooltip: 'Gespräch verwalten',
+            tooltip: 'إدارة المحادثة',
             onSelected: (action) async {
               if (action == 'archive') {
                 store.archiveChat(c.id, !c.archived);
@@ -693,8 +682,8 @@ class _MessagePageState extends State<MessagePage> {
               if (action == 'delete' &&
                   await confirmLocal(
                     context,
-                    'Gespräch löschen?',
-                    'Verlauf und Entwurf werden nur lokal dauerhaft gelöscht. Andere Gespräche bleiben erhalten.',
+                    'حذف المحادثة؟',
+                    'سيُحذف السجل والمسودة نهائياً من هذا الجهاز فقط، وتبقى المحادثات الأخرى.',
                   )) {
                 store.deleteChat(c.id);
                 if (context.mounted) Navigator.pop(context);
@@ -703,11 +692,11 @@ class _MessagePageState extends State<MessagePage> {
                 if (!context.mounted) return;
                 if (await confirmLocal(
                   context,
-                  blocked ? 'Lokal entsperren?' : 'Lokal blockieren?',
+                  blocked ? 'إلغاء الحظر المحلي؟' : 'حظر محلياً؟',
                   blocked
-                      ? 'Die lokale Eingabe wird wieder aktiviert. Keine externe Kontaktaufnahme.'
-                      : 'Deaktiviert Nachrichten und Simulation für diesen Demo-Teilnehmer.',
-                  action: blocked ? 'Entsperren' : 'Blockieren',
+                      ? 'سيُعاد تفعيل الإدخال المحلي، دون أي تواصل خارجي.'
+                      : 'يعطّل الرسائل والمحاكاة لهذا المشارك التجريبي.',
+                  action: blocked ? 'إلغاء الحظر' : 'حظر',
                 )) {
                   store.toggleBlock(c.participantId);
                 }
@@ -718,7 +707,7 @@ class _MessagePageState extends State<MessagePage> {
               if (action == 'simulate') {
                 store.sendMessage(
                   c.id,
-                  'Fiktive Antwort: Danke für deine Demo-Nachricht!',
+                  'رد افتراضي: شكراً على رسالتك التجريبية!',
                   incoming: true,
                 );
               }
@@ -726,21 +715,18 @@ class _MessagePageState extends State<MessagePage> {
             itemBuilder: (_) => [
               PopupMenuItem(
                 value: 'archive',
-                child: Text(c.archived ? 'Wiederherstellen' : 'Archivieren'),
+                child: Text(c.archived ? 'استعادة' : 'أرشفة'),
               ),
-              const PopupMenuItem(
-                value: 'delete',
-                child: Text('Gespräch löschen'),
-              ),
+              const PopupMenuItem(value: 'delete', child: Text('حذف المحادثة')),
               PopupMenuItem(
                 value: 'block',
-                child: Text(blocked ? 'Lokal entsperren' : 'Lokal blockieren'),
+                child: Text(blocked ? 'إلغاء الحظر المحلي' : 'حظر محلياً'),
               ),
-              const PopupMenuItem(value: 'report', child: Text('Lokal melden')),
+              const PopupMenuItem(value: 'report', child: Text('إبلاغ محلي')),
               PopupMenuItem(
                 value: 'simulate',
                 enabled: enabled,
-                child: const Text('Fiktive Antwort simulieren'),
+                child: const Text('محاكاة رد افتراضي'),
               ),
             ],
           ),
@@ -749,9 +735,8 @@ class _MessagePageState extends State<MessagePage> {
       body: Column(
         children: [
           RowLink(
-            l?.title ?? '${c.listingTitle} · Nicht mehr verfügbar',
-            subtitle:
-                l?.formattedPrice ?? 'Gesprächsverlauf bleibt lokal erhalten',
+            l?.title ?? '${c.listingTitle} · لم يعد متاحاً',
+            subtitle: l?.formattedPrice ?? 'يبقى سجل المحادثة محفوظاً محلياً',
             icon: Icons.sell_outlined,
             onTap: l == null
                 ? null
@@ -765,19 +750,19 @@ class _MessagePageState extends State<MessagePage> {
                     ? const SelfProfilePage()
                     : SellerPage(listing: l),
               ),
-              child: Text('Profil von ${c.participant}'),
+              child: Text('ملف ${c.participant}'),
             ),
           if (!enabled)
             Padding(
               padding: const EdgeInsets.all(8),
               child: Text(
                 blocked
-                    ? 'Lokal blockiert – Entsperren im Menü'
-                    : 'Anzeige nicht aktiv. Neue Nachrichten sind deaktiviert.',
+                    ? 'محظور محلياً — ألغِ الحظر من القائمة'
+                    : 'الإعلان غير نشط، والرسائل الجديدة معطّلة.',
               ),
             ),
           const Text(
-            'Nur auf diesem Gerät · nicht zugestellt',
+            'على هذا الجهاز فقط · لا تُرسَل',
             style: TextStyle(fontSize: 11, color: Brand.muted),
           ),
           Expanded(
@@ -789,8 +774,8 @@ class _MessagePageState extends State<MessagePage> {
                 final m = c.messages[c.messages.length - i - 1];
                 return Align(
                   alignment: m.incoming
-                      ? Alignment.centerLeft
-                      : Alignment.centerRight,
+                      ? AlignmentDirectional.centerStart
+                      : AlignmentDirectional.centerEnd,
                   child: Container(
                     constraints: BoxConstraints(
                       maxWidth: MediaQuery.sizeOf(context).width * .78,
@@ -815,7 +800,7 @@ class _MessagePageState extends State<MessagePage> {
                           ),
                         ),
                         Text(
-                          '${timeLabel(m.at)} · ${m.incoming ? 'fiktiv empfangen' : 'lokal'}',
+                          '${timeLabel(m.at)} · ${m.incoming ? 'وصلت افتراضياً' : 'محلية'}',
                           style: TextStyle(
                             fontSize: 10,
                             color: m.incoming ? null : Brand.green,
@@ -843,7 +828,7 @@ class _MessagePageState extends State<MessagePage> {
                       minLines: 1,
                       maxLines: 4,
                       decoration: const InputDecoration(
-                        hintText: 'Nachricht schreiben',
+                        hintText: 'اكتب رسالة',
                         counterText: '',
                       ),
                       onChanged: (v) {
@@ -854,7 +839,7 @@ class _MessagePageState extends State<MessagePage> {
                   ),
                   const SizedBox(width: 8),
                   IconButton.filled(
-                    tooltip: 'Demo-Nachricht senden',
+                    tooltip: 'إرسال رسالة تجريبية',
                     onPressed: !enabled || text.text.trim().isEmpty
                         ? null
                         : () {
@@ -883,7 +868,7 @@ class LocalReportPage extends StatefulWidget {
 }
 
 class _LocalReportPageState extends State<LocalReportPage> {
-  String reason = 'Verdächtiger Inhalt';
+  String reason = 'محتوى مشبوه';
   final details = TextEditingController();
   @override
   void dispose() {
@@ -893,18 +878,18 @@ class _LocalReportPageState extends State<LocalReportPage> {
 
   @override
   Widget build(BuildContext context) => Scaffold(
-    appBar: const PageHeader('Lokal melden'),
+    appBar: const PageHeader('إبلاغ محلي'),
     body: ListView(
       padding: const EdgeInsets.all(16),
       children: [
         const Text(
-          'Diese Meldung wird nur auf diesem Gerät dokumentiert. Sie wird nicht an Kleinanzeigen, Behörden oder andere Personen gesendet.',
+          'يُوثَّق هذا الإبلاغ على هذا الجهاز فقط، ولن يُرسَل إلى «سوقنا» أو السلطات أو أي شخص آخر.',
         ),
         for (final value in [
-          'Verdächtiger Inhalt',
-          'Unangemessene Nachricht',
-          'Betrugsverdacht',
-          'Sonstiges',
+          'محتوى مشبوه',
+          'رسالة غير لائقة',
+          'اشتباه بالاحتيال',
+          'أخرى',
         ])
           ListTile(
             title: Text(value),
@@ -921,11 +906,11 @@ class _LocalReportPageState extends State<LocalReportPage> {
           minLines: 3,
           maxLines: 5,
           decoration: const InputDecoration(
-            labelText: 'Details (optional, keine sensiblen Daten)',
+            labelText: 'التفاصيل (اختياري، بدون بيانات حساسة)',
           ),
         ),
         PrimaryButton(
-          'Nur lokal dokumentieren',
+          'توثيق محلي فقط',
           onPressed: () {
             DemoScope.of(context).report(
               target: widget.target,
@@ -933,12 +918,12 @@ class _LocalReportPageState extends State<LocalReportPage> {
               details: details.text,
             );
             Navigator.pop(context);
-            toast(context, 'Lokal dokumentiert. Nichts wurde gesendet.');
+            toast(context, 'تم التوثيق محلياً، ولم يُرسَل شيء.');
           },
         ),
         TextButton(
           onPressed: () => Navigator.pop(context),
-          child: const Text('Abbrechen'),
+          child: const Text('إلغاء'),
         ),
       ],
     ),
@@ -952,10 +937,10 @@ class NotificationsPage extends StatelessWidget {
     final store = DemoScope.of(context);
     return Scaffold(
       appBar: PageHeader(
-        'Benachrichtigungen',
+        'الإشعارات',
         actions: [
           IconButton(
-            tooltip: 'Benachrichtigungen einstellen',
+            tooltip: 'إعدادات الإشعارات',
             onPressed: () => go(context, const NotificationPreferencesPage()),
             icon: const Icon(Icons.settings_outlined),
           ),
@@ -966,12 +951,12 @@ class NotificationsPage extends StatelessWidget {
               child: Column(
                 children: [
                   const LocalEmpty(
-                    'Keine lokalen Hinweise',
-                    'Hier erscheinen lokale Erstellungs- und simulierte Nachrichtenereignisse.',
+                    'لا تنبيهات محلية',
+                    'تظهر هنا أحداث الإنشاء المحلية ورسائل المحاكاة.',
                   ),
                   TextButton(
                     onPressed: store.seedNotice,
-                    child: const Text('Demo-Hinweis hinzufügen'),
+                    child: const Text('إضافة تنبيه تجريبي'),
                   ),
                 ],
               ),
@@ -993,9 +978,9 @@ class NotificationsPage extends StatelessWidget {
                             : FontWeight.bold,
                       ),
                     ),
-                    subtitle: const Text('Lokales Ereignis'),
+                    subtitle: const Text('حدث محلي'),
                     trailing: IconButton(
-                      tooltip: 'Hinweis entfernen',
+                      tooltip: 'إزالة التنبيه',
                       onPressed: () => store.dismissNotice(n),
                       icon: const Icon(Icons.close),
                     ),
@@ -1009,7 +994,7 @@ class NotificationsPage extends StatelessWidget {
                         if (l != null) {
                           go(context, ListingPage(listing: l));
                         } else {
-                          toast(context, 'Anzeige nicht mehr verfügbar');
+                          toast(context, 'الإعلان لم يعد متاحاً');
                         }
                       } else {
                         go(context, const SearchPage());
@@ -1028,23 +1013,23 @@ class NotificationPreferencesPage extends StatelessWidget {
   Widget build(BuildContext context) {
     final store = DemoScope.of(context);
     return Scaffold(
-      appBar: const PageHeader('Benachrichtigungen'),
+      appBar: const PageHeader('الإشعارات'),
       body: ListView(
         children: [
           const Padding(
             padding: EdgeInsets.all(16),
             child: Text(
-              'Nur lokale Einstellungen. Keine echten E-Mails, Push-Nachrichten oder Änderungen an Android-/Browser-Berechtigungen.',
+              'إعدادات محلية فقط: لا رسائل بريد إلكتروني أو إشعارات فورية حقيقية، ولا تغيير في أذونات أندرويد أو المتصفح.',
             ),
           ),
           SwitchListTile(
-            title: const Text('Lokale In-App-Hinweise'),
+            title: const Text('تنبيهات محلية داخل التطبيق'),
             value: store.localAlerts,
             onChanged: (v) => store.setNotifications(alerts: v),
           ),
           SwitchListTile(
-            title: const Text('E-Mail-Präferenz (nur gespeichert)'),
-            subtitle: const Text('Es wird keine E-Mail versendet.'),
+            title: const Text('تفضيل البريد الإلكتروني (يُحفَظ فقط)'),
+            subtitle: const Text('لن يُرسَل أي بريد إلكتروني.'),
             value: store.emailPreference,
             onChanged: (v) => store.setNotifications(email: v),
           ),
@@ -1058,21 +1043,21 @@ class RecoveryPage extends StatelessWidget {
   const RecoveryPage({super.key});
   @override
   Widget build(BuildContext context) => Scaffold(
-    appBar: const PageHeader('Passwort vergessen'),
+    appBar: const PageHeader('نسيت كلمة المرور'),
     body: ListView(
       padding: const EdgeInsets.all(24),
       children: [
         const Text(
-          'Kein echtes Passwort gespeichert',
+          'لا تُحفَظ أي كلمة مرور حقيقية',
           style: TextStyle(fontSize: 22, fontWeight: FontWeight.w800),
         ),
         const SizedBox(height: 16),
         const Text(
-          'Diese Offline-Demo authentifiziert niemanden. E-Mail und Passwort werden weder gespeichert noch gesendet. Daher gibt es keine Wiederherstellung, keinen Code und keine E-Mail/SMS. Verwende beim lokalen Einstieg ausschließlich erfundene Angaben.',
+          'هذا العرض التجريبي بلا اتصال لا يتحقق من هوية أحد، ولا تُحفَظ أو تُرسَل كلمة المرور أو البريد الإلكتروني. لذلك لا توجد استعادة ولا رمز ولا بريد إلكتروني أو رسالة نصية. استخدم بيانات وهمية فقط عند الدخول المحلي.',
         ),
         const SizedBox(height: 24),
         PrimaryButton(
-          'Zurück zum lokalen Einstieg',
+          'العودة إلى الدخول المحلي',
           onPressed: () => Navigator.pop(context),
         ),
       ],
@@ -1086,28 +1071,28 @@ class LocalDataPage extends StatelessWidget {
   Widget build(BuildContext context) {
     final store = DemoScope.of(context);
     return Scaffold(
-      appBar: const PageHeader('Lokale Daten & Grenzen'),
+      appBar: const PageHeader('البيانات المحلية والحدود'),
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
           const Text(
-            'Offline-Demo, kein echter Marktplatz',
+            'عرض تجريبي دون اتصال، وليس سوقاً حقيقياً',
             style: TextStyle(fontSize: 22, fontWeight: FontWeight.w800),
           ),
           const SizedBox(height: 12),
           const Text(
-            'Anzeigen, Entwürfe, Bilder, Profil, Gespräche, Merkliste, Suchaufträge, Verlauf und Einstellungen bleiben lokal auf diesem Gerät bzw. dieser Browser-Origin. Ausloggen versteckt private Funktionen, löscht aber keine Daten. Ein erneuter lokaler Einstieg öffnet dasselbe Demo-Profil; das ist keine sichere Kontotrennung.',
+            'تبقى الإعلانات والمسودات والصور والملف الشخصي والمحادثات والمفضلة والبحوث المحفوظة والسجل والإعدادات محلية على هذا الجهاز أو على أصل هذا المتصفح. تسجيل الخروج يخفي الميزات الخاصة لكنه لا يحذف البيانات. الدخول المحلي مجدداً يفتح الملف التجريبي نفسه؛ وهذا ليس فصلاً آمناً بين الحسابات.',
           ),
           const SizedBox(height: 12),
           const Text(
-            'Keine echten Konten, Nachrichten, E-Mails, Push-Zustellung, Veröffentlichungen, Moderation, Verifizierung, Zahlungen, Lieferung oder Cloud-Synchronisierung. Nicht für vertrauliche oder wichtige Daten. Browser-Löschung, privater Modus und Deinstallation können Daten entfernen. Web braucht eine erste vollständige Online-Installation; ein leerer Offline-Cache kann diese App nicht starten.',
+            'لا حسابات ولا رسائل ولا بريد إلكتروني ولا إشعارات فورية ولا نشر ولا إشراف ولا توثيق ولا مدفوعات ولا توصيل ولا مزامنة سحابية حقيقية. غير مناسب للبيانات السرية أو المهمة. مسح بيانات المتصفح ووضع التصفح الخاص وإزالة التثبيت قد تحذف البيانات. يحتاج الويب إلى تثبيت أول كامل وأنت متصل؛ فذاكرة التخزين المؤقت الفارغة دون اتصال لا تستطيع تشغيل التطبيق.',
           ),
           const SizedBox(height: 12),
           Text(
             store.storageError ??
                 (store.persistenceAvailable
-                    ? 'Lokaler Speicher verfügbar. Schreibvorgänge werden geordnet abgewartet; keine absolute Absturz-Dauerhaftigkeit.'
-                    : 'Nur Arbeitsspeicher – ohne verfügbaren Gerätespeicher gehen Änderungen beim Neustart verloren.'),
+                    ? 'التخزين المحلي متاح. تُنفَّذ عمليات الكتابة بترتيبها، دون ضمان الصمود الكامل عند التعطل.'
+                    : 'ذاكرة مؤقتة فقط — دون تخزين متاح على الجهاز تضيع التغييرات عند إعادة التشغيل.'),
           ),
           if (MediaRepository.instance.cleanupWarning != null)
             Text(MediaRepository.instance.cleanupWarning!),
@@ -1118,25 +1103,23 @@ class LocalDataPage extends StatelessWidget {
                 toast(
                   context,
                   ok
-                      ? 'Lokales Speichern abgeschlossen'
-                      : 'Speichern fehlgeschlagen; Daten bleiben im Speicher.',
+                      ? 'اكتمل الحفظ المحلي'
+                      : 'فشل الحفظ؛ تبقى البيانات في الذاكرة.',
                 );
               }
             },
-            child: const Text('Speichern erneut versuchen'),
+            child: const Text('إعادة محاولة الحفظ'),
           ),
           RowLink(
-            'Profilinformationen',
+            'معلومات الملف الشخصي',
             icon: Icons.person_outline,
             onTap: store.signedIn
                 ? () => go(context, EditProfilePage(initial: store.name))
                 : null,
-            subtitle: store.signedIn
-                ? null
-                : 'Lokalen Einstieg über Meins verwenden',
+            subtitle: store.signedIn ? null : 'استخدم الدخول المحلي من «حسابي»',
           ),
           RowLink(
-            'Lokale Sicherheit',
+            'الأمان المحلي',
             icon: Icons.shield_outlined,
             onTap: () => go(context, const LocalSafetyPage()),
           ),
@@ -1145,9 +1128,9 @@ class LocalDataPage extends StatelessWidget {
             onPressed: () async {
               if (!await confirmLocal(
                 context,
-                'Lokale Demo-Daten zurücksetzen?',
-                'Entfernt Profil, Anzeigen, Entwürfe, importierte Bilder, Gespräche, Meldungen, Hinweise, Favoriten, Suchaufträge, Folgen, Verlauf, Datenschutz und Design auf diesem Gerät. Keine echten Konten und keine fremden App-Schlüssel. Du wirst lokal ausgeloggt.',
-                action: 'Alles lokal zurücksetzen',
+                'إعادة تعيين بيانات العرض المحلية؟',
+                'يزيل الملف الشخصي والإعلانات والمسودات والصور المستوردة والمحادثات والإبلاغات والتنبيهات والمفضلة والبحوث المحفوظة والمتابَعات والسجل والخصوصية والمظهر على هذا الجهاز. لا حسابات حقيقية ولا مفاتيح تطبيقات خارجية. سيتم تسجيل خروجك محلياً.',
+                action: 'إعادة تعيين الكل محلياً',
               )) {
                 return;
               }
@@ -1162,12 +1145,12 @@ class LocalDataPage extends StatelessWidget {
                 } else {
                   toast(
                     context,
-                    'Zurücksetzen konnte nicht dauerhaft gespeichert werden. Bitte erneut versuchen.',
+                    'تعذّر حفظ إعادة التعيين بشكل دائم، يرجى المحاولة مجدداً.',
                   );
                 }
               }
             },
-            child: const Text('Lokale Demo-Daten zurücksetzen'),
+            child: const Text('إعادة تعيين بيانات العرض المحلية'),
           ),
         ],
       ),
@@ -1181,16 +1164,16 @@ class LocalSafetyPage extends StatelessWidget {
   Widget build(BuildContext context) {
     final store = DemoScope.of(context);
     return Scaffold(
-      appBar: const PageHeader('Lokale Sicherheit'),
+      appBar: const PageHeader('الأمان المحلي'),
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
           const Text(
-            'Keine sensiblen Daten eingeben. Melden protokolliert nur lokal; lokale Sperren sind hier bewusst rückgängig zu machen. Dies ist kein Ersatz für echte Moderation oder Notfallhilfe.',
+            'لا تُدخل بيانات حساسة. الإبلاغ يُسجَّل محلياً فقط، والحظر المحلي هنا قابل للتراجع عن قصد. هذا ليس بديلاً عن إشراف حقيقي أو مساعدة طارئة.',
           ),
-          const SectionHeading('Lokal blockierte Teilnehmer'),
+          const SectionHeading('المشاركون المحظورون محلياً'),
           if (store.blockedParticipants.isEmpty)
-            const Text('Keine lokalen Sperren.'),
+            const Text('لا يوجد حظر محلي.'),
           for (final id in store.blockedParticipants)
             RowLink(
               store.conversations
@@ -1201,14 +1184,14 @@ class LocalSafetyPage extends StatelessWidget {
               icon: Icons.block,
               trailing: TextButton(
                 onPressed: () => store.toggleBlock(id),
-                child: const Text('Entsperren'),
+                child: const Text('إلغاء الحظر'),
               ),
             ),
-          SectionHeading('Lokale Meldungen (${store.reports.length})'),
+          SectionHeading('الإبلاغات المحلية (${store.reports.length})'),
           for (final r in store.reports)
             ListTile(
-              title: Text(r['reason'] as String? ?? 'Meldung'),
-              subtitle: Text('Nur lokal · ${r['details'] ?? ''}'),
+              title: Text(r['reason'] as String? ?? 'إبلاغ'),
+              subtitle: Text('محلي فقط · ${r['details'] ?? ''}'),
             ),
         ],
       ),
