@@ -2,30 +2,30 @@ import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
 
 class Brand {
-  static const green = Color(0xff2f6812);
-  static const deep = Color(0xff234d07);
-  static const lime = Color(0xffb4e934);
-  static const pale = Color(0xffe9f7c4);
-  static const background = Color(0xfff4f3f0);
-  static const muted = Color(0xff7a7973);
-  static const line = Color(0xffddddd7);
+  static const green = Color(0xffC06A2A); // نحاسي — الهوية الرئيسية
+  static const deep = Color(0xff8A4A1B);
+  static const lime = Color(0xff1F7A6D); // بترولي — أزرار الإجراء
+  static const pale = Color(0xffF7E7D7);
+  static const background = Color(0xfff7f4f0);
+  static const muted = Color(0xff7a756d);
+  static const line = Color(0xffddd8d2);
   static ThemeData theme(Brightness brightness) {
     final dark = brightness == Brightness.dark;
     final scheme = ColorScheme.fromSeed(
       seedColor: green,
       brightness: brightness,
-      primary: dark ? const Color(0xffb4e934) : green,
+      primary: dark ? const Color(0xffE8A165) : green,
       surface: dark ? const Color(0xff1c1d1a) : Colors.white,
     );
     return ThemeData(
       useMaterial3: true,
-      fontFamily: 'NunitoSans',
+      fontFamily: 'PlexArabic',
       fontFamilyFallback: kIsWeb ? const ['LocalFallback'] : null,
       colorScheme: scheme,
       scaffoldBackgroundColor: scheme.surface,
       dividerColor: dark ? const Color(0xff41433c) : line,
       textTheme: ThemeData(brightness: brightness).textTheme.apply(
-        fontFamily: 'NunitoSans',
+        fontFamily: 'PlexArabic',
         fontFamilyFallback: kIsWeb ? const ['LocalFallback'] : null,
       ),
       appBarTheme: AppBarTheme(
@@ -36,7 +36,7 @@ class Brand {
         centerTitle: false,
         foregroundColor: scheme.onSurface,
         titleTextStyle: TextStyle(
-          fontFamily: 'NunitoSans',
+          fontFamily: 'PlexArabic',
           fontSize: 20,
           fontWeight: FontWeight.w600,
           color: scheme.onSurface,
@@ -69,10 +69,10 @@ class Brand {
       filledButtonTheme: FilledButtonThemeData(
         style: FilledButton.styleFrom(
           backgroundColor: lime,
-          foregroundColor: deep,
+          foregroundColor: Colors.white,
           minimumSize: const Size(double.infinity, 48),
           textStyle: const TextStyle(
-            fontFamily: 'NunitoSans',
+            fontFamily: 'PlexArabic',
             fontSize: 17,
             fontWeight: FontWeight.w700,
           ),
@@ -83,7 +83,7 @@ class Brand {
       textButtonTheme: TextButtonThemeData(
         style: TextButton.styleFrom(
           textStyle: const TextStyle(
-            fontFamily: 'NunitoSans',
+            fontFamily: 'PlexArabic',
             fontSize: 16,
             fontWeight: FontWeight.w600,
           ),

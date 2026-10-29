@@ -446,7 +446,7 @@ class Logo extends StatelessWidget {
           if (wordmark) ...[
             SizedBox(width: size * .25),
             Text(
-              'kleinanzeigen',
+              'سوقنا',
               style: TextStyle(
                 fontSize: size * .7,
                 fontWeight: FontWeight.w900,
@@ -499,7 +499,7 @@ class GuestIllustration extends StatelessWidget {
   final int variant;
   @override
   Widget build(BuildContext context) => Semantics(
-    label: 'Illustration für deine Lieblingsanzeigen',
+    label: 'رسم توضيحي لإعلاناتك المفضلة',
     child: CustomPaint(
       size: const Size(340, 260),
       painter: _GuestPainter(variant),
@@ -602,7 +602,7 @@ class _GuestPainter extends CustomPainter {
 }
 
 class DemoMap extends StatelessWidget {
-  const DemoMap({super.key, this.city = 'Berlin', this.radius = 15});
+  const DemoMap({super.key, this.city = 'دمشق', this.radius = 15});
   final String city;
   final double radius;
   @override
@@ -629,7 +629,7 @@ class DemoMap extends StatelessWidget {
         left: 8,
         bottom: 8,
         child: Text(
-          'Schematische Demo-Karte',
+          'خريطة توضيحية',
           style: TextStyle(
             backgroundColor: Colors.white70,
             color: Colors.black54,
@@ -646,11 +646,11 @@ class BottomTabs extends StatelessWidget {
   final int selected;
   final ValueChanged<int> onTap;
   static const labels = [
-    'Suchen',
-    'Favoriten',
-    'Inserieren',
-    'Nachrichten',
-    'Meins',
+    'بحث',
+    'المفضلة',
+    'أضف إعلانًا',
+    'الرسائل',
+    'حسابي',
   ];
   static const icons = [
     Icons.search,

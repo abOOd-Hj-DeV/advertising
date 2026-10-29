@@ -69,7 +69,17 @@ flutter:
     - assets/fonts/OFL.txt
     - assets/fonts/Roboto-OFL.txt
     - assets/fonts/DejaVu-LICENSE.txt
+    - assets/fonts/IBMPlexSansArabic-OFL.txt
   fonts:
+    - family: PlexArabic
+      fonts:
+        - asset: assets/fonts/IBMPlexSansArabic-Regular.ttf
+        - asset: assets/fonts/IBMPlexSansArabic-Medium.ttf
+          weight: 500
+        - asset: assets/fonts/IBMPlexSansArabic-SemiBold.ttf
+          weight: 600
+        - asset: assets/fonts/IBMPlexSansArabic-Bold.ttf
+          weight: 700
     - family: NunitoSans
       fonts:
         - asset: assets/fonts/NunitoSans.ttf

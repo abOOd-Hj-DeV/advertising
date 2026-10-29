@@ -20,9 +20,9 @@ class MarketplaceApp extends StatelessWidget {
       listenable: store,
       builder: (context, _) => MaterialApp(
         debugShowCheckedModeBanner: false,
-        title: 'Anzeigen · Flutter UI-Demo',
-        locale: const Locale('de'),
-        supportedLocales: const [Locale('de')],
+        title: 'سوقنا',
+        locale: const Locale('ar'),
+        supportedLocales: const [Locale('ar')],
         localizationsDelegates: GlobalMaterialLocalizations.delegates,
         theme: Brand.theme(Brightness.light),
         darkTheme: Brand.theme(Brightness.dark),
@@ -47,15 +47,15 @@ class MarketplaceApp extends StatelessWidget {
                           padding: EdgeInsets.all(24),
                           child: Column(
                             mainAxisAlignment: MainAxisAlignment.center,
-                            crossAxisAlignment: CrossAxisAlignment.start,
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
                             children: [
                               Logo(size: 43, color: Brand.deep),
                               SizedBox(height: 24),
                               FittedBox(
                                 fit: BoxFit.scaleDown,
-                                alignment: Alignment.centerLeft,
+                                alignment: AlignmentDirectional.centerStart,
                                 child: Text(
-                                  'Lieblingsstücke.\nNeue Geschichten.',
+                                  'سوقنا السوري.\nبيع واشترِ بسهولة.',
                                   style: TextStyle(
                                     fontSize: 30,
                                     fontWeight: FontWeight.w900,
@@ -66,7 +66,7 @@ class MarketplaceApp extends StatelessWidget {
                               ),
                               SizedBox(height: 18),
                               Text(
-                                'Flutter UI-Studie\nFiktive Daten · vollständig lokal\nKein offizielles Kleinanzeigen-Produkt',
+                                'واجهة تجريبية\nبيانات افتراضية · تعمل محليًا\nمتصلة بالخادم عند توفره',
                                 style: TextStyle(
                                   fontSize: 13,
                                   height: 1.6,
