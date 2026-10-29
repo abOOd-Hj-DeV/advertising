@@ -7,6 +7,7 @@ export 'local_pages.dart';
 export 'listing_editor.dart' show NewListingPage;
 import 'local_pages.dart';
 import 'settings.dart';
+import '../api/backend_store.dart';
 
 void openMarketplaceTab(
   BuildContext context,
@@ -190,7 +191,7 @@ class _AuthPageState extends State<AuthPage> {
   final key = GlobalKey<FormState>();
   final email = TextEditingController(), password = TextEditingController();
   final profileName = TextEditingController(text: 'بائع تجريبي');
-  bool passwordStage = false, hidden = true, newsletter = false;
+  bool passwordStage = false, hidden = true, newsletter = false, busy = false;
   String accountType = 'فردي';
   @override
   void dispose() {
@@ -200,14 +201,30 @@ class _AuthPageState extends State<AuthPage> {
     super.dispose();
   }
 
-  void submit() {
+  void submit() async {
     if (!key.currentState!.validate()) return;
     if (!widget.register && !passwordStage) {
       setState(() => passwordStage = true);
       return;
     }
     final store = DemoScope.of(context);
-    if (widget.register) {
+    if (store is BackendStore) {
+      setState(() => busy = true);
+      final error = await store.authenticate(
+        register: widget.register,
+        email: email.text,
+        password: password.text,
+        displayName: profileName.text,
+        business: accountType == 'تجاري',
+        news: newsletter,
+      );
+      if (!mounted) return;
+      setState(() => busy = false);
+      if (error != null) {
+        toast(context, error);
+        return;
+      }
+    } else if (widget.register) {
       store.registerLocal(
         profileName.text,
         business: accountType == 'تجاري',
@@ -216,11 +233,17 @@ class _AuthPageState extends State<AuthPage> {
     } else {
       store.signIn();
     }
+    if (!mounted) return;
     email.clear();
     password.clear();
     Navigator.popUntil(context, (r) => r.isFirst);
     widget.onSuccess?.call();
-    toast(context, 'تم فتح حساب تجريبي. لم تُرسَل أي بيانات دخول.');
+    toast(
+      context,
+      store is BackendStore
+          ? 'أهلًا بك في سوقنا'
+          : 'تم فتح حساب تجريبي. لم تُرسَل أي بيانات دخول.',
+    );
   }
 
   void info(String title, String body) =>
