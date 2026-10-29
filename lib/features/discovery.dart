@@ -7,13 +7,13 @@ import 'filters.dart';
 import 'listing.dart';
 
 const homeCategories = [
-  'Für dich',
-  'Immobilien',
-  'Haus & Garten',
-  'Auto, Rad & Boot',
-  'Mode & Beauty',
-  'Jobs',
-  'Elektronik',
+  'لك',
+  'عقارات',
+  'المنزل والحديقة',
+  'سيارات ودراجات وقوارب',
+  'أزياء وجمال',
+  'وظائف',
+  'إلكترونيات',
 ];
 const categoryIcons = [
   Icons.home_outlined,
@@ -41,8 +41,8 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  String category = 'Für dich';
-  String propertyTab = 'Entdecken';
+  String category = 'لك';
+  String propertyTab = 'استكشاف';
   @override
   Widget build(BuildContext context) {
     final store = DemoScope.of(context);
@@ -50,13 +50,13 @@ class _HomePageState extends State<HomePage> {
         .where((l) => l.status == ListingStatus.active)
         .where(
           (l) =>
-              category == 'Für dich' ||
+              category == 'لك' ||
               l.category == category ||
-              category == 'Auto, Rad & Boot' &&
-                  l.category == 'Fahrräder & Zubehör',
+              category == 'سيارات ودراجات وقوارب' &&
+                  l.category == 'دراجات وملحقات',
         )
         .toList();
-    if (category == 'Immobilien' && propertyTab != 'Entdecken') {
+    if (category == 'عقارات' && propertyTab != 'استكشاف') {
       items = items.where((l) => l.type == propertyTab).toList();
     }
     final gallery = [listings[8], listings[12], listings[15], listings[16]];
@@ -72,7 +72,7 @@ class _HomePageState extends State<HomePage> {
                   onTap: () => go(context, const SearchPage(autofocus: true)),
                   child: Container(
                     height: 42,
-                    padding: const EdgeInsets.only(left: 16),
+                    padding: const EdgeInsetsDirectional.only(start: 16),
                     decoration: BoxDecoration(
                       color: Theme.of(context).brightness == Brightness.dark
                           ? const Color(0xff30322a)
@@ -86,16 +86,16 @@ class _HomePageState extends State<HomePage> {
                         Expanded(
                           child: Text(
                             store.filters.city.isEmpty
-                                ? 'Suche in ganz Deutschland'
-                                : 'Suche in ${store.filters.locationLabel}',
+                                ? 'ابحث في كل سوريا'
+                                : 'ابحث في ${store.filters.locationLabel}',
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                             style: const TextStyle(fontSize: 15),
                           ),
                         ),
                         IconButton(
-                          tooltip: 'Suchort ändern',
-                          onPressed: () => editFilter(context, 'Ort'),
+                          tooltip: 'تغيير مكان البحث',
+                          onPressed: () => editFilter(context, 'المدينة'),
                           style: IconButton.styleFrom(
                             backgroundColor: Theme.of(
                               context,
@@ -113,7 +113,7 @@ class _HomePageState extends State<HomePage> {
                 ),
               ),
               IconButton(
-                tooltip: 'Benachrichtigungen',
+                tooltip: 'الإشعارات',
                 onPressed: () => go(
                   context,
                   store.signedIn
@@ -181,7 +181,7 @@ class _HomePageState extends State<HomePage> {
                             ),
                             const SizedBox(height: 4),
                             Text(
-                              name.replaceAll(' & ', '\n& '),
+                              name,
                               textAlign: TextAlign.center,
                               style: TextStyle(
                                 fontSize: 12,
@@ -205,7 +205,7 @@ class _HomePageState extends State<HomePage> {
                 width: 28,
                 child: IconButton(
                   padding: EdgeInsets.zero,
-                  tooltip: 'Alle Kategorien',
+                  tooltip: 'كل الفئات',
                   onPressed: () => go(context, const HomeCategoriesPage()),
                   icon: const Icon(Icons.keyboard_arrow_down, size: 22),
                 ),
@@ -216,13 +216,13 @@ class _HomePageState extends State<HomePage> {
         Expanded(
           child: CustomScrollView(
             slivers: [
-              if (category == 'Immobilien')
+              if (category == 'عقارات')
                 SliverToBoxAdapter(
                   child: Padding(
                     padding: const EdgeInsets.all(12),
                     child: Row(
                       children: [
-                        for (final tab in ['Entdecken', 'Mieten', 'Kaufen'])
+                        for (final tab in ['استكشاف', 'للإيجار', 'للبيع'])
                           Expanded(
                             child: Padding(
                               padding: const EdgeInsets.symmetric(
@@ -255,7 +255,7 @@ class _HomePageState extends State<HomePage> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         const Text(
-                          'Demo-Anzeige',
+                          'إعلان تجريبي',
                           style: TextStyle(
                             fontSize: 10,
                             color: Color(0xff76715c),
@@ -263,7 +263,7 @@ class _HomePageState extends State<HomePage> {
                         ),
                         const Spacer(),
                         const Text(
-                          'Lieblingsstücke.\nNeue Geschichten.',
+                          'قطع مفضّلة.\nقصص جديدة.',
                           style: TextStyle(
                             fontSize: 23,
                             height: 1.1,
@@ -277,7 +277,7 @@ class _HomePageState extends State<HomePage> {
                           child: const Row(
                             children: [
                               Text(
-                                'Jetzt entdecken',
+                                'اكتشف الآن',
                                 style: TextStyle(
                                   color: Color(0xff59542b),
                                   fontSize: 13,
@@ -285,7 +285,7 @@ class _HomePageState extends State<HomePage> {
                               ),
                               Spacer(),
                               Icon(
-                                Icons.arrow_forward,
+                                Icons.arrow_back,
                                 size: 19,
                                 color: Color(0xff59542b),
                               ),
@@ -297,8 +297,8 @@ class _HomePageState extends State<HomePage> {
                   ),
                 ),
               ),
-              if (category == 'Für dich') ...[
-                const SliverToBoxAdapter(child: SectionHeading('Galerie')),
+              if (category == 'لك') ...[
+                const SliverToBoxAdapter(child: SectionHeading('المعرض')),
                 SliverToBoxAdapter(
                   child: SizedBox(
                     height:
@@ -334,9 +334,7 @@ class _HomePageState extends State<HomePage> {
               ],
               SliverToBoxAdapter(
                 child: SectionHeading(
-                  category == 'Für dich'
-                      ? 'Gerade neu reingekommen'
-                      : '$category entdecken',
+                  category == 'لك' ? 'وصل حديثاً' : 'استكشف $category',
                 ),
               ),
               if (items.isEmpty)
@@ -351,13 +349,10 @@ class _HomePageState extends State<HomePage> {
                           color: Brand.muted,
                         ),
                         const SizedBox(height: 12),
-                        const Text(
-                          'Hier ist gerade nichts dabei. Schau in allen Kategorien.',
-                        ),
+                        const Text('لا يوجد شيء هنا حالياً. جرّب كل الفئات.'),
                         TextButton(
-                          onPressed: () =>
-                              setState(() => category = 'Für dich'),
-                          child: const Text('Alle Anzeigen ansehen'),
+                          onPressed: () => setState(() => category = 'لك'),
+                          child: const Text('عرض كل الإعلانات'),
                         ),
                       ],
                     ),
@@ -420,19 +415,21 @@ class _SearchPageState extends State<SearchPage> {
     final store = DemoScope.of(context);
     final results = store.results();
     final chips = {
-      'Ort': store.filters.city.isEmpty ? 'Ort' : store.filters.locationLabel,
-      'Kategorie': store.filters.category == 'Alle Kategorien'
-          ? 'Kategorie'
+      'المدينة': store.filters.city.isEmpty
+          ? 'المدينة'
+          : store.filters.locationLabel,
+      'القسم': store.filters.category == 'كل الفئات'
+          ? 'القسم'
           : store.filters.category,
-      'Preis': store.filters.priceLabel == 'Beliebig'
-          ? 'Preis'
+      'السعر': store.filters.priceLabel == 'أي سعر'
+          ? 'السعر'
           : store.filters.priceLabel,
-      if (store.filters.category == 'Fahrräder & Zubehör')
-        'Art': store.filters.kind == 'Alle' ? 'Art' : store.filters.kind,
-      if (store.filters.category == 'Fahrräder & Zubehör')
-        'Typ': store.filters.type == 'Alle' ? 'Typ' : store.filters.type,
-      'Zustand': store.filters.condition == 'Alle'
-          ? 'Zustand'
+      if (store.filters.category == 'دراجات وملحقات')
+        'النوع': store.filters.kind == 'الكل' ? 'النوع' : store.filters.kind,
+      if (store.filters.category == 'دراجات وملحقات')
+        'الفئة': store.filters.type == 'الكل' ? 'الفئة' : store.filters.type,
+      'الحالة': store.filters.condition == 'الكل'
+          ? 'الحالة'
           : store.filters.condition,
     };
     return Scaffold(
@@ -444,9 +441,9 @@ class _SearchPageState extends State<SearchPage> {
               child: Row(
                 children: [
                   IconButton(
-                    tooltip: 'Zurück',
+                    tooltip: 'رجوع',
                     onPressed: () => Navigator.pop(context),
-                    icon: const Icon(Icons.arrow_back, color: Brand.green),
+                    icon: const Icon(Icons.arrow_forward, color: Brand.green),
                   ),
                   Expanded(
                     child: TextField(
@@ -457,10 +454,10 @@ class _SearchPageState extends State<SearchPage> {
                       onSubmitted: submit,
                       style: const TextStyle(fontSize: 16),
                       decoration: InputDecoration(
-                        hintText: 'Was suchst du?',
+                        hintText: 'ما الذي تبحث عنه؟',
                         prefixIcon: const Icon(Icons.search, size: 22),
                         suffixIcon: IconButton(
-                          tooltip: 'Suche löschen',
+                          tooltip: 'مسح البحث',
                           onPressed: () {
                             text.clear();
                             submit('');
@@ -496,7 +493,10 @@ class _SearchPageState extends State<SearchPage> {
                       if (result != null) store.changeFilters(result);
                     },
                     icon: const Icon(Icons.tune, size: 23),
-                    label: const Text('Filter', style: TextStyle(fontSize: 14)),
+                    label: const Text(
+                      'الفلاتر',
+                      style: TextStyle(fontSize: 14),
+                    ),
                   ),
                 ],
               ),
@@ -506,17 +506,17 @@ class _SearchPageState extends State<SearchPage> {
                 child: ListView(
                   children: [
                     RowLink(
-                      text.text.isEmpty ? 'Alle Anzeigen' : text.text,
+                      text.text.isEmpty ? 'كل الإعلانات' : text.text,
                       icon: Icons.search,
                       onTap: () => submit(text.text),
                     ),
                     for (final q
                         in {
                           ...store.searchHistory,
-                          'Fahrrad',
-                          'Sofa',
-                          'Wohnung',
-                          'Kamera',
+                          'دراجة',
+                          'أريكة',
+                          'شقة',
+                          'كاميرا',
                         }.where(
                           (q) =>
                               text.text.isEmpty ||
@@ -545,7 +545,7 @@ class _SearchPageState extends State<SearchPage> {
                   children: [
                     for (final entry in chips.entries)
                       Padding(
-                        padding: const EdgeInsets.only(right: 8),
+                        padding: const EdgeInsetsDirectional.only(end: 8),
                         child: ActionChip(
                           label: Text(
                             entry.value,
@@ -567,9 +567,9 @@ class _SearchPageState extends State<SearchPage> {
               Padding(
                 padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
                 child: Align(
-                  alignment: Alignment.centerLeft,
+                  alignment: AlignmentDirectional.centerStart,
                   child: Text(
-                    '${results.length} Ergebnisse',
+                    '${results.length} نتيجة',
                     style: const TextStyle(
                       fontSize: 17,
                       fontWeight: FontWeight.w800,
@@ -594,7 +594,7 @@ class _SearchPageState extends State<SearchPage> {
                               ),
                               const SizedBox(height: 20),
                               const Text(
-                                'Keine Anzeigen gefunden',
+                                'لا توجد إعلانات',
                                 style: TextStyle(
                                   fontSize: 20,
                                   fontWeight: FontWeight.w800,
@@ -602,7 +602,7 @@ class _SearchPageState extends State<SearchPage> {
                               ),
                               const SizedBox(height: 8),
                               const Text(
-                                'Probiere einen anderen Suchbegriff oder passe deine Filter an.',
+                                'جرّب كلمة بحث أخرى أو عدّل الفلاتر.',
                                 textAlign: TextAlign.center,
                               ),
                               TextButton(
@@ -611,7 +611,7 @@ class _SearchPageState extends State<SearchPage> {
                                   text.clear();
                                   submit('');
                                 },
-                                child: const Text('Suche zurücksetzen'),
+                                child: const Text('إعادة تعيين البحث'),
                               ),
                             ],
                           ),
@@ -645,12 +645,12 @@ class _SearchPageState extends State<SearchPage> {
                         child: SizedBox(
                           width: 212,
                           child: PrimaryButton(
-                            'Suche speichern',
+                            'حفظ البحث',
                             icon: Icons.favorite_border,
                             onPressed: () {
                               if (store.signedIn) {
                                 store.saveSearch();
-                                toast(context, 'Suche lokal gespeichert');
+                                toast(context, 'تم حفظ البحث محلياً');
                               } else {
                                 go(
                                   context,
@@ -724,16 +724,16 @@ class DemoSearchAd extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const Text(
-                'Demo-Anzeige',
+                'إعلان تجريبي',
                 style: TextStyle(fontSize: 10, color: Brand.muted),
               ),
               const Text(
-                'Gute Dinge verdienen eine zweite Chance.',
+                'الأشياء الجيدة تستحق فرصة ثانية.',
                 maxLines: 2,
                 style: TextStyle(fontWeight: FontWeight.w800, fontSize: 14),
               ),
               Text(
-                'Entdecke mehr',
+                'اكتشف المزيد',
                 style: TextStyle(
                   color: Theme.of(context).colorScheme.primary,
                   fontWeight: FontWeight.w800,
@@ -751,7 +751,7 @@ class HomeCategoriesPage extends StatelessWidget {
   const HomeCategoriesPage({super.key});
   @override
   Widget build(BuildContext context) => Scaffold(
-    appBar: const PageHeader('Alle Kategorien', close: true),
+    appBar: const PageHeader('كل الفئات', close: true),
     body: ListView(
       children: [
         for (var i = 0; i < categoryNames.length; i++)
@@ -778,22 +778,22 @@ class HomeCategoriesPage extends StatelessWidget {
                   Icons.handshake_outlined,
                 ][i],
                 subtitle: [
-                  'Alles auf einen Blick',
-                  'Autos, Fahrräder und Zubehör',
-                  'Dein neues Zuhause',
-                  'Möbel, Garten und Haushalt',
-                  'Kleidung und Accessoires',
-                  'Technik für jeden Tag',
-                  'Alles für Tiere',
-                  'Für die ganze Familie',
-                  'Deine nächste Chance',
-                  'Zeit für deine Hobbys',
-                  'Kultur zum Entdecken',
-                  'Erlebnisse und Veranstaltungen',
-                  'Hilfe von nebenan',
-                  'Geben und Tauschen',
-                  'Neues lernen',
-                  'Gemeinsam mehr erreichen',
+                  'كل شيء بلمحة',
+                  'سيارات ودراجات وإكسسوارات',
+                  'بيتك الجديد',
+                  'أثاث وحديقة وأدوات منزلية',
+                  'ملابس وإكسسوارات',
+                  'تقنية لكل يوم',
+                  'كل شيء للحيوانات',
+                  'لكل العائلة',
+                  'فرصتك القادمة',
+                  'وقت لهواياتك',
+                  'ثقافة تستحق الاكتشاف',
+                  'تجارب وفعاليات',
+                  'مساعدة من الجيران',
+                  'عطاء وتبادل',
+                  'تعلّم شيئاً جديداً',
+                  'نحقق أكثر معاً',
                 ][i],
                 onTap: () {
                   final store = DemoScope.of(context);
@@ -810,7 +810,7 @@ class HomeCategoriesPage extends StatelessWidget {
       ],
     ),
     bottomNavigationBar: BottomAction(
-      'Schließen',
+      'إغلاق',
       onPressed: () => Navigator.pop(context),
     ),
   );
