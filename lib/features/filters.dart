@@ -4,32 +4,32 @@ import '../ui/theme.dart';
 import '../ui/widgets.dart';
 
 const categoryNames = [
-  'Alle Kategorien',
-  'Auto, Rad & Boot',
-  'Immobilien',
-  'Haus & Garten',
-  'Mode & Beauty',
-  'Elektronik',
-  'Haustiere',
-  'Familie, Kind & Baby',
-  'Jobs',
-  'Freizeit, Hobby & Nachbarschaft',
-  'Musik, Filme & Bücher',
-  'Eintrittskarten & Tickets',
-  'Dienstleistungen',
-  'Verschenken & Tauschen',
-  'Unterricht & Kurse',
-  'Nachbarschaftshilfe',
+  'كل الفئات',
+  'سيارات ودراجات وقوارب',
+  'عقارات',
+  'المنزل والحديقة',
+  'أزياء وجمال',
+  'إلكترونيات',
+  'حيوانات أليفة',
+  'العائلة والأطفال',
+  'وظائف',
+  'هوايات ومجتمع',
+  'موسيقى وأفلام وكتب',
+  'تذاكر',
+  'خدمات',
+  'مجاني وتبادل',
+  'دروس ودورات',
+  'مساعدة الجيران',
 ];
 const bicycleTypes = [
-  'Alle',
-  'Cityräder',
-  'E-Bikes',
-  'Kinderräder',
-  'Mountainbikes',
-  'Rennräder',
-  'Trekkingräder',
-  'Weitere Fahrräder',
+  'الكل',
+  'دراجات مدينة',
+  'دراجات كهربائية',
+  'دراجات أطفال',
+  'دراجات جبلية',
+  'دراجات سباق',
+  'دراجات سياحية',
+  'دراجات أخرى',
 ];
 
 Future<void> editFilter(BuildContext context, String field) async {
@@ -44,10 +44,10 @@ Future<SearchFilters?> filterEditor(
   String field,
 ) async {
   final draft = initial.copy();
-  if (field == 'Ort') {
+  if (field == 'المدينة') {
     return go<SearchFilters>(context, LocationPage(initial: draft));
   }
-  if (field == 'Preis') {
+  if (field == 'السعر') {
     return showModalBottomSheet<SearchFilters>(
       context: context,
       isScrollControlled: true,
@@ -55,39 +55,30 @@ Future<SearchFilters?> filterEditor(
       builder: (_) => PriceSheet(initial: draft),
     );
   }
-  if (field == 'Kategorie') {
+  if (field == 'القسم') {
     final value = await go<String>(
       context,
       CategoryPage(selected: draft.category),
     );
     if (value == null) return null;
     draft.category = value;
-    draft.type = 'Alle';
-    draft.kind = 'Alle';
+    draft.type = 'الكل';
+    draft.kind = 'الكل';
     return draft;
   }
   final (String selected, List<String> options) = switch (field) {
-    'Sortierung' => (
+    'الترتيب' => (
       draft.sort,
-      ['Empfohlen', 'Neueste', 'Niedrigster Preis', 'Höchster Preis'],
+      ['مقترح', 'الأحدث', 'الأقل سعراً', 'الأعلى سعراً'],
     ),
-    'Typ' => (draft.type, bicycleTypes),
-    'Art' => (draft.kind, ['Alle', 'Damen', 'Herren', 'Kinder', 'Unisex']),
-    'Zustand' => (
-      draft.condition,
-      ['Alle', 'Neu', 'Sehr gut', 'Gut', 'In Ordnung'],
-    ),
-    'Versand' => (draft.shipping, ['Alle', 'Versand möglich', 'Nur Abholung']),
-    'Paketdienst' => (draft.carrier, ['Alle', 'DHL', 'Hermes', 'DPD']),
-    'Verkäufer' => (
-      draft.seller,
-      ['Privat & Gewerblich', 'Privat', 'Gewerblich'],
-    ),
-    'Angebotstyp' => (
-      draft.offer,
-      ['Angebote & Gesuche', 'Angebote', 'Gesuche'],
-    ),
-    _ => (draft.type, ['Alle']),
+    'الفئة' => (draft.type, bicycleTypes),
+    'النوع' => (draft.kind, ['الكل', 'نسائي', 'رجالي', 'أطفال', 'للجنسين']),
+    'الحالة' => (draft.condition, ['الكل', 'جديد', 'جيد جداً', 'جيد', 'مقبول']),
+    'الشحن' => (draft.shipping, ['الكل', 'شحن متاح', 'استلام شخصي فقط']),
+    'شركة الشحن' => (draft.carrier, ['الكل', 'DHL', 'Hermes', 'DPD']),
+    'البائع' => (draft.seller, ['فردي وتجاري', 'فردي', 'تجاري']),
+    'نوع الإعلان' => (draft.offer, ['عروض وطلبات', 'عروض', 'طلبات']),
+    _ => (draft.type, ['الكل']),
   };
   final value = await go<String>(
     context,
@@ -95,21 +86,21 @@ Future<SearchFilters?> filterEditor(
   );
   if (value == null) return null;
   switch (field) {
-    case 'Sortierung':
+    case 'الترتيب':
       draft.sort = value;
-    case 'Typ':
+    case 'الفئة':
       draft.type = value;
-    case 'Art':
+    case 'النوع':
       draft.kind = value;
-    case 'Zustand':
+    case 'الحالة':
       draft.condition = value;
-    case 'Versand':
+    case 'الشحن':
       draft.shipping = value;
-    case 'Paketdienst':
+    case 'شركة الشحن':
       draft.carrier = value;
-    case 'Verkäufer':
+    case 'البائع':
       draft.seller = value;
-    case 'Angebotstyp':
+    case 'نوع الإعلان':
       draft.offer = value;
   }
   return draft;
@@ -139,59 +130,57 @@ class _FiltersPageState extends State<FiltersPage> {
           ? const Color(0xff11120f)
           : Brand.background,
       appBar: PageHeader(
-        'Filter',
+        'الفلاتر',
         center: true,
         close: false,
         actions: [
           TextButton(
             onPressed: () => setState(() => draft = SearchFilters()),
-            child: const Text('Zurücksetzen', style: TextStyle(fontSize: 13)),
+            child: const Text('إعادة التعيين', style: TextStyle(fontSize: 13)),
           ),
         ],
       ),
       body: ListView(
         padding: const EdgeInsets.only(bottom: 20),
         children: [
-          GroupPanel(children: [row('Sortierung', draft.sort)]),
+          GroupPanel(children: [row('الترتيب', draft.sort)]),
           GroupPanel(
             children: [
-              row('Ort', draft.locationLabel),
-              row('Preis', draft.priceLabel),
-              row('Kategorie', draft.category),
+              row('المدينة', draft.locationLabel),
+              row('السعر', draft.priceLabel),
+              row('القسم', draft.category),
             ],
           ),
           GroupPanel(
             children: [
               RowLink(
-                'Nur „Direkt kaufen“',
+                '«شراء مباشر» فقط',
                 trailing: Switch(
                   value: draft.direct,
                   onChanged: (v) => setState(() => draft.direct = v),
                 ),
               ),
-              row('Versand', draft.shipping),
-              row('Paketdienst', draft.carrier),
+              row('الشحن', draft.shipping),
+              row('شركة الشحن', draft.carrier),
             ],
           ),
           GroupPanel(
             children: [
-              if (draft.category == 'Fahrräder & Zubehör')
-                row('Art', draft.kind),
-              if (draft.category == 'Fahrräder & Zubehör')
-                row('Typ', draft.type),
-              row('Zustand', draft.condition),
+              if (draft.category == 'دراجات وملحقات') row('النوع', draft.kind),
+              if (draft.category == 'دراجات وملحقات') row('الفئة', draft.type),
+              row('الحالة', draft.condition),
             ],
           ),
           GroupPanel(
             children: [
-              row('Verkäufer', draft.seller),
-              row('Angebotstyp', draft.offer),
+              row('البائع', draft.seller),
+              row('نوع الإعلان', draft.offer),
             ],
           ),
         ],
       ),
       bottomNavigationBar: BottomAction(
-        '$count Ergebnisse anzeigen',
+        'عرض $count نتيجة',
         onPressed: () => Navigator.pop(context, draft),
       ),
     );
@@ -225,7 +214,10 @@ class _OptionPageState extends State<OptionPage> {
                 InkWell(
                   onTap: () => setState(() => selected = option),
                   child: Padding(
-                    padding: const EdgeInsets.only(left: 16, right: 16),
+                    padding: const EdgeInsetsDirectional.only(
+                      start: 16,
+                      end: 16,
+                    ),
                     child: Row(
                       children: [
                         SizedBox(
@@ -266,21 +258,21 @@ class _OptionPageState extends State<OptionPage> {
             ],
           ),
         ),
-        if (widget.title == 'Sortierung')
+        if (widget.title == 'الترتيب')
           Padding(
             padding: const EdgeInsets.all(16),
             child: InkWell(
               onTap: () => showDialog<void>(
                 context: context,
                 builder: (_) => AlertDialog(
-                  title: const Text('So sortieren wir'),
+                  title: const Text('كيف نرتب النتائج'),
                   content: const Text(
-                    'Empfohlen zeigt zuerst hervorgehobene Demo-Anzeigen. Du kannst nach Preis oder Aktualität sortieren.',
+                    '«مقترح» يعرض أولاً الإعلانات التجريبية المميزة. يمكنك الترتيب حسب السعر أو الأحدث.',
                   ),
                   actions: [
                     TextButton(
                       onPressed: () => Navigator.pop(context),
-                      child: const Text('Verstanden'),
+                      child: const Text('حسناً'),
                     ),
                   ],
                 ),
@@ -292,7 +284,7 @@ class _OptionPageState extends State<OptionPage> {
                   SizedBox(width: 8),
                   Flexible(
                     child: Text(
-                      'Möchtest du mehr zur Sortierung erfahren?',
+                      'هل تريد معرفة المزيد عن الترتيب؟',
                       style: TextStyle(color: Brand.muted, fontSize: 12),
                     ),
                   ),
@@ -303,37 +295,33 @@ class _OptionPageState extends State<OptionPage> {
       ],
     ),
     bottomNavigationBar: BottomAction(
-      'Ergebnisse anzeigen',
+      'عرض النتائج',
       onPressed: () => Navigator.pop(context, selected),
     ),
   );
 }
 
 class CategoryPage extends StatelessWidget {
-  const CategoryPage({
-    super.key,
-    this.selected = 'Alle Kategorien',
-    this.parent,
-  });
+  const CategoryPage({super.key, this.selected = 'كل الفئات', this.parent});
   final String selected;
   final String? parent;
   @override
   Widget build(BuildContext context) {
-    final names = parent == 'Auto, Rad & Boot'
+    final names = parent == 'سيارات ودراجات وقوارب'
         ? [
-            'Alle in Auto, Rad & Boot',
-            'Autos',
-            'Autoteile & Reifen',
-            'Boote & Bootszubehör',
-            'Fahrräder & Zubehör',
-            'Motorräder & Motorroller',
-            'Motorradteile & Zubehör',
-            'Weitere Auto, Rad & Boot',
+            'الكل في سيارات ودراجات وقوارب',
+            'سيارات',
+            'قطع غيار وإطارات',
+            'قوارب وإكسسوارات',
+            'دراجات وملحقات',
+            'دراجات نارية وسكوتر',
+            'قطع وإكسسوارات الدراجات النارية',
+            'سيارات ودراجات وقوارب أخرى',
           ]
         : categoryNames;
     return Scaffold(
       appBar: PageHeader(
-        parent ?? 'Kategorien',
+        parent ?? 'الفئات',
         center: parent == null,
         close: true,
       ),
@@ -347,15 +335,15 @@ class CategoryPage extends StatelessWidget {
                   name,
                   padding: const EdgeInsets.symmetric(vertical: 17),
                   icon: selected == name ? Icons.check : null,
-                  trailing: name == 'Alle Kategorien' || parent != null
+                  trailing: name == 'كل الفئات' || parent != null
                       ? const SizedBox.shrink()
                       : const Icon(
-                          Icons.chevron_right,
+                          Icons.chevron_left,
                           size: 21,
                           color: Brand.muted,
                         ),
                   onTap: () async {
-                    if (parent == null && name == 'Auto, Rad & Boot') {
+                    if (parent == null && name == 'سيارات ودراجات وقوارب') {
                       final result = await go<String>(
                         context,
                         CategoryPage(selected: selected, parent: name),
@@ -366,7 +354,7 @@ class CategoryPage extends StatelessWidget {
                     } else {
                       Navigator.pop(
                         context,
-                        name.startsWith('Alle in') ? parent : name,
+                        name.startsWith('الكل في') ? parent : name,
                       );
                     }
                   },
@@ -401,12 +389,12 @@ class _PriceSheetState extends State<PriceSheet> {
     if (value == null || value.trim().isEmpty) return null;
     final parsed = number(value);
     if (parsed == null || !parsed.isFinite || parsed < 0) {
-      return 'Gültigen Preis eingeben';
+      return 'أدخل سعراً صحيحاً';
     }
     if (number(minimum.text) != null &&
         number(maximum.text) != null &&
         number(minimum.text)! > number(maximum.text)!) {
-      return 'Minimum liegt über Maximum';
+      return 'الحد الأدنى أكبر من الحد الأعلى';
     }
     return null;
   }
@@ -445,7 +433,7 @@ class _PriceSheetState extends State<PriceSheet> {
                     const SizedBox(width: 48),
                     const Expanded(
                       child: Text(
-                        'Preis',
+                        'السعر',
                         textAlign: TextAlign.center,
                         style: TextStyle(
                           fontSize: 19,
@@ -454,7 +442,7 @@ class _PriceSheetState extends State<PriceSheet> {
                       ),
                     ),
                     IconButton(
-                      tooltip: 'Schließen',
+                      tooltip: 'إغلاق',
                       onPressed: () => Navigator.pop(context),
                       icon: const Icon(Icons.close, color: Brand.green),
                     ),
@@ -472,7 +460,7 @@ class _PriceSheetState extends State<PriceSheet> {
                           decimal: true,
                         ),
                         decoration: const InputDecoration(
-                          labelText: 'Ab',
+                          labelText: 'من',
                           errorMaxLines: 3,
                         ),
                       ),
@@ -486,10 +474,10 @@ class _PriceSheetState extends State<PriceSheet> {
                           decimal: true,
                         ),
                         decoration: InputDecoration(
-                          labelText: 'Bis',
+                          labelText: 'إلى',
                           errorMaxLines: 3,
                           suffixIcon: IconButton(
-                            tooltip: 'Preis löschen',
+                            tooltip: 'مسح السعر',
                             onPressed: maximum.clear,
                             icon: const Icon(Icons.cancel, size: 19),
                           ),
@@ -504,14 +492,14 @@ class _PriceSheetState extends State<PriceSheet> {
                   controlAffinity: ListTileControlAffinity.leading,
                   value: extra,
                   title: const Text(
-                    'Zeige auch Angebote 15 % über meinem Budget',
+                    'أظهر أيضاً العروض التي تزيد 15% عن ميزانيتي',
                     style: TextStyle(fontSize: 13),
                   ),
                   onChanged: (v) => setState(() => extra = v!),
                 ),
                 const SizedBox(height: 8),
                 PrimaryButton(
-                  'Ergebnisse anzeigen',
+                  'عرض النتائج',
                   onPressed: () {
                     if (!key.currentState!.validate()) return;
                     final result = widget.initial.copy()
@@ -540,9 +528,7 @@ class LocationPage extends StatefulWidget {
 
 class _LocationPageState extends State<LocationPage> {
   late final text = TextEditingController(text: widget.initial.city);
-  late String city = widget.initial.city.isEmpty
-      ? 'Berlin'
-      : widget.initial.city;
+  late String city = widget.initial.city.isEmpty ? 'دمشق' : widget.initial.city;
   late double radius = widget.initial.radius;
   bool suggestions = false;
   @override
@@ -553,7 +539,7 @@ class _LocationPageState extends State<LocationPage> {
 
   @override
   Widget build(BuildContext context) => Scaffold(
-    appBar: const PageHeader('Ort', close: true),
+    appBar: const PageHeader('المدينة', close: true),
     body: Column(
       children: [
         Padding(
@@ -561,7 +547,7 @@ class _LocationPageState extends State<LocationPage> {
           child: TextField(
             controller: text,
             decoration: InputDecoration(
-              hintText: 'Ort oder Postleitzahl',
+              hintText: 'المدينة أو المنطقة',
               prefixIcon: const Icon(Icons.search),
               filled: true,
               fillColor: Theme.of(context).brightness == Brightness.dark
@@ -586,13 +572,7 @@ class _LocationPageState extends State<LocationPage> {
               shrinkWrap: true,
               children: [
                 for (final name
-                    in [
-                      'Ganz Deutschland',
-                      'Berlin',
-                      'Hamburg',
-                      'München',
-                      'Köln',
-                    ].where(
+                    in ['كل سوريا', 'دمشق', 'حلب', 'حمص', 'اللاذقية'].where(
                       (n) =>
                           text.text.isEmpty ||
                           n.toLowerCase().contains(text.text.toLowerCase()),
@@ -603,7 +583,7 @@ class _LocationPageState extends State<LocationPage> {
                     onTap: () {
                       setState(() {
                         city = name;
-                        text.text = name == 'Ganz Deutschland' ? '' : name;
+                        text.text = name == 'كل سوريا' ? '' : name;
                         suggestions = false;
                       });
                       FocusScope.of(context).unfocus();
@@ -634,7 +614,7 @@ class _LocationPageState extends State<LocationPage> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'Umkreis: ${radius.round()} km',
+                        'النطاق: ${radius.round()} كم',
                         style: const TextStyle(fontSize: 16),
                       ),
                       Slider(
@@ -648,16 +628,16 @@ class _LocationPageState extends State<LocationPage> {
                   ),
                 ),
               ),
-              Positioned(
-                right: 16,
+              PositionedDirectional(
+                end: 16,
                 bottom: 22,
                 child: FloatingActionButton.small(
                   heroTag: 'location',
-                  tooltip: 'Demo-Standort Berlin',
+                  tooltip: 'موقع دمشق التجريبي',
                   backgroundColor: Theme.of(context).colorScheme.surface,
                   onPressed: () => setState(() {
-                    city = 'Berlin';
-                    text.text = 'Berlin';
+                    city = 'دمشق';
+                    text.text = 'دمشق';
                     suggestions = false;
                   }),
                   child: const Icon(Icons.my_location, color: Brand.green),
@@ -669,10 +649,10 @@ class _LocationPageState extends State<LocationPage> {
       ],
     ),
     bottomNavigationBar: BottomAction(
-      'Ergebnisse anzeigen',
+      'عرض النتائج',
       onPressed: () {
         final result = widget.initial.copy()
-          ..city = city == 'Ganz Deutschland' ? '' : city
+          ..city = city == 'كل سوريا' ? '' : city
           ..radius = radius;
         Navigator.pop(context, result);
       },
