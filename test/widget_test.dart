@@ -224,7 +224,7 @@ void main() {
       'مرحباً، هل الدراجة ما زالت متوفرة؟',
     );
     await tester.pump();
-    await tester.tap(find.byTooltip('إرسال رسالة تجريبية'));
+    await tester.tap(find.byTooltip('إرسال'));
     await tester.pumpAndSettle();
     expect(store.messagesFor('b1'), ['مرحباً، هل الدراجة ما زالت متوفرة؟']);
     expect(find.text('مرحباً، هل الدراجة ما زالت متوفرة؟'), findsOneWidget);
@@ -250,8 +250,8 @@ void main() {
       await tester.tap(find.text('معاينة'));
       await tester.pumpAndSettle();
       expect(store.ownListings, isEmpty);
-      await tester.ensureVisible(find.text('نشر محلياً'));
-      await tester.tap(find.text('نشر محلياً'));
+      await tester.ensureVisible(find.text('نشر الإعلان'));
+      await tester.tap(find.text('نشر الإعلان'));
       await tester.pumpAndSettle();
       expect(store.ownListings.single.title, 'كنبة تجريبية للبيع');
       expect(store.ownListings.single.price, 55.5);

@@ -164,8 +164,10 @@ class _GuestPageState extends State<GuestPage> {
                     child: const Text('تسجيل الدخول'),
                   ),
                   const SizedBox(height: 8),
-                  const Text(
-                    'عرض محلي تجريبي · لا حسابات حقيقية',
+                  Text(
+                    DemoScope.of(context).isLive
+                        ? 'سوق سوريا · حساب حقيقي'
+                        : 'عرض محلي تجريبي · لا حسابات حقيقية',
                     style: TextStyle(fontSize: 10, color: Brand.muted),
                   ),
                   const SizedBox(height: 12),
@@ -433,11 +435,13 @@ class _AuthPageState extends State<AuthPage> {
                     onChanged: (v) => setState(() => newsletter = v),
                   ),
                   const SizedBox(width: 12),
-                  const Expanded(
+                  Expanded(
                     child: Padding(
-                      padding: EdgeInsets.only(top: 12),
+                      padding: const EdgeInsets.only(top: 12),
                       child: Text(
-                        'حفظ تفضيل النشرة البريدية محلياً فقط. لا اشتراك ولا بريد يُرسَل.',
+                        DemoScope.of(context).isLive
+                            ? 'تفضيل النشرة البريدية لهذا الحساب.'
+                            : 'حفظ تفضيل النشرة البريدية محلياً فقط. لا اشتراك ولا بريد يُرسَل.',
                         style: TextStyle(fontSize: 13, height: 1.35),
                       ),
                     ),
@@ -511,9 +515,11 @@ class _AuthPageState extends State<AuthPage> {
               ),
             ],
             const SizedBox(height: 16),
-            const Text(
-              'تجريبي: استخدم بيانات وهمية مثل demo@example.test. '
-              'لا يوجد تسجيل دخول حقيقي. لا تُحفَظ كلمة المرور ولا تُرسَل.',
+            Text(
+              DemoScope.of(context).isLive
+                  ? 'سجّل الدخول ببيانات حسابك الحقيقي.'
+                  : 'تجريبي: استخدم بيانات وهمية مثل demo@example.test. '
+                      'لا يوجد تسجيل دخول حقيقي. لا تُحفَظ كلمة المرور ولا تُرسَل.',
               textAlign: TextAlign.center,
               style: TextStyle(fontSize: 11, color: Brand.muted, height: 1.4),
             ),
@@ -579,8 +585,10 @@ class AccountPage extends StatelessWidget {
           child: Container(
             padding: const EdgeInsets.all(12),
             color: Brand.pale,
-            child: const Text(
-              'إضافة تجريبية محلية: لم تكن طريقة العرض هذه بعد تسجيل الدخول متاحة في الاختبار المرجعي.',
+            child: Text(
+              DemoScope.of(context).isLive
+                  ? 'حسابك متصل بالخادم الحقيقي.'
+                  : 'إضافة تجريبية محلية: لم تكن طريقة العرض هذه بعد تسجيل الدخول متاحة في الاختبار المرجعي.',
               style: TextStyle(color: Brand.deep, fontSize: 12),
             ),
           ),
@@ -601,13 +609,13 @@ class AccountPage extends StatelessWidget {
         const Divider(),
         RowLink(
           'إعلاناتي',
-          subtitle: 'إعلانات محلية: ${store.ownListings.length}',
+          subtitle: 'إعلاناتك: ${store.ownListings.length}',
           icon: Icons.sell_outlined,
           onTap: () => go(context, const OwnListingsPage()),
         ),
         const Divider(),
         RowLink(
-          'ملفي الشخصي التجريبي',
+          store.isLive ? 'ملفي الشخصي' : 'ملفي الشخصي التجريبي',
           icon: Icons.person_outline,
           onTap: () => go(context, const SelfProfilePage()),
         ),
@@ -671,8 +679,10 @@ class _EditProfilePageState extends State<EditProfilePage> {
                 context,
               ).updateProfile(DemoScope.of(context).name, business: v),
             ),
-            const Text(
-              'يُحفَظ نوع البائع والاسم محلياً فقط. لا يوجد تحقق ولا تسجيل تجاري رسمي.',
+            Text(
+              DemoScope.of(context).isLive
+                  ? 'يُحفَظ نوع الحساب والاسم على حسابك.'
+                  : 'يُحفَظ نوع البائع والاسم محلياً فقط. لا يوجد تحقق ولا تسجيل تجاري رسمي.',
             ),
           ],
         ),

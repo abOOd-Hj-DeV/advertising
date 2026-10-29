@@ -17,7 +17,7 @@ void demoCall(BuildContext context) => showDialog<void>(
   builder: (_) => AlertDialog(
     title: const Text('التواصل مع البائع'),
     content: const Text(
-      'لا يمكن إجراء اتصال هاتفي في هذه النسخة التجريبية المحلية. يمكنك بدلاً من ذلك كتابة رسالة تجريبية.',
+      'الاتصال الهاتفي غير متاح حالياً. يمكنك مراسلة البائع بدلاً من ذلك.',
     ),
     actions: [
       TextButton(
@@ -226,16 +226,21 @@ class _ListingPageState extends State<ListingPage> {
                             ),
                           ),
                           const SizedBox(width: 16),
-                          const Icon(Icons.visibility_outlined, size: 16),
-                          const SizedBox(width: 5),
-                          const Text('124', style: TextStyle(fontSize: 11)),
-                          const SizedBox(width: 16),
-                          const Icon(Icons.favorite_border, size: 16),
-                          const SizedBox(width: 5),
-                          Text(
-                            store.favorites.contains(l.id) ? '13' : '12',
-                            style: const TextStyle(fontSize: 11),
-                          ),
+                          if (l.views >= 0) ...[
+                            const Icon(Icons.visibility_outlined, size: 16),
+                            const SizedBox(width: 5),
+                            Text('${l.views}',
+                                style: const TextStyle(fontSize: 11)),
+                            const SizedBox(width: 16),
+                          ],
+                          if (l.favoritesCount >= 0) ...[
+                            const Icon(Icons.favorite_border, size: 16),
+                            const SizedBox(width: 5),
+                            Text(
+                              '${l.favoritesCount + (store.favorites.contains(l.id) ? 1 : 0)}',
+                              style: const TextStyle(fontSize: 11),
+                            ),
+                          ],
                         ],
                       ),
                     ),
@@ -313,8 +318,8 @@ class _ListingPageState extends State<ListingPage> {
                   ),
                   Text(
                     translated
-                        ? 'هذا الإعلان التجريبي بحالة جيدة وجاهز لمنزل جديد. '
-                              'الاستلام بموعد مسبق. لا يمكن إجراء معاملة حقيقية في هذه النسخة التجريبية دون اتصال.'
+                        ? 'هذا إعلان بحالة جيدة وجاهز لمنزل جديد. '
+                              'الاستلام بموعد مسبق.'
                         : l.description,
                     maxLines: expanded ? null : 5,
                     overflow: expanded
@@ -330,7 +335,7 @@ class _ListingPageState extends State<ListingPage> {
                     ),
                     const SizedBox(height: 8),
                     const Text(
-                      '✓ معتنى به بعناية\n✓ المزيد من الصور في المعرض\n✓ الاستلام بموعد مسبق\n✓ بيانات افتراضية – ليس إعلاناً حقيقياً',
+                      '✓ معتنى به بعناية\n✓ المزيد من الصور في المعرض\n✓ الاستلام بموعد مسبق',
                       style: TextStyle(fontSize: 14, height: 1.6),
                     ),
                   ],
@@ -356,7 +361,7 @@ class _ListingPageState extends State<ListingPage> {
             child: RowLink(
               l.seller,
               subtitle:
-                  '${l.commercial ? 'بائع تجاري' : 'بائع فردي'} · نشط منذ 2022',
+                  '${l.commercial ? 'بائع تجاري' : 'بائع فردي'}${l.memberSince.isEmpty ? '' : ' · عضو منذ ${l.memberSince.substring(0, 4)}'}',
               icon: Icons.account_circle_outlined,
               onTap: () => go(context, SellerPage(listing: l)),
             ),
@@ -378,7 +383,7 @@ class _ListingPageState extends State<ListingPage> {
             child: Padding(
               padding: const EdgeInsets.all(16),
               child: Text(
-                'معرّف الإعلان: ${l.id} · نسخة تجريبية',
+                'معرّف الإعلان: ${l.id}',
                 style: const TextStyle(color: Brand.muted, fontSize: 12),
               ),
             ),
@@ -602,14 +607,14 @@ class _SellerPageState extends State<SellerPage> {
                           ),
                         ),
                         Text(
-                          '${l.commercial ? 'بائع تجاري' : 'بائع فردي'} · نشط منذ 2022',
+                          '${l.commercial ? 'بائع تجاري' : 'بائع فردي'}${l.memberSince.isEmpty ? '' : ' · عضو منذ ${l.memberSince.substring(0, 4)}'}',
                           style: const TextStyle(
                             fontSize: 11,
                             color: Brand.muted,
                           ),
                         ),
                         Text(
-                          '${store.sellerListings(l.identity).length} إعلانات منشورة · ملف تجريبي',
+                          '${store.sellerListings(l.identity).length} إعلانات منشورة',
                           style: const TextStyle(
                             fontSize: 11,
                             color: Brand.muted,
@@ -759,11 +764,18 @@ class _SellerPageState extends State<SellerPage> {
                         style: TextStyle(fontWeight: FontWeight.w800),
                       ),
                       const SizedBox(height: 16),
+                      if (store.isLive)
+                        Text(
+                          '${l.commercial ? 'بائع تجاري' : 'بائع فردي'}${l.memberSince.isEmpty ? '' : ' · عضو منذ ${l.memberSince.substring(0, 4)}'}',
+                          style: const TextStyle(fontSize: 14, height: 1.5),
+                        )
+                      else
                       Text(
                         'أهلاً بك في ${l.seller}. نحب الأشياء الجميلة ويسعدنا أن نمنحها بيتاً ثانياً. '
                         'هذا ملف افتراضي للنسخة التجريبية المحلية.',
                         style: const TextStyle(fontSize: 14, height: 1.5),
                       ),
+                      if (!store.isLive)
                       TextButton(
                         onPressed: () => go(
                           context,
@@ -778,6 +790,7 @@ class _SellerPageState extends State<SellerPage> {
                         ),
                         child: const Text('قراءة المزيد'),
                       ),
+                      if (!store.isLive) ...[
                       const Divider(),
                       const SizedBox(height: 16),
                       const Text(
@@ -808,16 +821,20 @@ class _SellerPageState extends State<SellerPage> {
                             ),
                           ),
                         ),
+                      ],
                     ],
                   ),
                   ListView(
                     children: [
                       RowLink(
-                        'شارع المثال 12\n${l.city} · ${l.district}',
+                        store.isLive
+                            ? '${l.city} · ${l.district}'
+                            : 'شارع المثال 12\n${l.city} · ${l.district}',
                         icon: Icons.location_on_outlined,
                         onTap: () =>
                             go(context, ListingLocationPage(listing: l)),
                       ),
+                      if (!store.isLive) ...[
                       const Divider(),
                       const RowLink(
                         'الاثنين–الجمعة: 13:00–19:00',
@@ -853,6 +870,7 @@ class _SellerPageState extends State<SellerPage> {
                           ),
                         ),
                       ),
+                      ],
                     ],
                   ),
                 ],

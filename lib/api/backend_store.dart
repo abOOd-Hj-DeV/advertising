@@ -22,6 +22,8 @@ class BackendStore extends DemoStore {
   }
 
   final ApiStore api;
+  @override
+  bool get isLive => true;
   static final messengerKey = GlobalKey<ScaffoldMessengerState>();
 
   final List<Listing> _remote = [];
@@ -418,10 +420,12 @@ class BackendStore extends DemoStore {
     }
   }
 
+  bool _suppressUpdate = false;
+
   @override
   bool editListing(Listing l, {String? draftId}) {
     final ok = super.editListing(l, draftId: draftId);
-    if (ok && l.id.length == 26) unawaited(_update(l));
+    if (ok && !_suppressUpdate && l.id.length == 26) unawaited(_update(l));
     return ok;
   }
 
@@ -446,7 +450,12 @@ class BackendStore extends DemoStore {
   @override
   void setListingStatus(String id, ListingStatus status) {
     final before = findListing(id)?.status;
-    super.setListingStatus(id, status);
+    _suppressUpdate = true;
+    try {
+      super.setListingStatus(id, status);
+    } finally {
+      _suppressUpdate = false;
+    }
     if (before == null || before == status || id.length != 26) return;
     final action = switch ((before, status)) {
       (ListingStatus.active, ListingStatus.reserved) => 'reserve',
@@ -662,7 +671,13 @@ class BackendStore extends DemoStore {
           final other = Map<String, dynamic>.from(c['participant'] as Map);
           final cached = _cache[listing['id']] ?? _map(listing);
           _cache[cached.id] = cached;
-          final old = conversations.where((x) => x.id == id).firstOrNull;
+          final localId = _serverConversation.entries
+              .where((e) => e.value == id)
+              .map((e) => e.key)
+              .firstOrNull;
+          final old = conversations
+              .where((x) => x.id == (localId ?? id))
+              .firstOrNull;
           final updated = DateTime.parse(c['updated_at'] as String);
           final needsFetch = old == null ||
               old.messages.isEmpty ||
@@ -670,7 +685,7 @@ class BackendStore extends DemoStore {
           final messages = needsFetch ? await _messages(id) : old.messages;
           next.add(
             Conversation(
-              id: id,
+              id: localId ?? id,
               listingId: listing['id'] as String,
               participantId: other['id'] as String,
               participant: other['display_name'] as String? ?? '',
@@ -871,6 +886,9 @@ class BackendStore extends DemoStore {
         (p) => p.name == j['price_type'],
         orElse: () => PriceType.fixed,
       ),
+      views: (j['views_count'] as num?)?.toInt() ?? -1,
+      favoritesCount: (j['favorites_count'] as num?)?.toInt() ?? -1,
+      memberSince: (seller?['member_since'] ?? j['member_since']) as String? ?? '',
       description: j['description'] as String? ?? '',
     );
   }

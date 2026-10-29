@@ -43,10 +43,10 @@ class MarketplaceApp extends StatelessWidget {
                   children: [
                     SizedBox(
                       width: limits.maxWidth > 1000 ? 280 : 140,
-                      child: const SingleChildScrollView(
+                      child: SingleChildScrollView(
                         primary: false,
                         child: Padding(
-                          padding: EdgeInsets.all(24),
+                          padding: const EdgeInsets.all(24),
                           child: Column(
                             mainAxisAlignment: MainAxisAlignment.center,
                             crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -68,7 +68,9 @@ class MarketplaceApp extends StatelessWidget {
                               ),
                               SizedBox(height: 18),
                               Text(
-                                'واجهة تجريبية\nبيانات افتراضية · تعمل محليًا\nمتصلة بالخادم عند توفره',
+                                store.isLive
+                                    ? 'متصل بالخادم\nسوق سوريا الحقيقي'
+                                    : 'واجهة تجريبية\nبيانات افتراضية · تعمل محليًا\nمتصلة بالخادم عند توفره',
                                 style: TextStyle(
                                   fontSize: 13,
                                   height: 1.6,

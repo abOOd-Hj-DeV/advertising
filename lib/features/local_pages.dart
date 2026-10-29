@@ -111,10 +111,12 @@ class FavoritesPage extends StatelessWidget {
                       )
                     : ListView(
                         children: [
-                          const Padding(
-                            padding: EdgeInsets.all(16),
+                          Padding(
+                            padding: const EdgeInsets.all(16),
                             child: Text(
-                              'المفاتيح تتحكم بالتنبيهات التجريبية المحلية فقط، لا بالبريد الإلكتروني أو الإشعارات الفورية.',
+                              store.isLive
+                                  ? 'تتحكم المفاتيح بتنبيهاتك داخل التطبيق.'
+                                  : 'المفاتيح تتحكم بالتنبيهات التجريبية المحلية فقط، لا بالبريد الإلكتروني أو الإشعارات الفورية.',
                               style: TextStyle(fontSize: 12),
                             ),
                           ),
@@ -145,7 +147,7 @@ class FavoritesPage extends StatelessWidget {
                                         if (await confirmLocal(
                                           context,
                                           'حذف البحث المحفوظ؟',
-                                          'سيُحذف هذا البحث المحفوظ المحلي فقط.',
+                                          'سيُحذف هذا البحث المحفوظ.',
                                         )) {
                                           store.deleteSearch(s);
                                         }
@@ -172,7 +174,7 @@ class FavoritesPage extends StatelessWidget {
                             RowLink(
                               l.seller,
                               icon: Icons.person_outline,
-                              subtitle: 'تتابعه محلياً',
+                              subtitle: 'تتابعه',
                               onTap: () => go(context, SellerPage(listing: l)),
                               trailing: IconButton(
                                 tooltip: 'إلغاء المتابعة',
@@ -361,7 +363,7 @@ class OwnListingsPage extends StatelessWidget {
                                     ? d.values['title'] as String
                                     : 'مسودة بلا اسم',
                                 icon: Icons.edit_note,
-                                subtitle: 'محلية فقط · متابعة',
+                                subtitle: 'متابعة',
                                 onTap: () => go(
                                   context,
                                   ListingEditor(
@@ -375,7 +377,7 @@ class OwnListingsPage extends StatelessWidget {
                                     if (await confirmLocal(
                                       context,
                                       'حذف المسودة؟',
-                                      'ستُحذف هذه المسودة المحلية نهائياً.',
+                                      'ستُحذف هذه المسودة نهائياً.',
                                     )) {
                                       store.deleteDraft(d.id);
                                       if (await store.flush()) {
@@ -434,7 +436,7 @@ class ListingManagementMenu extends StatelessWidget {
               !await confirmLocal(
                 context,
                 'وضع علامة «مُباع»؟',
-                'سجل محلي فقط، ولن يحدث بيع أو دفع فعلي.',
+                'ستُعلَّم الإعلان كمُباع ويخرج من نتائج البحث.',
                 action: 'وضع علامة «مُباع»',
               )) {
             return;
@@ -482,7 +484,7 @@ class SelfProfilePage extends StatelessWidget {
                   ),
                 ),
                 Text('بائع تجريبي ${store.commercial ? 'تجاري' : 'فردي'}'),
-                Text('إعلانات محلية نشطة: ${items.length}'),
+                Text('إعلانات نشطة: ${items.length}'),
                 const Text(
                   'لا توجد تقييمات أو توثيقات حقيقية',
                   style: TextStyle(fontSize: 12),
@@ -531,11 +533,11 @@ class _MessagesPageState extends State<MessagesPage> {
             ),
           ],
         ),
-        const Padding(
-          padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
           child: Text(
-            'محادثات افتراضية · لا تُرسَل',
-            style: TextStyle(fontSize: 12, color: Brand.muted),
+            store.isLive ? 'المحادثات' : 'محادثات افتراضية · لا تُرسَل',
+            style: const TextStyle(fontSize: 12, color: Brand.muted),
           ),
         ),
         Expanded(
@@ -545,9 +547,9 @@ class _MessagesPageState extends State<MessagesPage> {
                     children: [
                       const LocalEmpty(
                         'كل شيء في مكان واحد',
-                        'ابدأ محادثة محلية من داخل إعلان.',
+                        'ابدأ محادثة من داخل إعلان.',
                       ),
-                      if (!archived && store.conversations.isEmpty)
+                      if (!archived && !store.isLive && store.conversations.isEmpty)
                         TextButton(
                           onPressed: store.seedConversations,
                           child: const Text('تحميل أمثلة افتراضية'),
@@ -656,13 +658,13 @@ class _MessagePageState extends State<MessagePage> {
       return Scaffold(
         appBar: const PageHeader('الرسائل'),
         body: const Center(
-          child: Text('المحادثة غير متاحة أو انتهت الجلسة المحلية.'),
+          child: Text('المحادثة غير متاحة.'),
         ),
       );
     }
     if (c == null) {
       return const Scaffold(
-        body: Center(child: Text('جارٍ فتح المحادثة المحلية…')),
+        body: Center(child: Text('جارٍ فتح المحادثة…')),
       );
     }
     final l = store.findListing(c.listingId);
@@ -692,10 +694,10 @@ class _MessagePageState extends State<MessagePage> {
                 if (!context.mounted) return;
                 if (await confirmLocal(
                   context,
-                  blocked ? 'إلغاء الحظر المحلي؟' : 'حظر محلياً؟',
+                  blocked ? 'إلغاء الحظر؟' : 'حظر؟',
                   blocked
-                      ? 'سيُعاد تفعيل الإدخال المحلي، دون أي تواصل خارجي.'
-                      : 'يعطّل الرسائل والمحاكاة لهذا المشارك التجريبي.',
+                      ? 'سيُسمح لهذا المستخدم بمراسلتك مجدداً.'
+                      : 'يمنع هذا المستخدم من مراسلتك.',
                   action: blocked ? 'إلغاء الحظر' : 'حظر',
                 )) {
                   store.toggleBlock(c.participantId);
@@ -720,14 +722,15 @@ class _MessagePageState extends State<MessagePage> {
               const PopupMenuItem(value: 'delete', child: Text('حذف المحادثة')),
               PopupMenuItem(
                 value: 'block',
-                child: Text(blocked ? 'إلغاء الحظر المحلي' : 'حظر محلياً'),
+                child: Text(blocked ? 'إلغاء الحظر' : 'حظر'),
               ),
-              const PopupMenuItem(value: 'report', child: Text('إبلاغ محلي')),
-              PopupMenuItem(
-                value: 'simulate',
-                enabled: enabled,
-                child: const Text('محاكاة رد افتراضي'),
-              ),
+              const PopupMenuItem(value: 'report', child: Text('إبلاغ')),
+              if (!store.isLive)
+                PopupMenuItem(
+                  value: 'simulate',
+                  enabled: enabled,
+                  child: const Text('محاكاة رد افتراضي'),
+                ),
             ],
           ),
         ],
@@ -736,7 +739,8 @@ class _MessagePageState extends State<MessagePage> {
         children: [
           RowLink(
             l?.title ?? '${c.listingTitle} · لم يعد متاحاً',
-            subtitle: l?.formattedPrice ?? 'يبقى سجل المحادثة محفوظاً محلياً',
+            subtitle: l?.formattedPrice ??
+                (store.isLive ? 'سجل المحادثة محفوظ.' : 'يبقى سجل المحادثة محفوظاً محلياً'),
             icon: Icons.sell_outlined,
             onTap: l == null
                 ? null
@@ -757,14 +761,15 @@ class _MessagePageState extends State<MessagePage> {
               padding: const EdgeInsets.all(8),
               child: Text(
                 blocked
-                    ? 'محظور محلياً — ألغِ الحظر من القائمة'
+                    ? 'محظور — ألغِ الحظر من القائمة'
                     : 'الإعلان غير نشط، والرسائل الجديدة معطّلة.',
               ),
             ),
-          const Text(
-            'على هذا الجهاز فقط · لا تُرسَل',
-            style: TextStyle(fontSize: 11, color: Brand.muted),
-          ),
+          if (!store.isLive)
+            const Text(
+              'على هذا الجهاز فقط · لا تُرسَل',
+              style: TextStyle(fontSize: 11, color: Brand.muted),
+            ),
           Expanded(
             child: ListView.builder(
               reverse: true,
@@ -800,7 +805,7 @@ class _MessagePageState extends State<MessagePage> {
                           ),
                         ),
                         Text(
-                          '${timeLabel(m.at)} · ${m.incoming ? 'وصلت افتراضياً' : 'محلية'}',
+                          '${timeLabel(m.at)} · ${m.incoming ? 'مستلمة' : 'مرسلة'}',
                           style: TextStyle(
                             fontSize: 10,
                             color: m.incoming ? null : Brand.green,
@@ -839,7 +844,7 @@ class _MessagePageState extends State<MessagePage> {
                   ),
                   const SizedBox(width: 8),
                   IconButton.filled(
-                    tooltip: 'إرسال رسالة تجريبية',
+                    tooltip: 'إرسال',
                     onPressed: !enabled || text.text.trim().isEmpty
                         ? null
                         : () {
@@ -951,7 +956,7 @@ class NotificationsPage extends StatelessWidget {
               child: Column(
                 children: [
                   const LocalEmpty(
-                    'لا تنبيهات محلية',
+                    'لا تنبيهات',
                     'تظهر هنا أحداث الإنشاء المحلية ورسائل المحاكاة.',
                   ),
                   TextButton(
@@ -1016,10 +1021,12 @@ class NotificationPreferencesPage extends StatelessWidget {
       appBar: const PageHeader('الإشعارات'),
       body: ListView(
         children: [
-          const Padding(
-            padding: EdgeInsets.all(16),
+          Padding(
+            padding: const EdgeInsets.all(16),
             child: Text(
-              'إعدادات محلية فقط: لا رسائل بريد إلكتروني أو إشعارات فورية حقيقية، ولا تغيير في أذونات أندرويد أو المتصفح.',
+              store.isLive
+                  ? 'تُطبق هذه الإعدادات على تنبيهاتك داخل التطبيق.'
+                  : 'إعدادات محلية فقط: لا رسائل بريد إلكتروني أو إشعارات فورية حقيقية، ولا تغيير في أذونات أندرويد أو المتصفح.',
             ),
           ),
           SwitchListTile(
@@ -1119,7 +1126,7 @@ class LocalDataPage extends StatelessWidget {
             subtitle: store.signedIn ? null : 'استخدم الدخول المحلي من «حسابي»',
           ),
           RowLink(
-            'الأمان المحلي',
+            store.isLive ? 'الأمان' : 'الأمان المحلي',
             icon: Icons.shield_outlined,
             onTap: () => go(context, const LocalSafetyPage()),
           ),
@@ -1128,9 +1135,13 @@ class LocalDataPage extends StatelessWidget {
             onPressed: () async {
               if (!await confirmLocal(
                 context,
-                'إعادة تعيين بيانات العرض المحلية؟',
-                'يزيل الملف الشخصي والإعلانات والمسودات والصور المستوردة والمحادثات والإبلاغات والتنبيهات والمفضلة والبحوث المحفوظة والمتابَعات والسجل والخصوصية والمظهر على هذا الجهاز. لا حسابات حقيقية ولا مفاتيح تطبيقات خارجية. سيتم تسجيل خروجك محلياً.',
-                action: 'إعادة تعيين الكل محلياً',
+                store.isLive
+                    ? 'إعادة تعيين بيانات التطبيق؟'
+                    : 'إعادة تعيين بيانات العرض المحلية؟',
+                store.isLive
+                    ? 'يمسح الذاكرة المؤقتة والتفضيلات المحفوظة على هذا الجهاز، ويسجّل خروجك. لا يحذف حسابك أو إعلاناتك.'
+                    : 'يزيل الملف الشخصي والإعلانات والمسودات والصور المستوردة والمحادثات والإبلاغات والتنبيهات والمفضلة والبحوث المحفوظة والمتابَعات والسجل والخصوصية والمظهر على هذا الجهاز. لا حسابات حقيقية ولا مفاتيح تطبيقات خارجية. سيتم تسجيل خروجك محلياً.',
+                action: 'إعادة تعيين الكل',
               )) {
                 return;
               }
@@ -1150,7 +1161,11 @@ class LocalDataPage extends StatelessWidget {
                 }
               }
             },
-            child: const Text('إعادة تعيين بيانات العرض المحلية'),
+            child: Text(
+              store.isLive
+                  ? 'إعادة تعيين بيانات التطبيق'
+                  : 'إعادة تعيين بيانات العرض المحلية',
+            ),
           ),
         ],
       ),

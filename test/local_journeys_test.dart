@@ -240,7 +240,7 @@ void main() {
       await tester.enterText(field('العنوان'), 'كنبة محلية معدّلة');
       await tapVisible(tester, 'معاينة');
       expect(s.findListing('own')!.title, 'كنبتي المحلية');
-      await tapVisible(tester, 'حفظ التغييرات محلياً');
+      await tapVisible(tester, 'حفظ التغييرات');
       expect(s.ownListings.single.id, 'own');
       expect(s.ownListings.single.title, 'كنبة محلية معدّلة');
       final value = s.ownListings.single;
@@ -271,14 +271,14 @@ void main() {
       expect(b.draft, isEmpty);
       await tester.tap(find.byTooltip('إدارة المحادثة'));
       await tester.pumpAndSettle();
-      await tapVisible(tester, 'حظر محلياً');
+      await tapVisible(tester, 'حظر');
       await tapVisible(tester, 'حظر');
       expect(s.blockedParticipants, contains(a.participantId));
       expect(
         tester
             .widget<IconButton>(
               find.byWidgetPredicate(
-                (w) => w is IconButton && w.tooltip == 'إرسال رسالة تجريبية',
+                (w) => w is IconButton && w.tooltip == 'إرسال',
               ),
             )
             .onPressed,
@@ -286,9 +286,9 @@ void main() {
       );
       await tester.tap(find.byTooltip('إدارة المحادثة'));
       await tester.pumpAndSettle();
-      await tapVisible(tester, 'إلغاء الحظر المحلي');
       await tapVisible(tester, 'إلغاء الحظر');
-      await tester.tap(find.byTooltip('إرسال رسالة تجريبية'));
+      await tapVisible(tester, 'إلغاء الحظر');
+      await tester.tap(find.byTooltip('إرسال'));
       await tester.pumpAndSettle();
       expect(a.messages.last.text, 'مسودة غير مرسلة');
       expect(a.draft, isEmpty);
@@ -311,7 +311,7 @@ void main() {
       expect(s.ownListings.single.id, 'keep');
       expect(s.favorites, {'b1'});
       await tapVisible(tester, 'إعادة تعيين بيانات العرض المحلية');
-      await tapVisible(tester, 'إعادة تعيين الكل محلياً');
+      await tapVisible(tester, 'إعادة تعيين الكل');
       expect(s.ownListings, isEmpty);
       expect(s.favorites, isEmpty);
       expect(s.signedIn, isFalse);

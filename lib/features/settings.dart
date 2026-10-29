@@ -238,9 +238,11 @@ class ConsentIntroPage extends StatelessWidget {
                 style: TextStyle(fontWeight: FontWeight.w800),
               ),
               const SizedBox(height: 10),
-              const Text(
-                'في النسخة المرجعية تُعرض هنا معلومات عن الإعلانات والخصوصية. '
-                'هذا العرض التجريبي المحلي لا يستخدم شبكات إعلانية ولا تحليلات ولا خوادم. يبقى اختيارك على هذا الجهاز.',
+              Text(
+                DemoScope.of(context).isLive
+                    ? 'نحترم خصوصيتك. لا نستخدم شبكات إعلانية خارجية في هذه النسخة.'
+                    : 'في النسخة المرجعية تُعرض هنا معلومات عن الإعلانات والخصوصية. '
+                        'هذا العرض التجريبي المحلي لا يستخدم شبكات إعلانية ولا تحليلات ولا خوادم. يبقى اختيارك على هذا الجهاز.',
                 style: TextStyle(fontSize: 14, height: 1.5),
               ),
               const SizedBox(height: 22),

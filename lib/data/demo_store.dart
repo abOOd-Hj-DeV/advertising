@@ -41,6 +41,9 @@ class Listing {
     this.sellerId = '',
     this.status = ListingStatus.active,
     this.priceType = PriceType.fixed,
+    this.views = -1,
+    this.favoritesCount = -1,
+    this.memberSince = '',
     this.description =
         'بحالة جيدة وجاهز لصاحب جديد. '
         'نعرض هذا الغرض الجميل لأننا نريد إخلاء مكان. '
@@ -66,6 +69,9 @@ class Listing {
   String get identity => sellerId.isEmpty ? 'fixture-$seller' : sellerId;
   final double price, distance;
   final int ageHours;
+  // -1 = unknown (demo data); real counts come from the backend
+  final int views, favoritesCount;
+  final String memberSince;
   final bool shipping, direct, commercial, wanted, featured;
   final List<String> images;
   List<String> get gallery => images.isEmpty ? [image] : images;
@@ -98,6 +104,9 @@ class Listing {
     'description': description,
     'status': status.name,
     'priceType': priceType.name,
+    'views': views,
+    'favoritesCount': favoritesCount,
+    'memberSince': memberSince,
   };
   factory Listing.fromJson(Map<String, dynamic> j) {
     final price = (j['price'] as num).toDouble();
@@ -131,6 +140,9 @@ class Listing {
       images: (j['images'] as List? ?? []).cast<String>(),
       status: ListingStatus.values.byName(j['status'] as String? ?? 'active'),
       priceType: PriceType.values.byName(j['priceType'] as String? ?? 'fixed'),
+      views: (j['views'] as num?)?.toInt() ?? -1,
+      favoritesCount: (j['favoritesCount'] as num?)?.toInt() ?? -1,
+      memberSince: j['memberSince'] as String? ?? '',
     );
   }
   Listing copyWith({
@@ -179,6 +191,9 @@ class Listing {
     images: images ?? this.images,
     status: status ?? this.status,
     priceType: priceType ?? this.priceType,
+    views: views,
+    favoritesCount: favoritesCount,
+    memberSince: memberSince,
   );
 }
 

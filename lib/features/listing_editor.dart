@@ -164,7 +164,7 @@ class ListingEditorState extends State<ListingEditor> {
       toast(
         context,
         ok
-            ? 'تم حفظ المسودة محلياً'
+            ? 'تم حفظ المسودة'
             : 'حُفظت المسودة في الذاكرة فقط – أعد محاولة الحفظ',
       );
     }
@@ -178,7 +178,7 @@ class ListingEditorState extends State<ListingEditor> {
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('الاحتفاظ بالتغييرات؟'),
-        content: const Text('هل تحفظها كمسودة محلية أم تتجاهل التغييرات؟'),
+        content: const Text('هل تحفظها كمسودة أم تتجاهل التغييرات؟'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, 'cancel'),
@@ -410,8 +410,8 @@ class ListingEditorState extends State<ListingEditor> {
     toast(
       context,
       ok
-          ? (editing ? 'تم حفظ التغييرات محلياً' : 'نُشر الإعلان محلياً فقط')
-          : 'حُفظ في الذاكرة فقط. أعد المحاولة من معلومات العرض التجريبي.',
+          ? (editing ? 'تم حفظ التغييرات' : 'نُشر الإعلان')
+          : 'حُفظ مؤقتاً فقط. أعد المحاولة.',
     );
     if (widget.embedded) {
       store!.changeTab(4);
@@ -468,7 +468,7 @@ class ListingEditorState extends State<ListingEditor> {
                 builder: (context) => const AlertDialog(
                   title: Text('على هذا الجهاز فقط'),
                   content: Text(
-                    'هذا ليس إعلاناً حقيقياً. المعاينة والإدارة محلية فقط، دون دفع أو نشر على منصة خارجية.',
+                    'هذه معاينة لإعلانك قبل النشر — لا يحدث أي دفع أو معاملة هنا.',
                   ),
                 ),
               ),
@@ -653,7 +653,7 @@ class ListingEditorState extends State<ListingEditor> {
                   controller: district,
                   maxLength: 60,
                   decoration: const InputDecoration(
-                    labelText: 'الحي (اختياري، محلي فقط)',
+                    labelText: 'الحي (اختياري)',
                   ),
                 ),
                 select(
@@ -714,7 +714,7 @@ class ListingPreviewPage extends StatelessWidget {
   final bool editing;
   @override
   Widget build(BuildContext context) => Scaffold(
-    appBar: const PageHeader('معاينة · محلي فقط'),
+    appBar: const PageHeader('معاينة'),
     body: ListView(
       padding: const EdgeInsets.all(16),
       children: [
@@ -751,7 +751,7 @@ class ListingPreviewPage extends StatelessWidget {
         Text('من ${listing.seller}'),
         const SizedBox(height: 24),
         PrimaryButton(
-          editing ? 'حفظ التغييرات محلياً' : 'نشر محلياً',
+          editing ? 'حفظ التغييرات' : 'نشر الإعلان',
           onPressed: () => Navigator.pop(context, true),
         ),
         TextButton(

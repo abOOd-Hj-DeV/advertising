@@ -47,6 +47,7 @@ class DemoStore extends ChangeNotifier {
   ThemeMode themeMode = ThemeMode.system;
   bool consentAccepted = false, personalized = false, analytics = false;
   bool signedIn = false, commercial = false, newsletter = false;
+  bool get isLive => false; // BackendStore overrides → real API mode
   bool localAlerts = true, emailPreference = false;
   bool readOnlyStorage = false;
   String name = 'بائع تجريبي';
