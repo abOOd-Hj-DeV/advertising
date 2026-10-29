@@ -9,20 +9,20 @@ import 'settings.dart';
 
 void shareDemo(BuildContext context, String id) {
   Clipboard.setData(ClipboardData(text: 'demo://advertising/anzeigen/$id'));
-  toast(context, 'Lokaler Demo-Link kopiert');
+  toast(context, 'تم نسخ رابط تجريبي محلي');
 }
 
 void demoCall(BuildContext context) => showDialog<void>(
   context: context,
   builder: (_) => AlertDialog(
-    title: const Text('Kontakt aufnehmen'),
+    title: const Text('التواصل مع البائع'),
     content: const Text(
-      'Telefonkontakt wird in dieser lokalen Demo nicht ausgelöst. Du kannst stattdessen eine Demo-Nachricht schreiben.',
+      'لا يمكن إجراء اتصال هاتفي في هذه النسخة التجريبية المحلية. يمكنك بدلاً من ذلك كتابة رسالة تجريبية.',
     ),
     actions: [
       TextButton(
         onPressed: () => Navigator.pop(context),
-        child: const Text('Schließen'),
+        child: const Text('إغلاق'),
       ),
     ],
   ),
@@ -51,17 +51,17 @@ class _ListingPageState extends State<ListingPage> {
     final l = store.findListing(widget.listing.id);
     if (l == null) {
       return const Scaffold(
-        appBar: PageHeader('Anzeige nicht verfügbar'),
-        body: Center(child: Text('Diese lokale Anzeige wurde gelöscht.')),
+        appBar: PageHeader('الإعلان غير متاح'),
+        body: Center(child: Text('تم حذف هذا الإعلان المحلي.')),
       );
     }
     final attributes = {
-      if (l.category == 'Fahrräder & Zubehör')
-        'Art': l.kind
+      if (l.category == 'دراجات وملحقات')
+        'النوع': l.kind
       else
-        'Kategorie': l.category,
-      'Typ': l.type,
-      'Zustand': l.condition,
+        'القسم': l.category,
+      'الفئة': l.type,
+      'الحالة': l.condition,
     };
     return Scaffold(
       body: CustomScrollView(
@@ -72,27 +72,27 @@ class _ListingPageState extends State<ListingPage> {
             leading: Padding(
               padding: const EdgeInsets.all(6),
               child: IconButton.filled(
-                tooltip: 'Zurück',
+                tooltip: 'رجوع',
                 style: IconButton.styleFrom(
                   backgroundColor: Colors.white,
                   foregroundColor: Brand.green,
                 ),
                 onPressed: () => Navigator.pop(context),
-                icon: const Icon(Icons.arrow_back),
+                icon: const Icon(Icons.arrow_back_ios_new),
               ),
             ),
             actions: [
               Padding(
-                padding: const EdgeInsets.only(right: 8),
+                padding: const EdgeInsetsDirectional.only(end: 8),
                 child: FavoriteButton(
                   active: store.favorites.contains(l.id),
                   onPressed: () => favoriteListing(context, l),
                 ),
               ),
               Padding(
-                padding: const EdgeInsets.only(right: 8),
+                padding: const EdgeInsetsDirectional.only(end: 8),
                 child: IconButton.filled(
-                  tooltip: 'Anzeige teilen',
+                  tooltip: 'مشاركة الإعلان',
                   style: IconButton.styleFrom(
                     backgroundColor: Colors.white,
                     foregroundColor: Brand.green,
@@ -111,8 +111,8 @@ class _ListingPageState extends State<ListingPage> {
                       child: ProductImage(l.image),
                     ),
                   ),
-                  Positioned(
-                    right: 12,
+                  PositionedDirectional(
+                    end: 12,
                     bottom: 14,
                     child: Container(
                       padding: const EdgeInsets.symmetric(
@@ -198,9 +198,7 @@ class _ListingPageState extends State<ListingPage> {
                                 ),
                                 color: Brand.background,
                                 child: Text(
-                                  l.shipping
-                                      ? 'Versand möglich'
-                                      : 'Nur Abholung',
+                                  l.shipping ? 'شحن متاح' : 'استلام شخصي فقط',
                                   style: const TextStyle(
                                     fontSize: 11,
                                     color: Colors.black87,
@@ -245,7 +243,7 @@ class _ListingPageState extends State<ListingPage> {
               child: DemoSearchAd(),
             ),
           ),
-          const SliverToBoxAdapter(child: SectionHeading('Details')),
+          const SliverToBoxAdapter(child: SectionHeading('التفاصيل')),
           SliverToBoxAdapter(
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -297,19 +295,19 @@ class _ListingPageState extends State<ListingPage> {
                   TextButton.icon(
                     style: TextButton.styleFrom(
                       padding: EdgeInsets.zero,
-                      alignment: Alignment.centerLeft,
+                      alignment: AlignmentDirectional.centerStart,
                     ),
                     onPressed: () => setState(() => translated = !translated),
                     icon: const Icon(Icons.translate, size: 15),
                     label: Text(
-                      translated ? 'Original anzeigen' : 'See translation',
+                      translated ? 'عرض الأصل' : 'عرض الترجمة',
                       style: const TextStyle(fontSize: 12),
                     ),
                   ),
                   Text(
                     translated
-                        ? 'This fictional listing is in good condition and ready for a new home. '
-                              'Collection by appointment. No real transaction is possible in this offline demo.'
+                        ? 'هذا الإعلان التجريبي بحالة جيدة وجاهز لمنزل جديد. '
+                              'الاستلام بموعد مسبق. لا يمكن إجراء معاملة حقيقية في هذه النسخة التجريبية دون اتصال.'
                         : l.description,
                     maxLines: expanded ? null : 5,
                     overflow: expanded
@@ -320,12 +318,12 @@ class _ListingPageState extends State<ListingPage> {
                   if (expanded) ...[
                     const SizedBox(height: 16),
                     const Text(
-                      'Ausstattung und Hinweise',
+                      'المواصفات والملاحظات',
                       style: TextStyle(fontWeight: FontWeight.w800),
                     ),
                     const SizedBox(height: 8),
                     const Text(
-                      '✓ Sorgfältig gepflegt\n✓ Weitere Fotos in der Galerie\n✓ Abholung nach Vereinbarung\n✓ Fiktive Daten – keine echte Anzeige',
+                      '✓ معتنى به بعناية\n✓ المزيد من الصور في المعرض\n✓ الاستلام بموعد مسبق\n✓ بيانات افتراضية – ليس إعلاناً حقيقياً',
                       style: TextStyle(fontSize: 14, height: 1.6),
                     ),
                   ],
@@ -333,7 +331,7 @@ class _ListingPageState extends State<ListingPage> {
                     style: TextButton.styleFrom(padding: EdgeInsets.zero),
                     onPressed: () => setState(() => expanded = !expanded),
                     child: Text(
-                      expanded ? 'Weniger anzeigen' : 'Mehr anzeigen',
+                      expanded ? 'عرض أقل' : 'عرض المزيد',
                       style: const TextStyle(fontSize: 13),
                     ),
                   ),
@@ -351,20 +349,20 @@ class _ListingPageState extends State<ListingPage> {
             child: RowLink(
               l.seller,
               subtitle:
-                  '${l.commercial ? 'Gewerblicher' : 'Privater'} Anbieter · Aktiv seit 2022',
+                  '${l.commercial ? 'بائع تجاري' : 'بائع فردي'} · نشط منذ 2022',
               icon: Icons.account_circle_outlined,
               onTap: () => go(context, SellerPage(listing: l)),
             ),
           ),
           SliverToBoxAdapter(
             child: RowLink(
-              'Alle Anzeigen von ${l.seller}',
+              'كل إعلانات ${l.seller}',
               onTap: () => go(context, SellerPage(listing: l)),
             ),
           ),
           SliverToBoxAdapter(
             child: RowLink(
-              'Anzeige melden',
+              'الإبلاغ عن الإعلان',
               icon: Icons.flag_outlined,
               onTap: () => go(context, LocalReportPage(target: l.id)),
             ),
@@ -373,7 +371,7 @@ class _ListingPageState extends State<ListingPage> {
             child: Padding(
               padding: const EdgeInsets.all(16),
               child: Text(
-                'Anzeigen-ID: ${l.id} · Lokale Demo',
+                'معرّف الإعلان: ${l.id} · نسخة تجريبية',
                 style: const TextStyle(color: Brand.muted, fontSize: 12),
               ),
             ),
@@ -395,7 +393,7 @@ class _ListingPageState extends State<ListingPage> {
               child: Padding(
                 padding: const EdgeInsets.all(16),
                 child: Text(
-                  'Anzeige ${l.status.label.toLowerCase()} – Kontakt deaktiviert',
+                  'الإعلان ${l.status.label.toLowerCase()} – التواصل معطّل',
                 ),
               ),
             )
@@ -410,7 +408,7 @@ class _ListingPageState extends State<ListingPage> {
                       child: OutlinedButton.icon(
                         onPressed: () => demoCall(context),
                         icon: const Icon(Icons.phone_outlined, size: 18),
-                        label: const Text('Anrufen'),
+                        label: const Text('اتصال'),
                         style: OutlinedButton.styleFrom(
                           minimumSize: const Size(0, 46),
                           shape: const StadiumBorder(),
@@ -420,7 +418,7 @@ class _ListingPageState extends State<ListingPage> {
                     const SizedBox(width: 8),
                     Expanded(
                       child: PrimaryButton(
-                        'Nachricht',
+                        'مراسلة',
                         icon: Icons.chat_bubble_outline,
                         onPressed: () => go(
                           context,
@@ -464,7 +462,7 @@ class _GalleryPageState extends State<GalleryPage> {
       backgroundColor: Colors.black,
       foregroundColor: Colors.white,
       leading: IconButton(
-        tooltip: 'Galerie schließen',
+        tooltip: 'إغلاق المعرض',
         onPressed: () => Navigator.pop(context),
         icon: const Icon(Icons.close),
       ),
@@ -501,24 +499,24 @@ class _GalleryPageState extends State<GalleryPage> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               IconButton.filled(
-                tooltip: 'Vorheriges Foto',
+                tooltip: 'الصورة السابقة',
                 onPressed: index == 0
                     ? null
                     : () => page.previousPage(
                         duration: const Duration(milliseconds: 200),
                         curve: Curves.easeOut,
                       ),
-                icon: const Icon(Icons.chevron_left),
+                icon: const Icon(Icons.chevron_right),
               ),
               IconButton.filled(
-                tooltip: 'Nächstes Foto',
+                tooltip: 'الصورة التالية',
                 onPressed: index == widget.listing.gallery.length - 1
                     ? null
                     : () => page.nextPage(
                         duration: const Duration(milliseconds: 200),
                         curve: Curves.easeOut,
                       ),
-                icon: const Icon(Icons.chevron_right),
+                icon: const Icon(Icons.chevron_left),
               ),
             ],
           ),
@@ -563,7 +561,7 @@ class _SellerPageState extends State<SellerPage> {
           l.seller,
           actions: [
             IconButton(
-              tooltip: 'Profil teilen',
+              tooltip: 'مشاركة الملف الشخصي',
               onPressed: () => shareDemo(context, 'seller-${l.seller}'),
               icon: const Icon(Icons.share_outlined, color: Brand.green),
             ),
@@ -597,14 +595,14 @@ class _SellerPageState extends State<SellerPage> {
                           ),
                         ),
                         Text(
-                          '${l.commercial ? 'Gewerblicher' : 'Privater'} Anbieter · Aktiv seit 2022',
+                          '${l.commercial ? 'بائع تجاري' : 'بائع فردي'} · نشط منذ 2022',
                           style: const TextStyle(
                             fontSize: 11,
                             color: Brand.muted,
                           ),
                         ),
                         Text(
-                          '${store.sellerListings(l.identity).length} Anzeigen online · Demo-Profil',
+                          '${store.sellerListings(l.identity).length} إعلانات منشورة · ملف تجريبي',
                           style: const TextStyle(
                             fontSize: 11,
                             color: Brand.muted,
@@ -621,9 +619,9 @@ class _SellerPageState extends State<SellerPage> {
               child: Wrap(
                 spacing: 4,
                 children: [
-                  _SellerBadge('☺ TOP Zufriedenheit'),
-                  _SellerBadge('♧ Sehr freundlich'),
-                  _SellerBadge('♧ Sehr zuverlässig'),
+                  _SellerBadge('☺ رضا ممتاز'),
+                  _SellerBadge('♧ ودود جداً'),
+                  _SellerBadge('♧ موثوق جداً'),
                 ],
               ),
             ),
@@ -655,7 +653,7 @@ class _SellerPageState extends State<SellerPage> {
                         size: 16,
                       ),
                       label: Text(
-                        followed ? 'Gefolgt' : 'Folgen',
+                        followed ? 'أتابعه' : 'متابعة',
                         style: const TextStyle(fontSize: 12),
                       ),
                     ),
@@ -669,15 +667,15 @@ class _SellerPageState extends State<SellerPage> {
                       onPressed: () => go(
                         context,
                         InformationPage(
-                          title: 'Webseite',
+                          title: 'الموقع الإلكتروني',
                           paragraphs: [
-                            'Demo-Profil von ${l.seller}',
-                            'Diese Vorschau führt nicht zu einer echten Verkäufer-Webseite. Alle Profildaten sind fiktiv.',
+                            'الملف التجريبي لـ ${l.seller}',
+                            'هذه المعاينة لا تؤدي إلى موقع بائع حقيقي. جميع بيانات الملف الشخصي افتراضية.',
                           ],
                         ),
                       ),
                       child: const Text(
-                        'Webseite',
+                        'الموقع الإلكتروني',
                         style: TextStyle(fontSize: 12),
                       ),
                     ),
@@ -690,7 +688,7 @@ class _SellerPageState extends State<SellerPage> {
                       ),
                       onPressed: () => demoCall(context),
                       child: const Text(
-                        'Anrufen',
+                        'اتصال',
                         style: TextStyle(fontSize: 12),
                       ),
                     ),
@@ -702,9 +700,9 @@ class _SellerPageState extends State<SellerPage> {
             const TabBar(
               labelStyle: TextStyle(fontSize: 13, fontWeight: FontWeight.w700),
               tabs: [
-                Tab(text: 'Anzeigen'),
-                Tab(text: 'Über'),
-                Tab(text: 'Kontakt'),
+                Tab(text: 'الإعلانات'),
+                Tab(text: 'نبذة'),
+                Tab(text: 'التواصل'),
               ],
             ),
             Expanded(
@@ -719,7 +717,7 @@ class _SellerPageState extends State<SellerPage> {
                           onChanged: (_) => setState(() {}),
                           decoration: InputDecoration(
                             prefixIcon: const Icon(Icons.search, size: 18),
-                            hintText: 'Such in Anzeigen von ${l.seller}',
+                            hintText: 'ابحث في إعلانات ${l.seller}',
                             hintStyle: const TextStyle(fontSize: 12),
                             contentPadding: const EdgeInsets.all(8),
                           ),
@@ -728,7 +726,7 @@ class _SellerPageState extends State<SellerPage> {
                       Expanded(
                         child: items.isEmpty
                             ? const Center(
-                                child: Text('Keine Anzeigen gefunden'),
+                                child: Text('لم يتم العثور على إعلانات'),
                               )
                             : ListView.builder(
                                 itemCount: items.length,
@@ -750,44 +748,44 @@ class _SellerPageState extends State<SellerPage> {
                     padding: const EdgeInsets.all(16),
                     children: [
                       const Text(
-                        'Unternehmensbeschreibung',
+                        'وصف النشاط التجاري',
                         style: TextStyle(fontWeight: FontWeight.w800),
                       ),
                       const SizedBox(height: 16),
                       Text(
-                        'Willkommen bei ${l.seller}. Wir mögen schöne Dinge und geben ihnen gerne ein zweites Zuhause. '
-                        'Dies ist ein fiktives Profil für die lokale Demo.',
+                        'أهلاً بك في ${l.seller}. نحب الأشياء الجميلة ويسعدنا أن نمنحها بيتاً ثانياً. '
+                        'هذا ملف افتراضي للنسخة التجريبية المحلية.',
                         style: const TextStyle(fontSize: 14, height: 1.5),
                       ),
                       TextButton(
                         onPressed: () => go(
                           context,
                           InformationPage(
-                            title: 'Über ${l.seller}',
+                            title: 'نبذة عن ${l.seller}',
                             paragraphs: [
-                              'Lieblingsstücke weitergeben',
-                              'Dieses Verkäuferprofil zeigt ausschließlich fiktive Beispieldaten. '
-                                  'Hier gibt es keine echten Angebote und keine Transaktionen.',
+                              'نمنح القطع المفضلة بيتاً جديداً',
+                              'يعرض ملف البائع هذا بيانات افتراضية فقط. '
+                                  'لا توجد عروض حقيقية أو معاملات هنا.',
                             ],
                           ),
                         ),
-                        child: const Text('Weiterlesen'),
+                        child: const Text('قراءة المزيد'),
                       ),
                       const Divider(),
                       const SizedBox(height: 16),
                       const Text(
-                        'Rechtliche Angaben',
+                        'البيانات القانونية',
                         style: TextStyle(fontWeight: FontWeight.w800),
                       ),
                       const SizedBox(height: 12),
                       const Text(
-                        'Impressum\nDemo Anbieter\nMusterstraße 12\n10115 Berlin',
+                        'بيانات الناشر\nبائع تجريبي\nشارع المثال 12\nدمشق',
                         style: TextStyle(fontSize: 14, height: 1.5),
                       ),
                       for (final doc in [
-                        'Widerrufsbelehrung & Muster-Widerrufsformular',
-                        'Allgemeine Geschäftsbedingungen',
-                        'Datenschutzerklärung',
+                        'بيان حق الانسحاب ونموذج الانسحاب',
+                        'الشروط والأحكام العامة',
+                        'سياسة الخصوصية',
                       ])
                         RowLink(
                           doc,
@@ -797,8 +795,8 @@ class _SellerPageState extends State<SellerPage> {
                             InformationPage(
                               title: doc,
                               paragraphs: [
-                                'Dokumentvorschau',
-                                'Lokaler Beispieltext. Kein rechtsverbindliches Dokument und kein echter Anbieter.',
+                                'معاينة المستند',
+                                'نص تجريبي محلي. ليس مستنداً ملزماً قانونياً وليس بائعاً حقيقياً.',
                               ],
                             ),
                           ),
@@ -808,14 +806,14 @@ class _SellerPageState extends State<SellerPage> {
                   ListView(
                     children: [
                       RowLink(
-                        'Musterstraße 12\n10115 ${l.city} · ${l.district}',
+                        'شارع المثال 12\n${l.city} · ${l.district}',
                         icon: Icons.location_on_outlined,
                         onTap: () =>
                             go(context, ListingLocationPage(listing: l)),
                       ),
                       const Divider(),
                       const RowLink(
-                        'Mo.–Fr.: 13:00–19:00',
+                        'الاثنين–الجمعة: 13:00–19:00',
                         icon: Icons.schedule,
                         trailing: SizedBox.shrink(),
                       ),
@@ -826,24 +824,24 @@ class _SellerPageState extends State<SellerPage> {
                         onTap: () => go(
                           context,
                           InformationPage(
-                            title: 'Webseite',
+                            title: 'الموقع الإلكتروني',
                             paragraphs: [
-                              'Fiktive Kontaktadresse',
-                              'Diese Adresse ist nur ein Beispiel und öffnet keinen externen Dienst.',
+                              'عنوان تواصل افتراضي',
+                              'هذا العنوان مجرد مثال ولا يفتح أي خدمة خارجية.',
                             ],
                           ),
                         ),
                       ),
                       const Divider(),
                       RowLink(
-                        'Rechtliche Angaben',
+                        'البيانات القانونية',
                         onTap: () => go(
                           context,
                           InformationPage(
-                            title: 'Rechtliche Angaben',
+                            title: 'البيانات القانونية',
                             paragraphs: [
-                              'Demo Anbieter',
-                              'Musterstraße 12 · 10115 Berlin\nKeine reale Firma.',
+                              'بائع تجريبي',
+                              'شارع المثال 12 · دمشق\nليست شركة حقيقية.',
                             ],
                           ),
                         ),
@@ -886,7 +884,7 @@ class ListingLocationPage extends StatelessWidget {
   final Listing listing;
   @override
   Widget build(BuildContext context) => Scaffold(
-    appBar: const PageHeader('Standort'),
+    appBar: const PageHeader('الموقع'),
     body: Column(
       children: [
         Padding(
@@ -897,7 +895,7 @@ class ListingLocationPage extends StatelessWidget {
         const Padding(
           padding: EdgeInsets.all(16),
           child: Text(
-            'Ungefähre Lage mit fiktiven Daten. Keine echte Anbieteradresse.',
+            'موقع تقريبي ببيانات افتراضية. ليس عنواناً حقيقياً للبائع.',
             style: TextStyle(color: Brand.muted, fontSize: 12),
           ),
         ),
