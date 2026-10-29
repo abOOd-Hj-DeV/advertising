@@ -257,7 +257,7 @@ class _HomePageState extends State<HomePage> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         const Text(
-                          'إعلان تجريبي',
+                          'إعلان مميّز',
                           style: TextStyle(
                             fontSize: 10,
                             color: Color(0xff76715c),
@@ -726,7 +726,7 @@ class DemoSearchAd extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const Text(
-                'إعلان تجريبي',
+                'إعلان مميّز',
                 style: TextStyle(fontSize: 10, color: Brand.muted),
               ),
               const Text(

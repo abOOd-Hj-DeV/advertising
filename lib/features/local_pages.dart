@@ -483,17 +483,25 @@ class SelfProfilePage extends StatelessWidget {
                     fontWeight: FontWeight.bold,
                   ),
                 ),
-                Text('بائع تجريبي ${store.commercial ? 'تجاري' : 'فردي'}'),
-                Text('إعلانات نشطة: ${items.length}'),
-                const Text(
-                  'لا توجد تقييمات أو توثيقات حقيقية',
-                  style: TextStyle(fontSize: 12),
+                Text(
+                  store.isLive
+                      ? (store.commercial ? 'حساب تجاري' : 'حساب فردي')
+                      : 'بائع تجريبي ${store.commercial ? 'تجاري' : 'فردي'}',
                 ),
+                Text('إعلانات نشطة: ${items.length}'),
+                if (!store.isLive)
+                  const Text(
+                    'لا توجد تقييمات أو توثيقات حقيقية',
+                    style: TextStyle(fontSize: 12),
+                  ),
               ],
             ),
           ),
           if (items.isEmpty)
-            const LocalEmpty('لا إعلانات نشطة بعد', 'ملفك المحلي لن يُنشر.'),
+            LocalEmpty(
+              'لا إعلانات نشطة بعد',
+              store.isLive ? 'انشر أول إعلان لك من «إعلان جديد».' : 'ملفك المحلي لن يُنشر.',
+            ),
           for (final l in items)
             ListingCard(
               listing: l,
@@ -883,12 +891,16 @@ class _LocalReportPageState extends State<LocalReportPage> {
 
   @override
   Widget build(BuildContext context) => Scaffold(
-    appBar: const PageHeader('إبلاغ محلي'),
+    appBar: PageHeader(
+      DemoScope.of(context).isLive ? 'إبلاغ' : 'إبلاغ محلي',
+    ),
     body: ListView(
       padding: const EdgeInsets.all(16),
       children: [
-        const Text(
-          'يُوثَّق هذا الإبلاغ على هذا الجهاز فقط، ولن يُرسَل إلى «سوقنا» أو السلطات أو أي شخص آخر.',
+        Text(
+          DemoScope.of(context).isLive
+              ? 'يُرسَل هذا البلاغ إلى فريق إشراف «سوقنا» للمراجعة.'
+              : 'يُوثَّق هذا الإبلاغ على هذا الجهاز فقط، ولن يُرسَل إلى «سوقنا» أو السلطات أو أي شخص آخر.',
         ),
         for (final value in [
           'محتوى مشبوه',
@@ -915,15 +927,18 @@ class _LocalReportPageState extends State<LocalReportPage> {
           ),
         ),
         PrimaryButton(
-          'توثيق محلي فقط',
+          DemoScope.of(context).isLive ? 'إرسال البلاغ' : 'توثيق محلي فقط',
           onPressed: () {
+            final live = DemoScope.of(context).isLive;
             DemoScope.of(context).report(
               target: widget.target,
               reason: reason,
               details: details.text,
             );
             Navigator.pop(context);
-            toast(context, 'تم التوثيق محلياً، ولم يُرسَل شيء.');
+            if (!live) {
+              toast(context, 'تم التوثيق محلياً، ولم يُرسَل شيء.');
+            }
           },
         ),
         TextButton(
@@ -1078,22 +1093,29 @@ class LocalDataPage extends StatelessWidget {
   Widget build(BuildContext context) {
     final store = DemoScope.of(context);
     return Scaffold(
-      appBar: const PageHeader('البيانات المحلية والحدود'),
+      appBar: PageHeader(
+        store.isLive ? 'البيانات والحدود' : 'البيانات المحلية والحدود',
+      ),
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
-          const Text(
-            'عرض تجريبي دون اتصال، وليس سوقاً حقيقياً',
-            style: TextStyle(fontSize: 22, fontWeight: FontWeight.w800),
+          Text(
+            store.isLive
+                ? 'بياناتك على «سوقنا»'
+                : 'عرض تجريبي دون اتصال، وليس سوقاً حقيقياً',
+            style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w800),
           ),
           const SizedBox(height: 12),
-          const Text(
-            'تبقى الإعلانات والمسودات والصور والملف الشخصي والمحادثات والمفضلة والبحوث المحفوظة والسجل والإعدادات محلية على هذا الجهاز أو على أصل هذا المتصفح. تسجيل الخروج يخفي الميزات الخاصة لكنه لا يحذف البيانات. الدخول المحلي مجدداً يفتح الملف التجريبي نفسه؛ وهذا ليس فصلاً آمناً بين الحسابات.',
+          Text(
+            store.isLive
+                ? 'تُحفَظ إعلاناتك وملفك ومحادثاتك ومفضلتك على خوادم «سوقنا». بعض التفضيلات (المظهر، التنبيهات، مسودات الرسائل) تبقى على هذا الجهاز. تسجيل الخروج يخفي الميزات الخاصة ولا يحذف بيانات حسابك.'
+                : 'تبقى الإعلانات والمسودات والصور والملف الشخصي والمحادثات والمفضلة والبحوث المحفوظة والسجل والإعدادات محلية على هذا الجهاز أو على أصل هذا المتصفح. تسجيل الخروج يخفي الميزات الخاصة لكنه لا يحذف البيانات. الدخول المحلي مجدداً يفتح الملف التجريبي نفسه؛ وهذا ليس فصلاً آمناً بين الحسابات.',
           ),
           const SizedBox(height: 12),
-          const Text(
-            'لا حسابات ولا رسائل ولا بريد إلكتروني ولا إشعارات فورية ولا نشر ولا إشراف ولا توثيق ولا مدفوعات ولا توصيل ولا مزامنة سحابية حقيقية. غير مناسب للبيانات السرية أو المهمة. مسح بيانات المتصفح ووضع التصفح الخاص وإزالة التثبيت قد تحذف البيانات. يحتاج الويب إلى تثبيت أول كامل وأنت متصل؛ فذاكرة التخزين المؤقت الفارغة دون اتصال لا تستطيع تشغيل التطبيق.',
-          ),
+          if (!store.isLive)
+            const Text(
+              'لا حسابات ولا رسائل ولا بريد إلكتروني ولا إشعارات فورية ولا نشر ولا إشراف ولا توثيق ولا مدفوعات ولا توصيل ولا مزامنة سحابية حقيقية. غير مناسب للبيانات السرية أو المهمة. مسح بيانات المتصفح ووضع التصفح الخاص وإزالة التثبيت قد تحذف البيانات. يحتاج الويب إلى تثبيت أول كامل وأنت متصل؛ فذاكرة التخزين المؤقت الفارغة دون اتصال لا تستطيع تشغيل التطبيق.',
+            ),
           const SizedBox(height: 12),
           Text(
             store.storageError ??

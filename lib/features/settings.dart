@@ -134,8 +134,8 @@ class SettingsPage extends StatelessWidget {
             ],
           ),
         ),
-        const Padding(
-          padding: EdgeInsets.symmetric(vertical: 34),
+        Padding(
+          padding: const EdgeInsets.symmetric(vertical: 34),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
@@ -143,7 +143,9 @@ class SettingsPage extends StatelessWidget {
               SizedBox(width: 8),
               Flexible(
                 child: Text(
-                  '1.0.0 (1) · واجهة Flutter تجريبية',
+                  DemoScope.of(context).isLive
+                      ? '1.0.0 (1) · سوقنا'
+                      : '1.0.0 (1) · واجهة Flutter تجريبية',
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: TextStyle(color: Brand.muted, fontSize: 12),
