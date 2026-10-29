@@ -46,10 +46,10 @@ class GuestPage extends StatefulWidget {
 class _GuestPageState extends State<GuestPage> {
   late int variant = widget.variant;
   static const headlines = [
-    'All deine Lieblinge auf einen Blick',
-    'Dein Kleinanzeigen. Dein Überblick.',
-    'Gute Gespräche beginnen hier',
-    'Mach Platz für neue Lieblingsstücke',
+    'كل مفضّلاتك بلمحة واحدة',
+    'سوقنا. نظرة شاملة على حسابك.',
+    'المحادثات الجيدة تبدأ من هنا',
+    'أفسح مكاناً لمفضلات جديدة',
   ];
   void openAuth(bool register) {
     final store = DemoScope.of(context);
@@ -89,7 +89,7 @@ class _GuestPageState extends State<GuestPage> {
                     child: Row(
                       children: [
                         IconButton(
-                          tooltip: 'Schließen',
+                          tooltip: 'إغلاق',
                           onPressed: () {
                             if (Navigator.canPop(context)) {
                               Navigator.pop(context);
@@ -102,7 +102,7 @@ class _GuestPageState extends State<GuestPage> {
                         const Spacer(),
                         TextButton(
                           onPressed: () => go(context, const SettingsPage()),
-                          child: const Text('HILFE'),
+                          child: const Text('مساعدة'),
                         ),
                       ],
                     ),
@@ -140,7 +140,7 @@ class _GuestPageState extends State<GuestPage> {
                     children: [
                       for (var i = 0; i < 4; i++)
                         IconButton(
-                          tooltip: 'Einführung ${i + 1}',
+                          tooltip: 'مقدمة ${i + 1}',
                           constraints: const BoxConstraints(
                             minWidth: 21,
                             minHeight: 26,
@@ -156,18 +156,15 @@ class _GuestPageState extends State<GuestPage> {
                     ],
                   ),
                   const SizedBox(height: 16),
-                  PrimaryButton(
-                    'Registrieren',
-                    onPressed: () => openAuth(true),
-                  ),
+                  PrimaryButton('إنشاء حساب', onPressed: () => openAuth(true)),
                   const SizedBox(height: 10),
                   TextButton(
                     onPressed: () => openAuth(false),
-                    child: const Text('Einloggen'),
+                    child: const Text('تسجيل الدخول'),
                   ),
                   const SizedBox(height: 8),
                   const Text(
-                    'Lokale UI-Demo · keine echten Konten',
+                    'عرض محلي تجريبي · لا حسابات حقيقية',
                     style: TextStyle(fontSize: 10, color: Brand.muted),
                   ),
                   const SizedBox(height: 12),
@@ -192,9 +189,9 @@ class AuthPage extends StatefulWidget {
 class _AuthPageState extends State<AuthPage> {
   final key = GlobalKey<FormState>();
   final email = TextEditingController(), password = TextEditingController();
-  final profileName = TextEditingController(text: 'Lena Demo');
+  final profileName = TextEditingController(text: 'بائع تجريبي');
   bool passwordStage = false, hidden = true, newsletter = false;
-  String accountType = 'Privat';
+  String accountType = 'فردي';
   @override
   void dispose() {
     profileName.dispose();
@@ -213,7 +210,7 @@ class _AuthPageState extends State<AuthPage> {
     if (widget.register) {
       store.registerLocal(
         profileName.text,
-        business: accountType == 'Gewerblich',
+        business: accountType == 'تجاري',
         news: newsletter,
       );
     } else {
@@ -223,10 +220,7 @@ class _AuthPageState extends State<AuthPage> {
     password.clear();
     Navigator.popUntil(context, (r) => r.isFirst);
     widget.onSuccess?.call();
-    toast(
-      context,
-      'Demo-Konto geöffnet. Es wurden keine Zugangsdaten übertragen.',
-    );
+    toast(context, 'تم فتح حساب تجريبي. لم تُرسَل أي بيانات دخول.');
   }
 
   void info(String title, String body) =>
@@ -234,11 +228,11 @@ class _AuthPageState extends State<AuthPage> {
   @override
   Widget build(BuildContext context) => Scaffold(
     appBar: PageHeader(
-      widget.register ? '' : 'Einloggen',
+      widget.register ? '' : 'تسجيل الدخول',
       actions: [
         TextButton(
           onPressed: () => go(context, const SettingsPage()),
-          child: const Text('HILFE'),
+          child: const Text('مساعدة'),
         ),
       ],
     ),
@@ -258,22 +252,24 @@ class _AuthPageState extends State<AuthPage> {
             if (!widget.register)
               TextButton(
                 onPressed: () => go(context, const RecoveryPage()),
-                child: const Text('Passwort vergessen?'),
+                child: const Text('نسيت كلمة المرور؟'),
               ),
             const Center(child: Logo(size: widgetLogoSize)),
             const SizedBox(height: widgetLogoSpacing),
             if (widget.register) ...[
               const Text(
-                'Wie möchtest du Kleinanzeigen nutzen?',
+                'كيف تريد استخدام سوقنا؟',
                 style: TextStyle(fontSize: 16, fontWeight: FontWeight.w800),
               ),
               const SizedBox(height: 10),
               Row(
                 children: [
-                  for (final t in ['Privat', 'Gewerblich'])
+                  for (final t in ['فردي', 'تجاري'])
                     Expanded(
                       child: Padding(
-                        padding: EdgeInsets.only(right: t == 'Privat' ? 8 : 0),
+                        padding: EdgeInsetsDirectional.only(
+                          end: t == 'فردي' ? 8 : 0,
+                        ),
                         child: InkWell(
                           onTap: () => setState(() => accountType = t),
                           child: Container(
@@ -312,43 +308,43 @@ class _AuthPageState extends State<AuthPage> {
               ),
               TextButton(
                 style: TextButton.styleFrom(
-                  alignment: Alignment.centerLeft,
+                  alignment: AlignmentDirectional.centerStart,
                   padding: EdgeInsets.zero,
                 ),
                 onPressed: () => info(
-                  'Wann handle ich gewerblich?',
-                  'Wenn du regelmäßig und geschäftlich verkaufst, '
-                      'wähle Gewerblich. Diese Demo erstellt keine rechtsverbindlichen Konten.',
+                  'متى أبيع بصفة تجارية؟',
+                  'إذا كنت تبيع بانتظام وبشكل تجاري، اختر «تجاري». '
+                      'هذا العرض التجريبي لا ينشئ حسابات ملزمة قانوناً.',
                 ),
-                child: const Text('Wann handle ich gewerblich?'),
+                child: const Text('متى أبيع بصفة تجارية؟'),
               ),
               TextButton(
                 style: TextButton.styleFrom(
-                  alignment: Alignment.centerLeft,
+                  alignment: AlignmentDirectional.centerStart,
                   padding: EdgeInsets.zero,
                 ),
                 onPressed: () => info(
-                  'Unter 18? Sicher starten',
-                  'Sprich vor echten Käufen oder Verkäufen mit deinen Erziehungsberechtigten. '
-                      'In dieser Demo ist kein Kauf möglich.',
+                  'أقل من 18 سنة؟ ابدأ بأمان',
+                  'تحدث مع والديك أو أولياء أمورك قبل أي شراء أو بيع حقيقي. '
+                      'لا يمكن إجراء أي شراء في هذا العرض التجريبي.',
                 ),
-                child: const Text('Unter 18? Sicher starten'),
+                child: const Text('أقل من 18 سنة؟ ابدأ بأمان'),
               ),
               const SizedBox(height: 16),
               const Text(
-                'Deine Anmeldedaten',
+                'بيانات تسجيل الدخول',
                 style: TextStyle(fontSize: 17, fontWeight: FontWeight.w800),
               ),
               const SizedBox(height: 12),
             ] else ...[
               const Text(
-                'Willkommen bei Kleinanzeigen!',
+                'أهلاً بك في سوقنا!',
                 textAlign: TextAlign.center,
                 style: TextStyle(fontSize: 21, fontWeight: FontWeight.w800),
               ),
               const SizedBox(height: 18),
               const Text(
-                'Gut für deinen Geldbeutel, gut für die Umwelt – jetzt einloggen.',
+                'صديق لجيبك وللبيئة — سجّل دخولك الآن.',
                 textAlign: TextAlign.center,
                 style: TextStyle(fontSize: 16, height: 1.5),
               ),
@@ -360,12 +356,14 @@ class _AuthPageState extends State<AuthPage> {
               autofillHints: const [],
               textInputAction: TextInputAction.next,
               decoration: InputDecoration(
-                hintText: widget.register ? 'E-Mail Adresse' : 'E-mail*',
+                hintText: widget.register
+                    ? 'البريد الإلكتروني'
+                    : 'البريد الإلكتروني*',
               ),
               validator: (v) =>
                   v != null && RegExp(r'^[^\s@]+@[^\s@]+\.[^\s@]+$').hasMatch(v)
                   ? null
-                  : 'Bitte eine gültige E-Mail eingeben',
+                  : 'يرجى إدخال بريد إلكتروني صحيح',
             ),
             if (widget.register || passwordStage) ...[
               const SizedBox(height: 18),
@@ -376,9 +374,9 @@ class _AuthPageState extends State<AuthPage> {
                 enableSuggestions: false,
                 autocorrect: false,
                 decoration: InputDecoration(
-                  hintText: 'Passwort',
+                  hintText: 'كلمة المرور',
                   suffixIcon: IconButton(
-                    tooltip: 'Passwort anzeigen',
+                    tooltip: 'إظهار كلمة المرور',
                     onPressed: () => setState(() => hidden = !hidden),
                     icon: Icon(
                       hidden
@@ -389,14 +387,14 @@ class _AuthPageState extends State<AuthPage> {
                 ),
                 validator: (v) => v != null && v.length >= 8
                     ? null
-                    : 'Mindestens 8 Zeichen verwenden',
+                    : 'استخدم 8 أحرف على الأقل',
               ),
             ],
             if (widget.register) ...[
               TextFormField(
                 controller: profileName,
                 decoration: const InputDecoration(
-                  labelText: 'Lokaler Profilname',
+                  labelText: 'اسم الملف الشخصي المحلي',
                 ),
                 validator: validateProfileName,
               ),
@@ -416,7 +414,7 @@ class _AuthPageState extends State<AuthPage> {
                     child: Padding(
                       padding: EdgeInsets.only(top: 12),
                       child: Text(
-                        'Newsletter-Präferenz nur lokal speichern. Keine Anmeldung und keine E-Mail-Zustellung.',
+                        'حفظ تفضيل النشرة البريدية محلياً فقط. لا اشتراك ولا بريد يُرسَل.',
                         style: TextStyle(fontSize: 13, height: 1.35),
                       ),
                     ),
@@ -427,16 +425,16 @@ class _AuthPageState extends State<AuthPage> {
             const SizedBox(height: 24),
             PrimaryButton(
               widget.register
-                  ? 'Registrieren'
+                  ? 'إنشاء حساب'
                   : passwordStage
-                  ? 'Einloggen'
-                  : 'Weiter',
+                  ? 'تسجيل الدخول'
+                  : 'متابعة',
               onPressed: submit,
             ),
             const SizedBox(height: 22),
             if (widget.register) ...[
               const Text(
-                'Es gelten unsere Nutzungsbedingungen. Informationen zur Verarbeitung deiner Daten findest du in unserer Datenschutzerklärung.',
+                'تسري شروط الاستخدام الخاصة بنا. تجد معلومات عن معالجة بياناتك في سياسة الخصوصية.',
                 style: TextStyle(fontSize: 13, height: 1.4),
               ),
               Wrap(
@@ -448,7 +446,7 @@ class _AuthPageState extends State<AuthPage> {
                       const LegalPage(kind: 'Nutzungsbedingungen'),
                     ),
                     child: const Text(
-                      'Nutzungsbedingungen',
+                      'شروط الاستخدام',
                       style: TextStyle(fontSize: 12),
                     ),
                   ),
@@ -458,7 +456,7 @@ class _AuthPageState extends State<AuthPage> {
                       const LegalPage(kind: 'Datenschutzerklärung'),
                     ),
                     child: const Text(
-                      'Datenschutzerklärung',
+                      'سياسة الخصوصية',
                       style: TextStyle(fontSize: 12),
                     ),
                   ),
@@ -470,7 +468,7 @@ class _AuthPageState extends State<AuthPage> {
                 crossAxisAlignment: WrapCrossAlignment.center,
                 children: [
                   const Text(
-                    'Noch nicht registriert?',
+                    'ليس لديك حساب بعد؟',
                     style: TextStyle(fontSize: 15),
                   ),
                   TextButton(
@@ -479,7 +477,7 @@ class _AuthPageState extends State<AuthPage> {
                       AuthPage(register: true, onSuccess: widget.onSuccess),
                     ),
                     child: const Text(
-                      'Erstelle ein Konto',
+                      'أنشئ حساباً',
                       style: TextStyle(
                         decoration: TextDecoration.underline,
                         fontSize: 15,
@@ -491,8 +489,8 @@ class _AuthPageState extends State<AuthPage> {
             ],
             const SizedBox(height: 16),
             const Text(
-              'DEMO: Verwende fiktive Daten, z. B. demo@example.test. '
-              'Es gibt keine echte Anmeldung. Das Passwort wird weder gespeichert noch gesendet.',
+              'تجريبي: استخدم بيانات وهمية مثل demo@example.test. '
+              'لا يوجد تسجيل دخول حقيقي. لا تُحفَظ كلمة المرور ولا تُرسَل.',
               textAlign: TextAlign.center,
               style: TextStyle(fontSize: 11, color: Brand.muted, height: 1.4),
             ),
@@ -512,11 +510,11 @@ class AccountPage extends StatelessWidget {
     return ListView(
       children: [
         AppBar(
-          title: const Text('Meins'),
+          title: const Text('حسابي'),
           automaticallyImplyLeading: false,
           actions: [
             IconButton(
-              tooltip: 'Einstellungen',
+              tooltip: 'الإعدادات',
               onPressed: () => go(context, const SettingsPage()),
               icon: const Icon(Icons.settings_outlined),
             ),
@@ -544,7 +542,7 @@ class AccountPage extends StatelessWidget {
                       ),
                     ),
                     Text(
-                      '${store.commercial ? 'Gewerblicher' : 'Privater'} Demo-Anbieter',
+                      'بائع تجريبي — حساب ${store.commercial ? 'تجاري' : 'فردي'}',
                       style: TextStyle(fontSize: 13, color: Brand.muted),
                     ),
                   ],
@@ -559,13 +557,13 @@ class AccountPage extends StatelessWidget {
             padding: const EdgeInsets.all(12),
             color: Brand.pale,
             child: const Text(
-              'Lokale Demo-Ergänzung: Diese angemeldete Ansicht war im Referenztest nicht zugänglich.',
+              'إضافة تجريبية محلية: لم تكن طريقة العرض هذه بعد تسجيل الدخول متاحة في الاختبار المرجعي.',
               style: TextStyle(color: Brand.deep, fontSize: 12),
             ),
           ),
         ),
         RowLink(
-          'Profil bearbeiten',
+          'تعديل الملف الشخصي',
           icon: Icons.edit_outlined,
           onTap: () async {
             final result = await go<String>(
@@ -579,35 +577,35 @@ class AccountPage extends StatelessWidget {
         ),
         const Divider(),
         RowLink(
-          'Meine Anzeigen',
-          subtitle: '${store.ownListings.length} lokale Anzeigen',
+          'إعلاناتي',
+          subtitle: 'إعلانات محلية: ${store.ownListings.length}',
           icon: Icons.sell_outlined,
           onTap: () => go(context, const OwnListingsPage()),
         ),
         const Divider(),
         RowLink(
-          'Mein Demo-Profil',
+          'ملفي الشخصي التجريبي',
           icon: Icons.person_outline,
           onTap: () => go(context, const SelfProfilePage()),
         ),
         RowLink(
-          'Zuletzt angesehen',
+          'شوهد مؤخراً',
           icon: Icons.history,
           onTap: () => go(context, const RecentPage()),
         ),
         RowLink(
-          'Benachrichtigungen',
+          'الإشعارات',
           icon: Icons.notifications_none,
           onTap: () => go(context, const NotificationsPage()),
         ),
         const Divider(),
         RowLink(
-          'Einstellungen & Hilfe',
+          'الإعدادات والمساعدة',
           icon: Icons.settings_outlined,
           onTap: () => go(context, const SettingsPage()),
         ),
         const Divider(),
-        RowLink('Ausloggen', icon: Icons.logout, onTap: store.signOut),
+        RowLink('تسجيل الخروج', icon: Icons.logout, onTap: store.signOut),
       ],
     );
   }
@@ -631,7 +629,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
 
   @override
   Widget build(BuildContext context) => Scaffold(
-    appBar: const PageHeader('Profil bearbeiten'),
+    appBar: const PageHeader('تعديل الملف الشخصي'),
     body: Padding(
       padding: const EdgeInsets.all(16),
       child: Form(
@@ -640,25 +638,25 @@ class _EditProfilePageState extends State<EditProfilePage> {
           children: [
             TextFormField(
               controller: text,
-              decoration: const InputDecoration(labelText: 'Demo-Name'),
+              decoration: const InputDecoration(labelText: 'الاسم التجريبي'),
               validator: validateProfileName,
             ),
             SwitchListTile(
-              title: const Text('Gewerblicher Demo-Anbieter'),
+              title: const Text('بائع تجريبي تجاري'),
               value: DemoScope.of(context).commercial,
               onChanged: (v) => DemoScope.of(
                 context,
               ).updateProfile(DemoScope.of(context).name, business: v),
             ),
             const Text(
-              'Anbieterart und Name werden nur lokal gespeichert. Keine Verifizierung oder Gewerbeanmeldung.',
+              'يُحفَظ نوع البائع والاسم محلياً فقط. لا يوجد تحقق ولا تسجيل تجاري رسمي.',
             ),
           ],
         ),
       ),
     ),
     bottomNavigationBar: BottomAction(
-      'Speichern',
+      'حفظ',
       onPressed: () {
         if (key.currentState!.validate()) {
           DemoScope.of(context).updateProfile(text.text);
