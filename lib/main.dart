@@ -5,6 +5,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import 'app.dart';
 import 'data/demo_store.dart';
+import 'api/api_store.dart';
 import 'data/media.dart';
 
 Future<void> main() async {
@@ -39,5 +40,8 @@ Future<void> main() async {
   if (store.storageError == null && store.persistenceAvailable) {
     await MediaRepository.instance.removeUnused(store.mediaReferences);
   }
+  // When built with --dart-define=API_BASE=... the API layer boots and
+  // restores the stored session token; screens fall back to DemoStore data.
+  await ApiStore.boot();
   runApp(MarketplaceApp(store: store));
 }
