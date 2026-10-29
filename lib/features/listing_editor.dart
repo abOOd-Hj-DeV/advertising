@@ -10,7 +10,7 @@ Future<bool> confirmLocal(
   BuildContext context,
   String title,
   String body, {
-  String action = 'Löschen',
+  String action = 'حذف',
 }) async =>
     await showDialog<bool>(
       context: context,
@@ -20,7 +20,7 @@ Future<bool> confirmLocal(
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: const Text('Abbrechen'),
+            child: const Text('إلغاء'),
           ),
           TextButton(
             onPressed: () => Navigator.pop(context, true),
@@ -61,11 +61,11 @@ class ListingEditorState extends State<ListingEditor> {
       price = TextEditingController(),
       description = TextEditingController(),
       district = TextEditingController();
-  String category = 'Haus & Garten',
-      city = 'Berlin',
+  String category = 'المنزل والحديقة',
+      city = 'دمشق',
       type = '',
-      kind = 'Unisex',
-      condition = 'Sehr gut',
+      kind = 'للجنسين',
+      condition = 'جيد جداً',
       carrier = 'DHL';
   PriceType priceType = PriceType.fixed;
   bool wanted = false,
@@ -128,9 +128,9 @@ class ListingEditorState extends State<ListingEditor> {
   }
 
   String defaultType(String value) => switch (value) {
-    'Fahrräder & Zubehör' => 'Cityräder',
-    'Auto, Rad & Boot' => 'Autos',
-    'Immobilien' => 'Mieten',
+    'دراجات وملحقات' => 'دراجات مدينة',
+    'سيارات ودراجات وقوارب' => 'سيارات',
+    'عقارات' => 'للإيجار',
     _ => '',
   };
 
@@ -164,8 +164,8 @@ class ListingEditorState extends State<ListingEditor> {
       toast(
         context,
         ok
-            ? 'Entwurf lokal gespeichert'
-            : 'Entwurf nur im Speicher – Speichern erneut versuchen',
+            ? 'تم حفظ المسودة محلياً'
+            : 'حُفظت المسودة في الذاكرة فقط – أعد محاولة الحفظ',
       );
     }
     return ok;
@@ -177,22 +177,20 @@ class ListingEditorState extends State<ListingEditor> {
     final choice = await showDialog<String>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Änderungen behalten?'),
-        content: const Text(
-          'Als lokalen Entwurf speichern oder Änderungen verwerfen?',
-        ),
+        title: const Text('الاحتفاظ بالتغييرات؟'),
+        content: const Text('هل تحفظها كمسودة محلية أم تتجاهل التغييرات؟'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, 'cancel'),
-            child: const Text('Weiter bearbeiten'),
+            child: const Text('متابعة التحرير'),
           ),
           TextButton(
             onPressed: () => Navigator.pop(context, 'discard'),
-            child: const Text('Verwerfen'),
+            child: const Text('تجاهل'),
           ),
           TextButton(
             onPressed: () => Navigator.pop(context, 'save'),
-            child: const Text('Entwurf speichern'),
+            child: const Text('حفظ المسودة'),
           ),
         ],
       ),
@@ -216,7 +214,7 @@ class ListingEditorState extends State<ListingEditor> {
 
   Future<void> importPhotos() async {
     if (images.length >= 6) {
-      setState(() => error = 'Maximal 6 Bilder pro Anzeige.');
+      setState(() => error = '6 صور كحد أقصى لكل إعلان.');
       return;
     }
     setState(() => busy = true);
@@ -232,11 +230,11 @@ class ListingEditorState extends State<ListingEditor> {
         ],
       );
       if (files.length + images.length > 6) {
-        throw const FormatException('Maximal 6 Bilder pro Anzeige.');
+        throw const FormatException('6 صور كحد أقصى لكل إعلان.');
       }
       for (final f in files) {
         if (await f.length() > MediaRepository.maxFileBytes) {
-          throw const FormatException('Maximal 2 MB pro Bild.');
+          throw const FormatException('2 ميغابايت كحد أقصى لكل صورة.');
         }
         final id = await MediaRepository.instance.importImage(
           f.name,
@@ -264,7 +262,7 @@ class ListingEditorState extends State<ListingEditor> {
         setState(
           () => error = e is FormatException
               ? e.message
-              : 'Bilder konnten nicht gespeichert werden. Deine bisherigen Fotos bleiben erhalten.',
+              : 'تعذّر حفظ الصور. صورك السابقة محفوظة.',
         );
       }
     } finally {
@@ -274,7 +272,7 @@ class ListingEditorState extends State<ListingEditor> {
 
   Future<void> stockPhoto() async {
     if (images.length >= 6) {
-      setState(() => error = 'Maximal 6 Bilder pro Anzeige.');
+      setState(() => error = '6 صور كحد أقصى لكل إعلان.');
       return;
     }
     final image = await showModalBottomSheet<String>(
@@ -298,7 +296,7 @@ class ListingEditorState extends State<ListingEditor> {
               'shoes',
             ])
               Semantics(
-                label: 'Foto $key auswählen',
+                label: 'اختيار صورة $key',
                 button: true,
                 child: InkWell(
                   onTap: () => Navigator.pop(context, key),
@@ -359,7 +357,7 @@ class ListingEditorState extends State<ListingEditor> {
       district: district.text.trim(),
       distance: 0,
       type: type,
-      kind: category == 'Fahrräder & Zubehör' ? kind : '',
+      kind: category == 'دراجات وملحقات' ? kind : '',
       condition: condition,
       shipping: shipping,
       carrier: carrier,
@@ -371,14 +369,14 @@ class ListingEditorState extends State<ListingEditor> {
       status: old?.status ?? ListingStatus.active,
       description: description.text.trim(),
       ageHours: 0,
-      date: 'Lokal, gerade eben',
+      date: 'محلي، الآن',
     );
   }
 
   Future<void> preview() async {
     if (!form.currentState!.validate()) return;
     if (images.isEmpty) {
-      setState(() => error = 'Bitte mindestens ein Foto wählen.');
+      setState(() => error = 'يرجى اختيار صورة واحدة على الأقل.');
       return;
     }
     final value = listing();
@@ -398,7 +396,7 @@ class ListingEditorState extends State<ListingEditor> {
       if (!store!.editListing(value, draftId: draftId)) {
         setState(() {
           busy = false;
-          error = 'Anzeige nicht mehr verfügbar.';
+          error = 'الإعلان لم يعد متوفراً.';
         });
         return;
       }
@@ -412,10 +410,8 @@ class ListingEditorState extends State<ListingEditor> {
     toast(
       context,
       ok
-          ? (editing
-                ? 'Änderungen lokal gespeichert'
-                : 'Anzeige nur lokal veröffentlicht')
-          : 'Nur im Speicher. Speichern unter Demo-Information erneut versuchen.',
+          ? (editing ? 'تم حفظ التغييرات محلياً' : 'نُشر الإعلان محلياً فقط')
+          : 'حُفظ في الذاكرة فقط. أعد المحاولة من معلومات العرض التجريبي.',
     );
     if (widget.embedded) {
       store!.changeTab(4);
@@ -440,11 +436,9 @@ class ListingEditorState extends State<ListingEditor> {
     final editingId = widget.listingId ?? widget.draft?.editingId;
     if (!store.signedIn || (editingId != null && !store.isOwn(editingId))) {
       return Scaffold(
-        appBar: const PageHeader('Anzeige bearbeiten'),
+        appBar: const PageHeader('تعديل الإعلان'),
         body: const Center(
-          child: Text(
-            'Lokaler Zugang erforderlich oder Anzeige nicht mehr verfügbar.',
-          ),
+          child: Text('يلزم تسجيل الدخول المحلي، أو الإعلان لم يعد متوفراً.'),
         ),
       );
     }
@@ -464,19 +458,17 @@ class ListingEditorState extends State<ListingEditor> {
       },
       child: Scaffold(
         appBar: AppBar(
-          title: Text(
-            editingId == null ? 'Anzeige aufgeben' : 'Anzeige bearbeiten',
-          ),
+          title: Text(editingId == null ? 'إنشاء إعلان' : 'تعديل الإعلان'),
           automaticallyImplyLeading: !widget.embedded,
           actions: [
             IconButton(
-              tooltip: 'Demo-Information',
+              tooltip: 'معلومات العرض التجريبي',
               onPressed: () => showDialog<void>(
                 context: context,
                 builder: (context) => const AlertDialog(
-                  title: Text('Nur auf diesem Gerät'),
+                  title: Text('على هذا الجهاز فقط'),
                   content: Text(
-                    'Kein echtes Inserat. Vorschau und Verwaltung sind lokal. Keine Bezahlung oder Veröffentlichung bei Kleinanzeigen.',
+                    'هذا ليس إعلاناً حقيقياً. المعاينة والإدارة محلية فقط، دون دفع أو نشر على منصة خارجية.',
                   ),
                 ),
               ),
@@ -492,7 +484,7 @@ class ListingEditorState extends State<ListingEditor> {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 const Text(
-                  'Lokales Inserat · keine externe Veröffentlichung',
+                  'إعلان محلي · لا يُنشر خارجياً',
                   style: TextStyle(fontSize: 12, color: Brand.muted),
                 ),
                 const SizedBox(height: 12),
@@ -510,11 +502,11 @@ class ListingEditorState extends State<ListingEditor> {
                           children: [
                             Expanded(
                               child: Text(
-                                i == 0 ? 'Titelbild' : 'Foto ${i + 1}',
+                                i == 0 ? 'الصورة الرئيسية' : 'صورة ${i + 1}',
                               ),
                             ),
                             IconButton(
-                              tooltip: 'Foto ${i + 1} als Titelbild',
+                              tooltip: 'تعيين الصورة ${i + 1} كصورة رئيسية',
                               onPressed: i == 0
                                   ? null
                                   : () => setState(() {
@@ -525,7 +517,7 @@ class ListingEditorState extends State<ListingEditor> {
                               icon: const Icon(Icons.star_outline),
                             ),
                             IconButton(
-                              tooltip: 'Foto ${i + 1} nach vorne',
+                              tooltip: 'تقديم الصورة ${i + 1}',
                               onPressed: i == 0
                                   ? null
                                   : () => setState(() {
@@ -536,7 +528,7 @@ class ListingEditorState extends State<ListingEditor> {
                               icon: const Icon(Icons.arrow_upward),
                             ),
                             IconButton(
-                              tooltip: 'Foto ${i + 1} entfernen',
+                              tooltip: 'حذف الصورة ${i + 1}',
                               onPressed: () => setState(() {
                                 images.removeAt(i);
                                 dirty = true;
@@ -554,17 +546,17 @@ class ListingEditorState extends State<ListingEditor> {
                     OutlinedButton.icon(
                       onPressed: busy ? null : stockPhoto,
                       icon: const Icon(Icons.photo_library_outlined),
-                      label: const Text('Demo-Foto auswählen'),
+                      label: const Text('اختيار صورة تجريبية'),
                     ),
                     OutlinedButton.icon(
                       onPressed: busy ? null : importPhotos,
                       icon: const Icon(Icons.add_photo_alternate_outlined),
-                      label: const Text('Vom Gerät importieren'),
+                      label: const Text('استيراد من الجهاز'),
                     ),
                   ],
                 ),
                 const Text(
-                  'Bis zu 6 JPEG/PNG · je 2 MB · max. 4096 px / 12 MP',
+                  'حتى 6 صور JPEG/PNG · ‏2 ميغابايت للصورة · حد أقصى 4096 بكسل / 12 ميغابكسل',
                   style: TextStyle(fontSize: 12),
                 ),
                 if (error != null)
@@ -578,59 +570,55 @@ class ListingEditorState extends State<ListingEditor> {
                 TextFormField(
                   controller: title,
                   maxLength: 100,
-                  decoration: const InputDecoration(labelText: 'Titel'),
+                  decoration: const InputDecoration(labelText: 'العنوان'),
                   validator: (v) => (v?.trim().length ?? 0) < 5
-                      ? 'Mindestens 5 Zeichen eingeben'
+                      ? 'أدخل 5 أحرف على الأقل'
                       : null,
                 ),
                 const SizedBox(height: 16),
-                select(
-                  'Anzeige',
-                  wanted ? 'Ich suche' : 'Ich biete',
-                  ['Ich biete', 'Ich suche'],
-                  (v) => wanted = v == 'Ich suche',
-                ),
-                select('Kategorie', category, categoryNames.skip(1).toList(), (
-                  v,
-                ) {
+                select('نوع الإعلان', wanted ? 'أبحث' : 'أعرض', [
+                  'أعرض',
+                  'أبحث',
+                ], (v) => wanted = v == 'أبحث'),
+                select('القسم', category, categoryNames.skip(1).toList(), (v) {
                   category = v;
                   type = defaultType(v);
-                  kind = 'Unisex';
+                  kind = 'للجنسين';
                 }),
-                if (category == 'Fahrräder & Zubehör') ...[
-                  select('Art', type, [
-                    'Cityräder',
-                    'Trekkingräder',
-                    'Rennräder',
-                    'Kinderräder',
-                    'E-Bikes',
-                    'Zubehör',
+                if (category == 'دراجات وملحقات') ...[
+                  select('النوع', type, [
+                    'دراجات مدينة',
+                    'دراجات سياحية',
+                    'دراجات سباق',
+                    'دراجات أطفال',
+                    'دراجات كهربائية',
+                    'إكسسوارات',
                   ], (v) => type = v),
-                  select('Typ', kind, [
-                    'Unisex',
-                    'Damen',
-                    'Herren',
-                    'Kinder',
+                  select('الفئة', kind, [
+                    'للجنسين',
+                    'نسائي',
+                    'رجالي',
+                    'أطفال',
                   ], (v) => kind = v),
                 ],
-                if (category == 'Auto, Rad & Boot')
-                  select('Art', type, [
-                    'Autos',
-                    'Motorräder',
-                    'Boote',
-                    'Zubehör',
+                if (category == 'سيارات ودراجات وقوارب')
+                  select('النوع', type, [
+                    'سيارات',
+                    'دراجات نارية',
+                    'قوارب',
+                    'إكسسوارات',
                   ], (v) => type = v),
-                if (category == 'Immobilien')
-                  select('Art', type, ['Mieten', 'Kaufen'], (v) => type = v),
-                select('Zustand', condition, [
-                  'Neu',
-                  'Sehr gut',
-                  'Gut',
-                  'In Ordnung',
-                  'Defekt',
+                if (category == 'عقارات')
+                  select('النوع', type, ['للإيجار', 'للبيع'], (v) => type = v),
+                select('الحالة', condition, [
+                  'جديد',
+                  'جيد جداً',
+                  'جيد',
+                  'مقبول',
+                  'معطّل',
                 ], (v) => condition = v),
                 select(
-                  'Preisart',
+                  'نوع السعر',
                   priceType.label,
                   PriceType.values.map((p) => p.label).toList(),
                   (v) => priceType = PriceType.values.firstWhere(
@@ -644,38 +632,38 @@ class ListingEditorState extends State<ListingEditor> {
                       decimal: true,
                     ),
                     decoration: const InputDecoration(
-                      labelText: 'Preis',
-                      suffixText: '€',
+                      labelText: 'السعر',
+                      suffixText: 'ل.س',
                     ),
                     validator: (v) {
                       final n = double.tryParse((v ?? '').replaceAll(',', '.'));
                       return n == null || !n.isFinite || n < 0
-                          ? 'Gültigen Preis eingeben'
+                          ? 'أدخل سعراً صحيحاً'
                           : null;
                     },
                   ),
                 const SizedBox(height: 16),
-                select('Ort', city, [
-                  'Berlin',
-                  'Hamburg',
-                  'München',
-                  'Köln',
+                select('المدينة', city, [
+                  'دمشق',
+                  'حلب',
+                  'حمص',
+                  'اللاذقية',
                 ], (v) => city = v),
                 TextFormField(
                   controller: district,
                   maxLength: 60,
                   decoration: const InputDecoration(
-                    labelText: 'Stadtteil (optional, nur lokal)',
+                    labelText: 'الحي (اختياري، محلي فقط)',
                   ),
                 ),
                 select(
-                  'Übergabe',
-                  shipping ? 'Versand möglich' : 'Nur Abholung',
-                  ['Versand möglich', 'Nur Abholung'],
-                  (v) => shipping = v == 'Versand möglich',
+                  'طريقة التسليم',
+                  shipping ? 'شحن متاح' : 'استلام شخصي فقط',
+                  ['شحن متاح', 'استلام شخصي فقط'],
+                  (v) => shipping = v == 'شحن متاح',
                 ),
                 if (shipping)
-                  select('Versandanbieter', carrier, [
+                  select('شركة الشحن', carrier, [
                     'DHL',
                     'Hermes',
                     'DPD',
@@ -685,16 +673,16 @@ class ListingEditorState extends State<ListingEditor> {
                   maxLength: 4000,
                   minLines: 4,
                   maxLines: 8,
-                  decoration: const InputDecoration(labelText: 'Beschreibung'),
+                  decoration: const InputDecoration(labelText: 'الوصف'),
                   validator: (v) => (v?.trim().length ?? 0) < 10
-                      ? 'Mindestens 10 Zeichen eingeben'
+                      ? 'أدخل 10 أحرف على الأقل'
                       : null,
                 ),
                 const SizedBox(height: 16),
-                PrimaryButton('Vorschau', onPressed: busy ? null : preview),
+                PrimaryButton('معاينة', onPressed: busy ? null : preview),
                 TextButton(
                   onPressed: busy ? null : saveDraft,
-                  child: const Text('Entwurf speichern'),
+                  child: const Text('حفظ المسودة'),
                 ),
                 if (!widget.embedded)
                   TextButton(
@@ -704,7 +692,7 @@ class ListingEditorState extends State<ListingEditor> {
                         Navigator.pop(context);
                       }
                     },
-                    child: const Text('Zurück'),
+                    child: const Text('رجوع'),
                   ),
                 const SizedBox(height: 24),
               ],
@@ -726,7 +714,7 @@ class ListingPreviewPage extends StatelessWidget {
   final bool editing;
   @override
   Widget build(BuildContext context) => Scaffold(
-    appBar: const PageHeader('Vorschau · nur lokal'),
+    appBar: const PageHeader('معاينة · محلي فقط'),
     body: ListView(
       padding: const EdgeInsets.all(16),
       children: [
@@ -738,7 +726,9 @@ class ListingPreviewPage extends StatelessWidget {
             ],
           ),
         ),
-        Text('${listing.gallery.length} Fotos · erstes Foto ist das Titelbild'),
+        Text(
+          '${listing.gallery.length} صور · الصورة الأولى هي الصورة الرئيسية',
+        ),
         const SizedBox(height: 16),
         Text(
           listing.title,
@@ -750,23 +740,23 @@ class ListingPreviewPage extends StatelessWidget {
         ),
         Text('${listing.city} · ${listing.district}'),
         Text(
-          '${listing.wanted ? 'Gesuch' : 'Angebot'} · ${listing.category} · ${listing.type} · ${listing.kind}',
+          '${listing.wanted ? 'مطلوب' : 'معروض'} · ${listing.category} · ${listing.type} · ${listing.kind}',
         ),
         Text(
-          '${listing.condition} · ${listing.shipping ? 'Versand möglich (${listing.carrier})' : 'Nur Abholung'}',
+          '${listing.condition} · ${listing.shipping ? 'شحن متاح (${listing.carrier})' : 'استلام شخصي فقط'}',
         ),
         const Divider(),
         Text(listing.description),
         const SizedBox(height: 16),
-        Text('Von ${listing.seller}'),
+        Text('من ${listing.seller}'),
         const SizedBox(height: 24),
         PrimaryButton(
-          editing ? 'Änderungen lokal speichern' : 'Lokal veröffentlichen',
+          editing ? 'حفظ التغييرات محلياً' : 'نشر محلياً',
           onPressed: () => Navigator.pop(context, true),
         ),
         TextButton(
           onPressed: () => Navigator.pop(context, false),
-          child: const Text('Weiter bearbeiten'),
+          child: const Text('متابعة التحرير'),
         ),
       ],
     ),
