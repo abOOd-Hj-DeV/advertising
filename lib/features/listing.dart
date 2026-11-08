@@ -229,8 +229,10 @@ class _ListingPageState extends State<ListingPage> {
                           if (l.views >= 0) ...[
                             const Icon(Icons.visibility_outlined, size: 16),
                             const SizedBox(width: 5),
-                            Text('${l.views}',
-                                style: const TextStyle(fontSize: 11)),
+                            Text(
+                              '${l.views}',
+                              style: const TextStyle(fontSize: 11),
+                            ),
                             const SizedBox(width: 16),
                           ],
                           if (l.favoritesCount >= 0) ...[
@@ -770,59 +772,59 @@ class _SellerPageState extends State<SellerPage> {
                           style: const TextStyle(fontSize: 14, height: 1.5),
                         )
                       else
-                      Text(
-                        'أهلاً بك في ${l.seller}. نحب الأشياء الجميلة ويسعدنا أن نمنحها بيتاً ثانياً. '
-                        'هذا ملف افتراضي للنسخة التجريبية المحلية.',
-                        style: const TextStyle(fontSize: 14, height: 1.5),
-                      ),
-                      if (!store.isLive)
-                      TextButton(
-                        onPressed: () => go(
-                          context,
-                          InformationPage(
-                            title: 'نبذة عن ${l.seller}',
-                            paragraphs: store.isLive
-                                ? ['بائع على «سوقنا».']
-                                : [
-                                    'نمنح القطع المفضلة بيتاً جديداً',
-                                    'يعرض ملف البائع هذا بيانات افتراضية فقط. '
-                                        'لا توجد عروض حقيقية أو معاملات هنا.',
-                                  ],
-                          ),
+                        Text(
+                          'أهلاً بك في ${l.seller}. نحب الأشياء الجميلة ويسعدنا أن نمنحها بيتاً ثانياً. '
+                          'هذا ملف افتراضي للنسخة التجريبية المحلية.',
+                          style: const TextStyle(fontSize: 14, height: 1.5),
                         ),
-                        child: const Text('قراءة المزيد'),
-                      ),
-                      if (!store.isLive) ...[
-                      const Divider(),
-                      const SizedBox(height: 16),
-                      const Text(
-                        'البيانات القانونية',
-                        style: TextStyle(fontWeight: FontWeight.w800),
-                      ),
-                      const SizedBox(height: 12),
-                      const Text(
-                        'بيانات الناشر\nبائع تجريبي\nشارع المثال 12\nدمشق',
-                        style: TextStyle(fontSize: 14, height: 1.5),
-                      ),
-                      for (final doc in [
-                        'بيان حق الانسحاب ونموذج الانسحاب',
-                        'الشروط والأحكام العامة',
-                        'سياسة الخصوصية',
-                      ])
-                        RowLink(
-                          doc,
-                          icon: Icons.description_outlined,
-                          onTap: () => go(
+                      if (!store.isLive)
+                        TextButton(
+                          onPressed: () => go(
                             context,
                             InformationPage(
-                              title: doc,
-                              paragraphs: [
-                                'معاينة المستند',
-                                'نص تجريبي محلي. ليس مستنداً ملزماً قانونياً وليس بائعاً حقيقياً.',
-                              ],
+                              title: 'نبذة عن ${l.seller}',
+                              paragraphs: store.isLive
+                                  ? ['بائع على «سوقنا».']
+                                  : [
+                                      'نمنح القطع المفضلة بيتاً جديداً',
+                                      'يعرض ملف البائع هذا بيانات افتراضية فقط. '
+                                          'لا توجد عروض حقيقية أو معاملات هنا.',
+                                    ],
                             ),
                           ),
+                          child: const Text('قراءة المزيد'),
                         ),
+                      if (!store.isLive) ...[
+                        const Divider(),
+                        const SizedBox(height: 16),
+                        const Text(
+                          'البيانات القانونية',
+                          style: TextStyle(fontWeight: FontWeight.w800),
+                        ),
+                        const SizedBox(height: 12),
+                        const Text(
+                          'بيانات الناشر\nبائع تجريبي\nشارع المثال 12\nدمشق',
+                          style: TextStyle(fontSize: 14, height: 1.5),
+                        ),
+                        for (final doc in [
+                          'بيان حق الانسحاب ونموذج الانسحاب',
+                          'الشروط والأحكام العامة',
+                          'سياسة الخصوصية',
+                        ])
+                          RowLink(
+                            doc,
+                            icon: Icons.description_outlined,
+                            onTap: () => go(
+                              context,
+                              InformationPage(
+                                title: doc,
+                                paragraphs: [
+                                  'معاينة المستند',
+                                  'نص تجريبي محلي. ليس مستنداً ملزماً قانونياً وليس بائعاً حقيقياً.',
+                                ],
+                              ),
+                            ),
+                          ),
                       ],
                     ],
                   ),
@@ -837,41 +839,41 @@ class _SellerPageState extends State<SellerPage> {
                             go(context, ListingLocationPage(listing: l)),
                       ),
                       if (!store.isLive) ...[
-                      const Divider(),
-                      const RowLink(
-                        'الاثنين–الجمعة: 13:00–19:00',
-                        icon: Icons.schedule,
-                        trailing: SizedBox.shrink(),
-                      ),
-                      const Divider(),
-                      RowLink(
-                        'demo.example.test',
-                        icon: Icons.language,
-                        onTap: () => go(
-                          context,
-                          InformationPage(
-                            title: 'الموقع الإلكتروني',
-                            paragraphs: [
-                              'عنوان تواصل افتراضي',
-                              'هذا العنوان مجرد مثال ولا يفتح أي خدمة خارجية.',
-                            ],
+                        const Divider(),
+                        const RowLink(
+                          'الاثنين–الجمعة: 13:00–19:00',
+                          icon: Icons.schedule,
+                          trailing: SizedBox.shrink(),
+                        ),
+                        const Divider(),
+                        RowLink(
+                          'demo.example.test',
+                          icon: Icons.language,
+                          onTap: () => go(
+                            context,
+                            InformationPage(
+                              title: 'الموقع الإلكتروني',
+                              paragraphs: [
+                                'عنوان تواصل افتراضي',
+                                'هذا العنوان مجرد مثال ولا يفتح أي خدمة خارجية.',
+                              ],
+                            ),
                           ),
                         ),
-                      ),
-                      const Divider(),
-                      RowLink(
-                        'البيانات القانونية',
-                        onTap: () => go(
-                          context,
-                          InformationPage(
-                            title: 'البيانات القانونية',
-                            paragraphs: [
-                              'بائع تجريبي',
-                              'شارع المثال 12 · دمشق\nليست شركة حقيقية.',
-                            ],
+                        const Divider(),
+                        RowLink(
+                          'البيانات القانونية',
+                          onTap: () => go(
+                            context,
+                            InformationPage(
+                              title: 'البيانات القانونية',
+                              paragraphs: [
+                                'بائع تجريبي',
+                                'شارع المثال 12 · دمشق\nليست شركة حقيقية.',
+                              ],
+                            ),
                           ),
                         ),
-                      ),
                       ],
                     ],
                   ),

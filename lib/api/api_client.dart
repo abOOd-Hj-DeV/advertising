@@ -21,9 +21,9 @@ class ApiException implements Exception {
 /// app stays in offline-demo mode and repositories should not be used.
 class ApiClient {
   ApiClient({String? baseUrl, http.Client? httpClient})
-      : baseUrl = (baseUrl ?? const String.fromEnvironment('API_BASE'))
-            .replaceAll(RegExp(r'/+$'), ''),
-        _http = httpClient ?? http.Client();
+    : baseUrl = (baseUrl ?? const String.fromEnvironment('API_BASE'))
+          .replaceAll(RegExp(r'/+$'), ''),
+      _http = httpClient ?? http.Client();
 
   final String baseUrl;
   final http.Client _http;
@@ -36,13 +36,17 @@ class ApiClient {
   Future<Map<String, dynamic>> get(String path, [Map<String, String>? query]) =>
       _send('GET', path, query: query);
 
-  Future<Map<String, dynamic>> post(String path,
-          {Map<String, dynamic>? body, String? idempotencyKey}) =>
-      _send('POST', path, body: body, idempotencyKey: idempotencyKey);
+  Future<Map<String, dynamic>> post(
+    String path, {
+    Map<String, dynamic>? body,
+    String? idempotencyKey,
+  }) => _send('POST', path, body: body, idempotencyKey: idempotencyKey);
 
-  Future<Map<String, dynamic>> patch(String path,
-          {Map<String, dynamic>? body, String? ifMatch}) =>
-      _send('PATCH', path, body: body, ifMatch: ifMatch);
+  Future<Map<String, dynamic>> patch(
+    String path, {
+    Map<String, dynamic>? body,
+    String? ifMatch,
+  }) => _send('PATCH', path, body: body, ifMatch: ifMatch);
 
   Future<Map<String, dynamic>> put(String path, {Map<String, dynamic>? body}) =>
       _send('PUT', path, body: body, emptyOk: true);
@@ -72,9 +76,12 @@ class ApiClient {
     return _decode(response.statusCode, await response.stream.bytesToString());
   }
 
-  Future<void> delete(String path, {String? idempotencyKey}) =>
-      _send('DELETE', path, idempotencyKey: idempotencyKey, emptyOk: true)
-          .then((_) {});
+  Future<void> delete(String path, {String? idempotencyKey}) => _send(
+    'DELETE',
+    path,
+    idempotencyKey: idempotencyKey,
+    emptyOk: true,
+  ).then((_) {});
 
   Future<Map<String, dynamic>> _send(
     String method,
@@ -85,8 +92,9 @@ class ApiClient {
     String? ifMatch,
     bool emptyOk = false,
   }) async {
-    final uri = Uri.parse('$baseUrl/api/v1$path')
-        .replace(queryParameters: query?.isEmpty == true ? null : query);
+    final uri = Uri.parse(
+      '$baseUrl/api/v1$path',
+    ).replace(queryParameters: query?.isEmpty == true ? null : query);
     final headers = <String, String>{
       'Accept': 'application/json',
       'Accept-Language': 'ar',
@@ -96,9 +104,11 @@ class ApiClient {
       'If-Match': ?ifMatch,
     };
     final response = await _http
-        .send(http.Request(method, uri)
-          ..headers.addAll(headers)
-          ..body = body == null ? '' : jsonEncode(body))
+        .send(
+          http.Request(method, uri)
+            ..headers.addAll(headers)
+            ..body = body == null ? '' : jsonEncode(body),
+        )
         .timeout(const Duration(seconds: 20));
 
     return _decode(

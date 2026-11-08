@@ -28,8 +28,7 @@ Future<void> main() async {
   try {
     preferences = await SharedPreferences.getInstance();
   } catch (_) {
-    startupError =
-        'تعذّر الوصول للتخزين. التغييرات مؤقتة فقط.';
+    startupError = 'تعذّر الوصول للتخزين. التغييرات مؤقتة فقط.';
   }
   try {
     await MediaRepository.initialize();

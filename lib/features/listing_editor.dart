@@ -1,9 +1,11 @@
 import 'package:file_selector/file_selector.dart';
 import 'package:flutter/material.dart';
+import '../api/backend_store.dart';
 import '../data/demo_store.dart';
 import '../data/media.dart';
 import '../ui/theme.dart';
 import '../ui/widgets.dart';
+import 'auth_pages.dart';
 import 'filters.dart' show categoryNames;
 
 Future<bool> confirmLocal(
@@ -61,6 +63,7 @@ class ListingEditorState extends State<ListingEditor> {
       price = TextEditingController(),
       description = TextEditingController(),
       district = TextEditingController();
+  String leafCategory = '';
   String category = 'المنزل والحديقة',
       city = 'دمشق',
       type = '',
@@ -104,6 +107,7 @@ class ListingEditorState extends State<ListingEditor> {
     description.text = string('description', '');
     district.text = string('district', '');
     category = string('category', category);
+    leafCategory = string('leafCategory', leafCategory);
     city = string('city', city);
     type = string('type', type);
     if (type.isEmpty) type = defaultType(category);
@@ -127,6 +131,17 @@ class ListingEditorState extends State<ListingEditor> {
     if (mounted && !dirty) setState(() => dirty = true);
   }
 
+  /// Backend parent whose leaves contain the chosen leaf, else the parent
+  /// mapped from the app label, else the first backend parent.
+  String _liveParent(BackendStore live) {
+    for (final e in live.categoryTree.entries) {
+      if (leafCategory.isNotEmpty && e.value.contains(leafCategory)) {
+        return e.key;
+      }
+    }
+    return live.backendParentFor(category) ?? live.categoryTree.keys.first;
+  }
+
   String defaultType(String value) => switch (value) {
     'دراجات وملحقات' => 'دراجات مدينة',
     'سيارات ودراجات وقوارب' => 'سيارات',
@@ -140,6 +155,7 @@ class ListingEditorState extends State<ListingEditor> {
     'description': description.text,
     'district': district.text,
     'category': category,
+    'leafCategory': leafCategory,
     'city': city,
     'type': type,
     'kind': kind,
@@ -353,6 +369,7 @@ class ListingEditorState extends State<ListingEditor> {
       image: images.first,
       images: List.of(images),
       category: category,
+      leafCategory: leafCategory,
       city: city,
       district: district.text.trim(),
       distance: 0,
@@ -401,6 +418,19 @@ class ListingEditorState extends State<ListingEditor> {
         return;
       }
     } else {
+      if (store case final BackendStore live when !live.emailVerified) {
+        setState(() => busy = false);
+        final verified = await Navigator.push<bool>(
+          context,
+          MaterialPageRoute(builder: (_) => const VerifyEmailPage()),
+        );
+        if (!mounted) return;
+        if (verified != true) {
+          toast(context, 'الإعلان محفوظ كمسودة حتى توثيق البريد.');
+          return;
+        }
+        setState(() => busy = true);
+      }
       store!.publish(value, draftId: draftId);
     }
     final ok = await store!.flush();
@@ -461,19 +491,20 @@ class ListingEditorState extends State<ListingEditor> {
           title: Text(editingId == null ? 'إنشاء إعلان' : 'تعديل الإعلان'),
           automaticallyImplyLeading: !widget.embedded,
           actions: [
-            IconButton(
-              tooltip: 'معلومات العرض التجريبي',
-              onPressed: () => showDialog<void>(
-                context: context,
-                builder: (context) => const AlertDialog(
-                  title: Text('على هذا الجهاز فقط'),
-                  content: Text(
-                    'هذه معاينة لإعلانك قبل النشر — لا يحدث أي دفع أو معاملة هنا.',
+            if (!store.isLive)
+              IconButton(
+                tooltip: 'معلومات العرض التجريبي',
+                onPressed: () => showDialog<void>(
+                  context: context,
+                  builder: (context) => const AlertDialog(
+                    title: Text('على هذا الجهاز فقط'),
+                    content: Text(
+                      'هذه معاينة لإعلانك قبل النشر — لا يحدث أي دفع أو معاملة هنا.',
+                    ),
                   ),
                 ),
+                icon: const Icon(Icons.info_outline),
               ),
-              icon: const Icon(Icons.info_outline),
-            ),
           ],
         ),
         body: SingleChildScrollView(
@@ -543,11 +574,12 @@ class ListingEditorState extends State<ListingEditor> {
                 Wrap(
                   spacing: 8,
                   children: [
-                    OutlinedButton.icon(
-                      onPressed: busy ? null : stockPhoto,
-                      icon: const Icon(Icons.photo_library_outlined),
-                      label: const Text('اختيار صورة تجريبية'),
-                    ),
+                    if (!store.isLive)
+                      OutlinedButton.icon(
+                        onPressed: busy ? null : stockPhoto,
+                        icon: const Icon(Icons.photo_library_outlined),
+                        label: const Text('اختيار صورة تجريبية'),
+                      ),
                     OutlinedButton.icon(
                       onPressed: busy ? null : importPhotos,
                       icon: const Icon(Icons.add_photo_alternate_outlined),
@@ -580,11 +612,34 @@ class ListingEditorState extends State<ListingEditor> {
                   'أعرض',
                   'أبحث',
                 ], (v) => wanted = v == 'أبحث'),
-                select('القسم', category, categoryNames.skip(1).toList(), (v) {
-                  category = v;
-                  type = defaultType(v);
-                  kind = 'للجنسين';
-                }),
+                if (store case final BackendStore live
+                    when live.categoryTree.isNotEmpty) ...[
+                  select(
+                    'القسم',
+                    _liveParent(live),
+                    live.categoryTree.keys.toList(),
+                    (v) {
+                      category = live.appCategoryLabel(v);
+                      leafCategory = live.categoryTree[v]!.firstOrNull ?? '';
+                      type = defaultType(category);
+                      kind = 'للجنسين';
+                    },
+                  ),
+                  if ((live.categoryTree[_liveParent(live)] ?? []).isNotEmpty)
+                    select(
+                      'الفئة الفرعية',
+                      leafCategory,
+                      live.categoryTree[_liveParent(live)]!,
+                      (v) => leafCategory = v,
+                    ),
+                ] else
+                  select('القسم', category, categoryNames.skip(1).toList(), (
+                    v,
+                  ) {
+                    category = v;
+                    type = defaultType(v);
+                    kind = 'للجنسين';
+                  }),
                 if (category == 'دراجات وملحقات') ...[
                   select('النوع', type, [
                     'دراجات مدينة',

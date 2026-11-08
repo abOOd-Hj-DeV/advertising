@@ -24,8 +24,7 @@ class DemoStore extends ChangeNotifier {
       }
     } else {
       if (raw != null) {
-        storageError =
-            'سجل بيانات محلي غير صالح؛ تم فحص الإعدادات القديمة.';
+        storageError = 'سجل بيانات محلي غير صالح؛ تم فحص الإعدادات القديمة.';
       }
       _legacy();
     }
@@ -84,8 +83,7 @@ class DemoStore extends ChangeNotifier {
     T? read<T>(String key) {
       final value = preferences?.get(key);
       if (value == null || value is T) return value as T?;
-      storageError =
-          'بعض الإعدادات القديمة غير مقروءة وتم تجاوزها.';
+      storageError = 'بعض الإعدادات القديمة غير مقروءة وتم تجاوزها.';
       return null;
     }
 
@@ -102,8 +100,7 @@ class DemoStore extends ChangeNotifier {
       try {
         savedSearches.add(SavedSearch.decode(encoded));
       } catch (_) {
-        storageError =
-            'بحث محفوظ قديم غير مقروء وتم تجاوزه.';
+        storageError = 'بحث محفوظ قديم غير مقروء وتم تجاوزه.';
       }
     }
   }
@@ -114,8 +111,7 @@ class DemoStore extends ChangeNotifier {
       try {
         apply(j[key]);
       } catch (_) {
-        storageError =
-            'بعض العناصر المحلية غير مقروءة وتم تجاوزها.';
+        storageError = 'بعض العناصر المحلية غير مقروءة وتم تجاوزها.';
       }
     }
 
@@ -125,8 +121,7 @@ class DemoStore extends ChangeNotifier {
           try {
             target.add(parse(row));
           } catch (_) {
-            storageError =
-                'بعض العناصر المحلية غير مقروءة وتم تجاوزها.';
+            storageError = 'بعض العناصر المحلية غير مقروءة وتم تجاوزها.';
           }
         }
       });
@@ -154,7 +149,10 @@ class DemoStore extends ChangeNotifier {
     field('commercial', (v) => commercial = v as bool);
     field('businessStatus', (v) => businessStatus = v as String);
     field('businessReviewNote', (v) => businessReviewNote = v as String?);
-    field('businessProfile', (v) => businessProfile = Map<String, dynamic>.from(v as Map));
+    field(
+      'businessProfile',
+      (v) => businessProfile = Map<String, dynamic>.from(v as Map),
+    );
     field('newsletter', (v) => newsletter = v as bool);
     field('localAlerts', (v) => localAlerts = v as bool);
     field('emailPreference', (v) => emailPreference = v as bool);
@@ -574,11 +572,7 @@ class DemoStore extends ChangeNotifier {
   void seedConversations() {
     if (conversations.isNotEmpty || !signedIn) return;
     final c = ensureConversation(listings.first);
-    sendMessage(
-      c.id,
-      'مرحبًا! هذه رسالة تجريبية واردة.',
-      incoming: true,
-    );
+    sendMessage(c.id, 'مرحبًا! هذه رسالة تجريبية واردة.', incoming: true);
     final d = ensureConversation(listings[8]);
     sendMessage(d.id, 'هل يمكن الاستلام شخصيًا؟ (تجريبي)');
   }

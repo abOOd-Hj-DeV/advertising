@@ -1,11 +1,11 @@
 {
-    "name": "Anzeigen · Flutter UI-Demo",
-    "short_name": "Anzeigen Demo",
+    "name": "سوقنا",
+    "short_name": "سوقنا",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#ffffff",
     "theme_color": "#2f6812",
-    "description": "Inoffizielle lokale UI-Studie mit fiktiven Anzeigen.",
+    "description": "سوقنا — سوق الإعلانات المبوّبة في سوريا",
     "orientation": "portrait-primary",
     "prefer_related_applications": false,
     "icons": [

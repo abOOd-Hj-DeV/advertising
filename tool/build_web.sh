@@ -10,4 +10,6 @@ if [ -d .dart_tool/flutter_build ]; then
   find .dart_tool/flutter_build -type f -name web_entrypoint.stamp -delete
 fi
 
-"$flutter_bin" build web --release --no-web-resources-cdn "$@"
+# API_BASE (env) selects the backend; empty keeps the offline demo store.
+"$flutter_bin" build web --release --no-web-resources-cdn \
+  --dart-define=API_BASE="${API_BASE:-}" "$@"

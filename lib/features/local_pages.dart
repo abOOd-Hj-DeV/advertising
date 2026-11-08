@@ -500,7 +500,9 @@ class SelfProfilePage extends StatelessWidget {
           if (items.isEmpty)
             LocalEmpty(
               'لا إعلانات نشطة بعد',
-              store.isLive ? 'انشر أول إعلان لك من «إعلان جديد».' : 'ملفك المحلي لن يُنشر.',
+              store.isLive
+                  ? 'انشر أول إعلان لك من «إعلان جديد».'
+                  : 'ملفك المحلي لن يُنشر.',
             ),
           for (final l in items)
             ListingCard(
@@ -557,7 +559,9 @@ class _MessagesPageState extends State<MessagesPage> {
                         'كل شيء في مكان واحد',
                         'ابدأ محادثة من داخل إعلان.',
                       ),
-                      if (!archived && !store.isLive && store.conversations.isEmpty)
+                      if (!archived &&
+                          !store.isLive &&
+                          store.conversations.isEmpty)
                         TextButton(
                           onPressed: store.seedConversations,
                           child: const Text('تحميل أمثلة افتراضية'),
@@ -665,15 +669,11 @@ class _MessagePageState extends State<MessagePage> {
     if (!store.signedIn || (initialized && id != null && c == null)) {
       return Scaffold(
         appBar: const PageHeader('الرسائل'),
-        body: const Center(
-          child: Text('المحادثة غير متاحة.'),
-        ),
+        body: const Center(child: Text('المحادثة غير متاحة.')),
       );
     }
     if (c == null) {
-      return const Scaffold(
-        body: Center(child: Text('جارٍ فتح المحادثة…')),
-      );
+      return const Scaffold(body: Center(child: Text('جارٍ فتح المحادثة…')));
     }
     final l = store.findListing(c.listingId);
     final blocked = store.blockedParticipants.contains(c.participantId);
@@ -747,8 +747,11 @@ class _MessagePageState extends State<MessagePage> {
         children: [
           RowLink(
             l?.title ?? '${c.listingTitle} · لم يعد متاحاً',
-            subtitle: l?.formattedPrice ??
-                (store.isLive ? 'سجل المحادثة محفوظ.' : 'يبقى سجل المحادثة محفوظاً محلياً'),
+            subtitle:
+                l?.formattedPrice ??
+                (store.isLive
+                    ? 'سجل المحادثة محفوظ.'
+                    : 'يبقى سجل المحادثة محفوظاً محلياً'),
             icon: Icons.sell_outlined,
             onTap: l == null
                 ? null
@@ -891,9 +894,7 @@ class _LocalReportPageState extends State<LocalReportPage> {
 
   @override
   Widget build(BuildContext context) => Scaffold(
-    appBar: PageHeader(
-      DemoScope.of(context).isLive ? 'إبلاغ' : 'إبلاغ محلي',
-    ),
+    appBar: PageHeader(DemoScope.of(context).isLive ? 'إبلاغ' : 'إبلاغ محلي'),
     body: ListView(
       padding: const EdgeInsets.all(16),
       children: [
