@@ -39,28 +39,37 @@ class ApiSession {
   }
 
   /// POST /auth/register → token + user
-  Future<Map<String, dynamic>> register(
-      {required String email,
-      required String password,
-      required String displayName}) async {
-    final res = await client.post('/auth/register', body: {
-      'email': email,
-      'password': password,
-      'password_confirmation': password,
-      'display_name': displayName,
-    });
+  Future<Map<String, dynamic>> register({
+    required String email,
+    required String password,
+    required String displayName,
+  }) async {
+    final res = await client.post(
+      '/auth/register',
+      body: {
+        'email': email,
+        'password': password,
+        'password_confirmation': password,
+        'display_name': displayName,
+      },
+    );
     await _saveToken(res['token'] as String);
     _user = res['user'] as Map<String, dynamic>?;
     return _user ?? {};
   }
 
-  Future<Map<String, dynamic>> login(
-      {required String email, required String password}) async {
-    final res = await client.post('/auth/login', body: {
-      'email': email,
-      'password': password,
-      'device_name': 'flutter-app',
-    });
+  Future<Map<String, dynamic>> login({
+    required String email,
+    required String password,
+  }) async {
+    final res = await client.post(
+      '/auth/login',
+      body: {
+        'email': email,
+        'password': password,
+        'device_name': 'flutter-app',
+      },
+    );
     await _saveToken(res['token'] as String);
     _user = res['user'] as Map<String, dynamic>?;
     return _user ?? {};

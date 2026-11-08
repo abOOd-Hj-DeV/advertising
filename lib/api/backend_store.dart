@@ -30,6 +30,11 @@ class BackendStore extends DemoStore {
   final Map<String, Listing> _cache = {};
   final Map<String, String> _categoryIds = {}; // Arabic name → id
   final Map<String, String> _leafFor = {}; // category id → publishable leaf id
+  /// Backend taxonomy for the editor: parent name → leaf names (API order).
+  final Map<String, List<String>> categoryTree = {};
+
+  /// Backend parent name → app taxonomy label (filters/cards), when mapped.
+  final Map<String, String> _parentLabel = {};
   final Map<String, ({String id, String governorate})> _cities = {};
   final Map<String, String> _serverConversation = {}; // local id → server id
   final Map<String, String> _savedSearchIds = {}; // encode() → server id
@@ -84,7 +89,16 @@ class BackendStore extends DemoStore {
         _leafFor[id] = children.isEmpty
             ? id
             : (children.last['id'] as String); // "other"-style leaf last
+        categoryTree[node['name'] as String] = [
+          for (final child in children) child['name'] as String,
+        ];
+        final appLabel = _categorySlugs.entries
+            .where((e) => e.value == node['slug'])
+            .map((e) => e.key)
+            .firstOrNull;
+        if (appLabel != null) _parentLabel[node['name'] as String] = appLabel;
       }
+      notifyListeners();
     } catch (e) {
       _fail(e);
     }
@@ -108,26 +122,41 @@ class BackendStore extends DemoStore {
   }
 
   /// UI category labels (app taxonomy) → backend category slugs.
+  /// App taxonomy label → backend *parent* slug (seeded in CatalogSeeder).
+  /// Filtering by a parent includes its children server-side.
   static const _categorySlugs = {
     'سيارات ودراجات وقوارب': 'vehicles',
-    'سيارات': 'cars',
-    'دراجات نارية': 'motorcycles',
-    'دراجات نارية وسكوتر': 'motorcycles',
-    'قطع غيار وإطارات': 'auto-parts',
     'عقارات': 'real-estate',
     'المنزل والحديقة': 'furniture',
     'أزياء وجمال': 'fashion',
     'إلكترونيات': 'electronics',
-    'حيوانات أليفة': 'pets',
-    'العائلة والأطفال': 'kids-clothing',
+    'حيوانات أليفة': 'animals',
+    'العائلة والأطفال': 'fashion',
     'وظائف': 'jobs',
     'هوايات ومجتمع': 'hobbies',
-    'موسيقى وأفلام وكتب': 'books-media',
-    'دراجات وملحقات': 'sports',
+    'موسيقى وأفلام وكتب': 'hobbies',
+    'تذاكر': 'hobbies',
     'خدمات': 'services',
-    'دروس ودورات': 'education-services',
+    'مجاني وتبادل': 'miscellaneous',
+    'دروس ودورات': 'services',
     'مساعدة الجيران': 'services',
+    'دراجات وملحقات': 'hobbies',
   };
+
+  /// App label for a backend parent name (falls back to the backend name).
+  String appCategoryLabel(String backendParent) =>
+      _parentLabel[backendParent] ?? backendParent;
+
+  /// Backend parent name that an app taxonomy label maps onto, if loaded.
+  String? backendParentFor(String appLabel) {
+    final slug = _categorySlugs[appLabel];
+    if (slug == null) return null;
+    final id = _categoryIds[slug];
+    if (id == null) return null;
+    return categoryTree.keys
+        .where((name) => _categoryIds[name] == id)
+        .firstOrNull;
+  }
 
   String? _categoryId(String label) =>
       _categoryIds[label] ?? _categoryIds[_categorySlugs[label] ?? ''];
@@ -230,9 +259,87 @@ class BackendStore extends DemoStore {
   }
 
   // ── Auth ─────────────────────────────────────────────────
+  bool emailVerified = true;
+
   void _applyUser(Map<String, dynamic> user) {
     name = user['display_name'] as String? ?? name;
     commercial = user['account_type'] == 'commercial';
+    emailVerified = user['email_verified'] as bool? ?? false;
+  }
+
+  /// Publishing requires a verified e-mail on the backend (403 otherwise).
+  bool get canPublish => signedIn && emailVerified;
+
+  /// POST /auth/email/verify with the token from the e-mail. Null on success.
+  Future<String?> verifyEmail(String token) async {
+    try {
+      await _client.post('/auth/email/verify', body: {'token': token.trim()});
+      emailVerified = true;
+      await api.session.refreshUser().catchError((_) => null);
+      notifyListeners();
+      return null;
+    } on ApiException catch (e) {
+      return e.errors?.values.expand((v) => v).firstOrNull ?? e.detail;
+    } catch (_) {
+      return 'تعذّر الاتصال بالخادم.';
+    }
+  }
+
+  /// POST /auth/email/resend (rate-limited 3/hour server-side).
+  Future<String?> resendVerification() async {
+    try {
+      await _client.post('/auth/email/resend');
+      return null;
+    } on ApiException catch (e) {
+      return e.detail;
+    } catch (_) {
+      return 'تعذّر الاتصال بالخادم.';
+    }
+  }
+
+  /// Re-reads /me so a verification done elsewhere (link in mail) shows up.
+  Future<void> refreshUser() async {
+    try {
+      final u = await api.session.refreshUser();
+      if (u != null) _applyUser(u);
+      notifyListeners();
+    } catch (_) {}
+  }
+
+  Future<String?> forgotPassword(String email) async {
+    try {
+      await _client.post(
+        '/auth/password/forgot',
+        body: {'email': email.trim()},
+      );
+      return null;
+    } on ApiException catch (e) {
+      return e.errors?.values.expand((v) => v).firstOrNull ?? e.detail;
+    } catch (_) {
+      return 'تعذّر الاتصال بالخادم.';
+    }
+  }
+
+  Future<String?> resetPassword({
+    required String email,
+    required String token,
+    required String password,
+  }) async {
+    try {
+      await _client.post(
+        '/auth/password/reset',
+        body: {
+          'email': email.trim(),
+          'token': token.trim(),
+          'password': password,
+        },
+      );
+      return null;
+    } on ApiException catch (e) {
+      return e.errors?.values.expand((v) => v).firstOrNull ?? e.detail;
+    } catch (_) {
+      return 'تعذّر الاتصال بالخادم.';
+    }
   }
 
   /// Real sign-in / registration. Returns an Arabic error message or null.
@@ -246,14 +353,17 @@ class BackendStore extends DemoStore {
   }) async {
     try {
       if (register) {
-        final res = await _client.post('/auth/register', body: {
-          'email': email.trim(),
-          'password': password,
-          'password_confirmation': password,
-          'display_name': (displayName ?? '').trim(),
-          'account_type': business ? 'commercial' : 'private',
-          'accept_terms_version': '2026-10',
-        });
+        final res = await _client.post(
+          '/auth/register',
+          body: {
+            'email': email.trim(),
+            'password': password,
+            'password_confirmation': password,
+            'display_name': (displayName ?? '').trim(),
+            'account_type': business ? 'commercial' : 'private',
+            'accept_terms_version': '2026-10',
+          },
+        );
         await api.session.adopt(res);
       } else {
         await api.login(email.trim(), password);
@@ -286,6 +396,8 @@ class BackendStore extends DemoStore {
     _serverConversation.clear();
     _savedSearchIds.clear();
     super.signOut();
+    name = '';
+    emailVerified = true;
   }
 
   @override
@@ -293,9 +405,12 @@ class BackendStore extends DemoStore {
     final ok = super.updateProfile(value, business: business);
     if (ok && signedIn) {
       unawaited(
-        _client
-            .patch('/me', body: {'display_name': value.trim()})
-            .catchError((Object e) { _fail(e); return <String, dynamic>{}; }),
+        _client.patch('/me', body: {'display_name': value.trim()}).catchError((
+          Object e,
+        ) {
+          _fail(e);
+          return <String, dynamic>{};
+        }),
       );
     }
     return ok;
@@ -319,6 +434,9 @@ class BackendStore extends DemoStore {
       unawaited(refreshNotifications());
     });
   }
+
+  @visibleForTesting
+  Future<void> loadOwnListingsForTest() => _loadOwnListings();
 
   Future<void> _loadOwnListings() async {
     try {
@@ -359,27 +477,32 @@ class BackendStore extends DemoStore {
     notifyListeners();
     unawaited(
       _client
-          .put('/me/business', body: {
-            'legal_name': data['legal_name']?.isEmpty == true
-                ? null
-                : data['legal_name'],
-            'store_name': data['store_name'],
-            'address': data['address']?.isEmpty == true
-                ? null
-                : data['address'],
-            'governorate': data['governorate'],
-            'city': data['city'],
-            'public_phone': data['public_phone'],
-            'public_email': data['public_email']?.isEmpty == true
-                ? null
-                : data['public_email'],
-            'register_number': data['register_number']?.isEmpty == true
-                ? null
-                : data['register_number'],
-            'compliance_confirmed': true,
-          })
+          .put(
+            '/me/business',
+            body: {
+              'legal_name': data['legal_name']?.isEmpty == true
+                  ? null
+                  : data['legal_name'],
+              'store_name': data['store_name'],
+              'address': data['address']?.isEmpty == true
+                  ? null
+                  : data['address'],
+              'governorate': data['governorate'],
+              'city': data['city'],
+              'public_phone': data['public_phone'],
+              'public_email': data['public_email']?.isEmpty == true
+                  ? null
+                  : data['public_email'],
+              'register_number': data['register_number']?.isEmpty == true
+                  ? null
+                  : data['register_number'],
+              'compliance_confirmed': true,
+            },
+          )
           .then((_) => _loadBusiness())
-          .onError((e, st) { _fail(e as Object); }),
+          .onError((e, st) {
+            _fail(e as Object);
+          }),
     );
   }
 
@@ -406,7 +529,8 @@ class BackendStore extends DemoStore {
         ..clear()
         ..addAll(
           (res['data'] as List? ?? []).map(
-            (f) => ((f as Map)['user'] as Map?)?['id'] as String? ??
+            (f) =>
+                ((f as Map)['user'] as Map?)?['id'] as String? ??
                 f['id'] as String,
           ),
         );
@@ -420,7 +544,8 @@ class BackendStore extends DemoStore {
         ..clear()
         ..addAll(
           (res['data'] as List? ?? []).map(
-            (b) => ((b as Map)['user'] as Map?)?['id'] as String? ??
+            (b) =>
+                ((b as Map)['user'] as Map?)?['id'] as String? ??
                 b['id'] as String,
           ),
         );
@@ -451,6 +576,10 @@ class BackendStore extends DemoStore {
   @override
   void publish(Listing l, {String? draftId}) {
     if (!signedIn) return;
+    if (!emailVerified) {
+      _toast('وثّق بريدك الإلكتروني قبل نشر إعلان.');
+      return;
+    }
     super.publish(l, draftId: draftId);
     unawaited(_create(ownListings.first));
   }
@@ -467,6 +596,7 @@ class BackendStore extends DemoStore {
       notifyListeners();
     } catch (e) {
       ownListings.removeWhere((x) => x.id == local.id);
+      if (e is ApiException && e.status == 403) emailVerified = false;
       _fail(e, prefix: 'لم يُنشر الإعلان: ');
       notifyListeners();
     }
@@ -531,12 +661,16 @@ class BackendStore extends DemoStore {
   void deleteListing(String id) {
     super.deleteListing(id);
     if (id.length == 26) {
-      unawaited(api.repos.deleteListing(id).onError((e, st) => _fail(e as Object)));
+      unawaited(
+        api.repos.deleteListing(id).onError((e, st) => _fail(e as Object)),
+      );
     }
   }
 
   Future<Map<String, dynamic>> _payload(Listing l) async {
-    final categoryId = _categoryId(l.category) ?? _categoryIds['hobbies'];
+    final leafId = l.leafCategory.isEmpty ? null : _categoryIds[l.leafCategory];
+    final categoryId =
+        leafId ?? _categoryId(l.category) ?? _categoryIds['miscellaneous'];
     final city = _cities[l.city] ?? _cities['دمشق'];
     final media = <String>[];
     for (final ref in l.gallery) {
@@ -552,7 +686,7 @@ class BackendStore extends DemoStore {
       media.add((res['data'] as Map)['id'] as String);
     }
     return {
-      'category_id': _leafFor[categoryId] ?? categoryId,
+      'category_id': leafId ?? _leafFor[categoryId] ?? categoryId,
       'offer_type': l.wanted ? 'wanted' : 'offer',
       'title': l.title,
       'description': l.description.trim().isEmpty ? l.title : l.description,
@@ -593,16 +727,18 @@ class BackendStore extends DemoStore {
     final saved = savedSearches.first;
     unawaited(() async {
       try {
-        final res = await _client.post('/saved-searches', body: {
-          'query': saved.query,
-          'filters': {
-            ..._searchQuery(saved.filters, saved.query)..remove('limit'),
-            'app': saved.filters.toJson(),
+        final res = await _client.post(
+          '/saved-searches',
+          body: {
+            'query': saved.query,
+            'filters': {
+              ..._searchQuery(saved.filters, saved.query)..remove('limit'),
+              'app': saved.filters.toJson(),
+            },
+            'alerts_enabled': saved.alerts,
           },
-          'alerts_enabled': saved.alerts,
-        });
-        _savedSearchIds[saved.encode()] =
-            (res['data'] as Map)['id'] as String;
+        );
+        _savedSearchIds[saved.encode()] = (res['data'] as Map)['id'] as String;
       } catch (e) {
         _fail(e);
       }
@@ -614,7 +750,11 @@ class BackendStore extends DemoStore {
     final id = _savedSearchIds.remove(s.encode());
     super.deleteSearch(s);
     if (id != null) {
-      unawaited(_client.delete('/saved-searches/$id').onError((e, st) => _fail(e as Object)));
+      unawaited(
+        _client
+            .delete('/saved-searches/$id')
+            .onError((e, st) => _fail(e as Object)),
+      );
     }
   }
 
@@ -644,7 +784,9 @@ class BackendStore extends DemoStore {
               ? _client.delete('/follows/$identity')
               : _client.put('/follows/$identity'))
           .then((_) {})
-          .onError((e, st) { _fail(e as Object); }),
+          .onError((e, st) {
+            _fail(e as Object);
+          }),
     );
   }
 
@@ -658,7 +800,9 @@ class BackendStore extends DemoStore {
               ? _client.delete('/blocks/$participantId')
               : _client.put('/blocks/$participantId'))
           .then((_) {})
-          .onError((e, st) { _fail(e as Object); }),
+          .onError((e, st) {
+            _fail(e as Object);
+          }),
     );
   }
 
@@ -693,17 +837,22 @@ class BackendStore extends DemoStore {
         'other';
     unawaited(
       _client
-          .post('/reports', body: {
-            'target_type': type,
-            'target_id': target,
-            'reason': code,
-            'details': [
-              reason,
-              details.trim(),
-            ].where((s) => s.isNotEmpty).join(' — '),
-          })
+          .post(
+            '/reports',
+            body: {
+              'target_type': type,
+              'target_id': target,
+              'reason': code,
+              'details': [
+                reason,
+                details.trim(),
+              ].where((s) => s.isNotEmpty).join(' — '),
+            },
+          )
           .then((_) => _toast('تم إرسال البلاغ للإدارة'))
-          .onError((e, st) { _fail(e as Object); }),
+          .onError((e, st) {
+            _fail(e as Object);
+          }),
     );
   }
 
@@ -731,9 +880,12 @@ class BackendStore extends DemoStore {
               .where((x) => x.id == (localId ?? id))
               .firstOrNull;
           final updated = DateTime.parse(c['updated_at'] as String);
-          final needsFetch = old == null ||
+          final needsFetch =
+              old == null ||
               old.messages.isEmpty ||
-              old.activity.isBefore(updated.subtract(const Duration(seconds: 1)));
+              old.activity.isBefore(
+                updated.subtract(const Duration(seconds: 1)),
+              );
           final messages = needsFetch ? await _messages(id) : old.messages;
           next.add(
             Conversation(
@@ -822,12 +974,12 @@ class BackendStore extends DemoStore {
     super.archiveChat(id, value);
     if (id.length != 26) return;
     unawaited(
-      _client
-          .patch('/conversations/$id', body: {'archived': value})
-          .catchError((Object e) {
-            _fail(e);
-            return <String, dynamic>{};
-          }),
+      _client.patch('/conversations/$id', body: {'archived': value}).catchError(
+        (Object e) {
+          _fail(e);
+          return <String, dynamic>{};
+        },
+      ),
     );
   }
 
@@ -835,7 +987,11 @@ class BackendStore extends DemoStore {
   void deleteChat(String id) {
     super.deleteChat(id);
     if (id.length == 26) {
-      unawaited(_client.delete('/conversations/$id').onError((e, st) => _fail(e as Object)));
+      unawaited(
+        _client
+            .delete('/conversations/$id')
+            .onError((e, st) => _fail(e as Object)),
+      );
     }
   }
 
@@ -847,23 +1003,25 @@ class BackendStore extends DemoStore {
       final items = (res['data'] as List).cast<Map<String, dynamic>>();
       notifications
         ..clear()
-        ..addAll(items.map((n) {
-          final data = Map<String, dynamic>.from(n['data'] as Map? ?? {});
-          final title = switch (n['type']) {
-            'new_message' =>
-              'رسالة جديدة من ${data['sender'] ?? ''}: ${data['preview'] ?? ''}',
-            'saved_search_matches' =>
-              'إعلانات جديدة تطابق بحثك ${data['query'] ?? ''}'.trim(),
-            _ => data['title'] as String? ?? 'إشعار جديد',
-          };
-          return LocalNotice(
-            id: n['id'] as String,
-            title: title,
-            threadId: data['conversation_id'] as String?,
-            listingId: data['listing_id'] as String?,
-            read: n['read_at'] != null,
-          );
-        }));
+        ..addAll(
+          items.map((n) {
+            final data = Map<String, dynamic>.from(n['data'] as Map? ?? {});
+            final title = switch (n['type']) {
+              'new_message' =>
+                'رسالة جديدة من ${data['sender'] ?? ''}: ${data['preview'] ?? ''}',
+              'saved_search_matches' =>
+                'إعلانات جديدة تطابق بحثك ${data['query'] ?? ''}'.trim(),
+              _ => data['title'] as String? ?? 'إشعار جديد',
+            };
+            return LocalNotice(
+              id: n['id'] as String,
+              title: title,
+              threadId: data['conversation_id'] as String?,
+              listingId: data['listing_id'] as String?,
+              read: n['read_at'] != null,
+            );
+          }),
+        );
       notifyListeners();
     } catch (_) {}
   }
@@ -882,11 +1040,11 @@ class BackendStore extends DemoStore {
   }
 
   // ── Mapping ──────────────────────────────────────────────
-  List<Listing> _mapList(Object? data, {bool own = false}) => (data as List? ??
-          [])
-      .cast<Map<String, dynamic>>()
-      .map((j) => _map(j, own: own))
-      .toList();
+  List<Listing> _mapList(Object? data, {bool own = false}) =>
+      (data as List? ?? [])
+          .cast<Map<String, dynamic>>()
+          .map((j) => _map(j, own: own))
+          .toList();
 
   Listing _map(Map<String, dynamic> j, {bool own = false}) {
     final images = (j['images'] as List? ?? [])
@@ -894,8 +1052,8 @@ class BackendStore extends DemoStore {
         .map((m) => (m['urls'] as Map?)?['full'] as String?)
         .whereType<String>()
         .toList();
-    final cover = j['cover_url'] as String? ??
-        (images.isEmpty ? '' : images.first);
+    final cover =
+        j['cover_url'] as String? ?? (images.isEmpty ? '' : images.first);
     final location = j['location'] as Map?;
     final seller = j['seller'] as Map?;
     final published = DateTime.tryParse(j['published_at'] as String? ?? '');
@@ -913,22 +1071,31 @@ class BackendStore extends DemoStore {
       images: images,
       category: j['category_name'] as String? ?? '',
       city: (location?['city'] ?? j['city']) as String? ?? '',
-      district: (location?['district'] ?? j['district'] ??
-              location?['governorate'] ?? j['governorate']) as String? ??
+      district:
+          (location?['district'] ??
+                  j['district'] ??
+                  location?['governorate'] ??
+                  j['governorate'])
+              as String? ??
           '',
       distance: 0,
       type: '',
       kind: '',
       carrier: j['carrier'] as String? ?? '',
-      condition: j['attributes'] is Map ? j['attributes']['condition'] as String? ?? '' : '',
+      condition: j['attributes'] is Map
+          ? j['attributes']['condition'] as String? ?? ''
+          : '',
       shipping: (j['shipping_available'] as bool?) ?? false,
-      commercial: (seller?['account_type'] == 'commercial') ||
+      commercial:
+          (seller?['account_type'] == 'commercial') ||
           (j['seller_commercial'] as bool? ?? false),
       wanted: j['offer_type'] == 'wanted',
       seller: own
           ? name
           : (seller?['display_name'] ?? j['seller_name']) as String? ?? '',
-      sellerId: own ? 'self' : (seller?['id'] ?? j['seller_id']) as String? ?? '',
+      sellerId: own
+          ? 'self'
+          : (seller?['id'] ?? j['seller_id']) as String? ?? '',
       date: published == null ? '' : _relative(published),
       ageHours: published == null
           ? 0
@@ -940,9 +1107,12 @@ class BackendStore extends DemoStore {
       ),
       views: (j['views_count'] as num?)?.toInt() ?? -1,
       favoritesCount: (j['favorites_count'] as num?)?.toInt() ?? -1,
-      memberSince: (seller?['member_since'] ?? j['member_since']) as String? ?? '',
-      sellerVerified: (seller?['business'] as Map?)?['verified'] as bool? ?? false,
-      sellerStoreName: (seller?['business'] as Map?)?['store_name'] as String? ?? '',
+      memberSince:
+          (seller?['member_since'] ?? j['member_since']) as String? ?? '',
+      sellerVerified:
+          (seller?['business'] as Map?)?['verified'] as bool? ?? false,
+      sellerStoreName:
+          (seller?['business'] as Map?)?['store_name'] as String? ?? '',
       description: j['description'] as String? ?? '',
     );
   }
@@ -959,7 +1129,8 @@ class BackendStore extends DemoStore {
 
   // ── Errors ───────────────────────────────────────────────
   void _fail(Object e, {String prefix = ''}) {
-    lastError = prefix +
+    lastError =
+        prefix +
         (e is ApiException
             ? (e.errors?.values.expand((v) => v).firstOrNull ?? e.detail)
             : 'تعذّر الاتصال بالخادم.');

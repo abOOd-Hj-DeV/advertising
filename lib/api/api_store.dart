@@ -16,9 +16,15 @@ class ApiStore extends ChangeNotifier {
   final ApiSession session;
   final ApiRepositories repos;
 
+  /// Test seam: build a store around a mocked [ApiClient] without API_BASE.
+  @visibleForTesting
+  factory ApiStore.forTest(ApiClient client, ApiSession session) =>
+      ApiStore._(client, session, ApiRepositories(client, session));
+
   static ApiStore? _instance;
   static ApiStore? get instanceOrNull => _instance;
-  static bool get enabled => const String.fromEnvironment('API_BASE').isNotEmpty;
+  static bool get enabled =>
+      const String.fromEnvironment('API_BASE').isNotEmpty;
 
   static Future<ApiStore?> boot() async {
     if (!enabled) return null;
@@ -28,9 +34,14 @@ class ApiStore extends ChangeNotifier {
     _instance = ApiStore._(client, session, ApiRepositories(client, session));
     if (session.isAuthenticated) {
       // Revalidate the stored token in the background.
-      unawaited(session.refreshUser().then((u) {
-        if (u != null) _instance?.notifyListeners();
-      }).catchError((_) {}));
+      unawaited(
+        session
+            .refreshUser()
+            .then((u) {
+              if (u != null) _instance?.notifyListeners();
+            })
+            .catchError((_) {}),
+      );
     }
     return _instance;
   }
@@ -44,8 +55,7 @@ class ApiStore extends ChangeNotifier {
   }
 
   Future<void> register(String email, String password, String name) async {
-    await session.register(
-        email: email, password: password, displayName: name);
+    await session.register(email: email, password: password, displayName: name);
     notifyListeners();
   }
 

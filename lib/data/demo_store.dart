@@ -46,6 +46,7 @@ class Listing {
     this.memberSince = '',
     this.sellerVerified = false,
     this.sellerStoreName = '',
+    this.leafCategory = '',
     this.description =
         'بحالة جيدة وجاهز لصاحب جديد. '
         'نعرض هذا الغرض الجميل لأننا نريد إخلاء مكان. '
@@ -76,6 +77,9 @@ class Listing {
   final String memberSince;
   final bool sellerVerified;
   final String sellerStoreName;
+
+  /// Leaf backend category (Arabic name) chosen in live mode; empty offline.
+  final String leafCategory;
   final bool shipping, direct, commercial, wanted, featured;
   final List<String> images;
   List<String> get gallery => images.isEmpty ? [image] : images;
@@ -113,6 +117,7 @@ class Listing {
     'memberSince': memberSince,
     'sellerVerified': sellerVerified,
     'sellerStoreName': sellerStoreName,
+    'leafCategory': leafCategory,
   };
   factory Listing.fromJson(Map<String, dynamic> j) {
     final price = (j['price'] as num).toDouble();
@@ -136,6 +141,7 @@ class Listing {
       sellerId: j['sellerId'] as String? ?? 'self',
       date: j['date'] as String? ?? 'محلي',
       description: j['description'] as String? ?? '',
+      leafCategory: j['leafCategory'] as String? ?? '',
       shipping: j['shipping'] as bool? ?? false,
       direct: j['direct'] as bool? ?? false,
       commercial: j['commercial'] as bool? ?? false,
@@ -166,6 +172,7 @@ class Listing {
     String? seller,
     String? sellerId,
     String? description,
+    String? leafCategory,
     double? price,
     bool? shipping,
     bool? wanted,
@@ -192,6 +199,7 @@ class Listing {
     seller: seller ?? this.seller,
     sellerId: sellerId ?? this.sellerId,
     description: description ?? this.description,
+    leafCategory: leafCategory ?? this.leafCategory,
     price: price ?? this.price,
     shipping: shipping ?? this.shipping,
     wanted: wanted ?? this.wanted,

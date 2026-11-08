@@ -8,6 +8,7 @@ export 'listing_editor.dart' show NewListingPage;
 import 'local_pages.dart';
 import 'settings.dart';
 import '../api/backend_store.dart';
+import 'auth_pages.dart';
 
 void openMarketplaceTab(
   BuildContext context,
@@ -194,6 +195,16 @@ class _AuthPageState extends State<AuthPage> {
   final email = TextEditingController(), password = TextEditingController();
   final profileName = TextEditingController(text: 'بائع تجريبي');
   bool passwordStage = false, hidden = true, newsletter = false, busy = false;
+  bool _nameInitialized = false;
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (_nameInitialized) return;
+    _nameInitialized = true;
+    // Live accounts start with an empty display name instead of demo copy.
+    if (DemoScope.of(context).isLive) profileName.clear();
+  }
+
   String accountType = 'فردي';
   @override
   void dispose() {
@@ -246,6 +257,9 @@ class _AuthPageState extends State<AuthPage> {
           ? 'أهلًا بك في سوقنا'
           : 'تم فتح حساب تجريبي. لم تُرسَل أي بيانات دخول.',
     );
+    if (store is BackendStore && !store.emailVerified) {
+      go(context, const VerifyEmailPage());
+    }
   }
 
   void info(String title, String body) =>
@@ -276,7 +290,12 @@ class _AuthPageState extends State<AuthPage> {
             const SizedBox(height: 22),
             if (!widget.register)
               TextButton(
-                onPressed: () => go(context, const RecoveryPage()),
+                onPressed: () => go(
+                  context,
+                  DemoScope.of(context).isLive
+                      ? const ForgotPasswordPage()
+                      : const RecoveryPage(),
+                ),
                 child: const Text('نسيت كلمة المرور؟'),
               ),
             const Center(child: Logo(size: widgetLogoSize)),
@@ -519,7 +538,7 @@ class _AuthPageState extends State<AuthPage> {
               DemoScope.of(context).isLive
                   ? 'سجّل الدخول ببيانات حسابك الحقيقي.'
                   : 'تجريبي: استخدم بيانات وهمية مثل demo@example.test. '
-                      'لا يوجد تسجيل دخول حقيقي. لا تُحفَظ كلمة المرور ولا تُرسَل.',
+                        'لا يوجد تسجيل دخول حقيقي. لا تُحفَظ كلمة المرور ولا تُرسَل.',
               textAlign: TextAlign.center,
               style: TextStyle(fontSize: 11, color: Brand.muted, height: 1.4),
             ),
@@ -582,6 +601,20 @@ class AccountPage extends StatelessWidget {
             ],
           ),
         ),
+        if (store is BackendStore && !store.emailVerified)
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
+            child: Material(
+              color: const Color(0xfffff4e0),
+              child: ListTile(
+                leading: const Icon(Icons.mark_email_unread_outlined),
+                title: const Text('بريدك غير موثّق'),
+                subtitle: const Text('وثّق بريدك لتتمكن من نشر الإعلانات.'),
+                trailing: const Icon(Icons.chevron_left),
+                onTap: () => go(context, const VerifyEmailPage()),
+              ),
+            ),
+          ),
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16),
           child: Container(
@@ -773,25 +806,26 @@ class _BusinessProfilePageState extends State<BusinessProfilePage> {
     final store = DemoScope.of(context);
     final (label, color, detail) = switch (store.businessStatus) {
       'verified' => (
-          'تاجر موثّق',
-          Brand.lime,
-          'وثّقت الإدارة ملفك — تظهر شارة التوثيق على إعلاناتك.',
-        ),
+        'تاجر موثّق',
+        Brand.lime,
+        'وثّقت الإدارة ملفك — تظهر شارة التوثيق على إعلاناتك.',
+      ),
       'pending' => (
-          'قيد المراجعة',
-          Brand.green,
-          'طلبك قيد مراجعة فريق «سوقنا».',
-        ),
+        'قيد المراجعة',
+        Brand.green,
+        'طلبك قيد مراجعة فريق «سوقنا».',
+      ),
       'rejected' => (
-          'مرفوض',
-          Colors.red.shade700,
-          store.businessReviewNote ?? 'رفضت الإدارة الملف. عدّل البيانات وأرسل مجددًا.',
-        ),
+        'مرفوض',
+        Colors.red.shade700,
+        store.businessReviewNote ??
+            'رفضت الإدارة الملف. عدّل البيانات وأرسل مجددًا.',
+      ),
       _ => (
-          'غير مسجّل',
-          Brand.muted,
-          'قدّم بيانات متجرك للحصول على شارة «تاجر موثّق» بعد مراجعة الإدارة.',
-        ),
+        'غير مسجّل',
+        Brand.muted,
+        'قدّم بيانات متجرك للحصول على شارة «تاجر موثّق» بعد مراجعة الإدارة.',
+      ),
     };
     return Scaffold(
       appBar: PageHeader(store.isLive ? 'الملف التجاري' : 'ملف تجاري تجريبي'),
@@ -859,9 +893,7 @@ class _BusinessProfilePageState extends State<BusinessProfilePage> {
             ),
             TextFormField(
               controller: address,
-              decoration: const InputDecoration(
-                labelText: 'العنوان (اختياري)',
-              ),
+              decoration: const InputDecoration(labelText: 'العنوان (اختياري)'),
             ),
             TextFormField(
               controller: phone,

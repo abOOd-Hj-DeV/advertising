@@ -24,8 +24,16 @@ jobs:
       - run: flutter analyze
       - run: flutter test
       - run: flutter test --platform chrome test/web_theme_test.dart test/web_storage_test.dart
+      # API_BASE comes from a repository/environment variable; empty → offline demo build.
       - run: bash tool/build_web.sh
-      - run: flutter build apk --release
+        env:
+          API_BASE: ${{ vars.API_BASE }}
+      - run: flutter build apk --release --dart-define=API_BASE=${{ vars.API_BASE }}
+        env:
+          SOOQNA_KEYSTORE_PATH: ${{ secrets.SOOQNA_KEYSTORE_PATH }}
+          SOOQNA_KEYSTORE_PASSWORD: ${{ secrets.SOOQNA_KEYSTORE_PASSWORD }}
+          SOOQNA_KEY_ALIAS: ${{ secrets.SOOQNA_KEY_ALIAS }}
+          SOOQNA_KEY_PASSWORD: ${{ secrets.SOOQNA_KEY_PASSWORD }}
       - uses: actions/upload-artifact@v4
         with:
           name: advertising-demo-builds

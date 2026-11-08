@@ -1,45 +1,48 @@
-# Anzeigen · Flutter UI-Demo
+# سوقنا · تطبيق Flutter
 
-تطبيق Flutter بواجهات ألمانية مستوحاة من فحص بصري لتطبيق Kleinanzeigen، مع **بيانات وصور وتفاعلات محلية وهمية**. ليس منتجًا رسميًا ولا يتصل بخدمات Kleinanzeigen.
+تطبيق «سوقنا» للإعلانات المبوّبة في سوريا (Android وWeb، عربي RTL). يعمل بوضعين:
+
+- **متصل (الإنتاج):** `--dart-define=API_BASE=https://api.example` → كل البيانات عبر Laravel [`advertising-backend`](https://github.com/abOOd-Hj-DeV/advertising-backend) (`/api/v1`): حسابات Sanctum، توثيق البريد، استعادة كلمة المرور، إعلانات وصور، بحث مع ترقيم صفحات، مراسلة، إشعارات، بلاغات، ملف تاجر.
+- **دون اتصال (عرض/تطوير):** بدون `API_BASE` يبقى التطبيق على متجر محلي ببيانات وهمية (`DemoStore`)؛ لا حسابات ولا نشر حقيقي.
 
 ## التشغيل
 
-متطلبات التطوير: **Flutter 3.44.2 / Dart 3.12.2**، ولأندرويد: Java 17 وAndroid SDK. يدعم Android وWeb.
+متطلبات: **Flutter 3.44.2 / Dart 3.12.2**، ولأندرويد Java 17 وAndroid SDK.
 
 ```sh
 flutter pub get
-flutter run                 # محاكي/جهاز Android
-flutter run -d chrome       # معاينة Web
+# متصل بالباك اند المحلي (docker compose في advertising-backend على 8000)
+flutter run --dart-define=API_BASE=http://10.0.2.2:8000      # محاكي Android
+flutter run -d chrome --dart-define=API_BASE=http://localhost:8000
+# عرض دون اتصال
+flutter run
 ```
 
-اختر «Alle ablehnen und fortfahren» في شاشة الخصوصية الأولى. Web الواسع يعرض الواجهة بإطار هاتف، وعلى الهاتف تملأ الشاشة.
+### البناء للإنتاج
 
-## الوظائف
+```sh
+# Android (توقيع release من android/key.properties — انظر key.properties.example — أو متغيرات SOOQNA_*)
+flutter build apk --release --dart-define=API_BASE=https://api.example
+# Web
+API_BASE=https://api.example bash tool/build_web.sh
+```
 
-- الرئيسية، شريط التصنيفات، معرض الإعلانات، أحدث الإعلانات، تبويبات العقارات وقائمة التصنيفات الممتدة.
-- البحث الألماني، اقتراحات وسجل البحث، نتائج من الكتالوج المحلي وحالة النتائج الفارغة.
-- فلاتر الفرز والمكان ونطاق المسافة والسعر والتصنيف ونوع الدراجة والحالة والشحن وناقل الشحن والبائع والعرض والشراء المباشر.
-- تفاصيل الإعلان، صور قابلة للسحب والتكبير، وصف وترجمة تجريبية، مكان تقريبي وبائع بتبويبات Anzeigen / Über / Kontakt.
-- بوابات الضيف، دخول على خطوتين، تسجيل خاص/تجاري، إظهار كلمة المرور والتحقق من المدخلات.
-- مفضلة وبحث محفوظ وحذف البحث وتنبيهه المحلي، متابعة بائعين وسجل آخر المشاهدات.
-- ملف باسم محلي ونوع مقدم خاص/تجاري وتفضيلات نشرة وإشعارات محفوظة، دون حساب أو بريد حقيقي.
-- إنشاء/تعديل إعلان، مسودات محفوظة، معاينة بلا نشر، صور متعددة وترتيب وغلاف، عرض/طلب، مكان وشحن وناقل، سعر ثابت/VB/مجاني وخصائص تصنيف. حالات Aktiv / Reserviert / Verkauft وحذف مؤكد.
-- صندوق وارد/أرشيف ومحادثات معزولة حسب الإعلان والطرف، كتابة مؤقتة محفوظة وقراءة/غير مقروءة وحذف وحظر وإبلاغ محلي؛ ردود تجريبية موسومة بوضوح.
-- إشعارات محلية قابلة للقراءة والحذف والانتقال إلى إعلان، استرداد توضيحي، وإعادة ضبط محلية مؤكدة.
-- إعدادات، خصوصية وموافقة، ثيم فاتح/داكن/نظام، About وImpressum وCopyright، مساعدة وحالات خطأ وإعادة محاولة.
+بدون `key.properties`/متغيرات `SOOQNA_*` يُوقَّع الـrelease بمفتاح debug (للتشغيل المحلي فقط، لا للمتاجر). في GitHub Actions يُقرأ `API_BASE` من متغير المستودع `vars.API_BASE` ومفاتيح التوقيع من `secrets.SOOQNA_*`.
 
-**ما لم يُفحص في المرجع موضّح كإضافة Demo**، خصوصًا ما بعد الدخول وإنشاء الإعلان والنصوص القانونية ومقالات المساعدة. لا ندّعي مطابقة بكسلية أو مطابقة الصفحات المحجوبة. [جرد الصفحات وحدود المطابقة](docs/SCREEN_COVERAGE.md).
+## رحلة المستخدم المتصلة
+
+1. تسجيل/دخول → إن لم يكن البريد موثّقًا تظهر شاشة «توثيق البريد» (لصق الرمز أو رابط البريد، إعادة إرسال، تحقّق لاحقًا). التصفح والمراسلة متاحان، و**النشر محجوب حتى التوثيق** (الباك اند يرد 403).
+2. «نسيت كلمة المرور» → طلب رابط ثم إدخال الرمز وكلمة مرور جديدة.
+3. إنشاء إعلان: القسم والفئة الفرعية من شجرة تصنيفات الباك اند، الصور تُرفع إلى `/media` ثم يُنشر الإعلان بـ`Idempotency-Key`.
+4. البحث: الفلاتر تُترجم إلى معاملات `/listings` (القسم الأب يشمل أبناءه على الخادم)، والنتائج تُحمَّل صفحةً صفحة عند الوصول لنهاية القائمة.
 
 ## البيانات والأمان
 
-- 18 إعلانًا وهميًا و12 صورة stock محلية. لا API أو حسابات أو شراء أو نشر حقيقي.
-- استخدم `demo@example.test` وكلمة مرور وهمية من 8 أحرف. البريد وكلمة المرور لا يُرسلان ولا يُحفظان. الدخول حالة محلية تنتهي بإعادة التشغيل.
-- لقطة JSON بإصدار 2 تحت `marketplace.v2` تحفظ الملف والإعلانات والمسودات والمحادثات والكتابة المؤقتة والحظر والإبلاغ والمجموعات والتفضيلات. تُقرأ المفاتيح القديمة للترحيل؛ تتسلسل الكتابات، وتُعرض أخطاء الكتابة/الاسترجاع بدل ادعاء نجاح دائم. البيانات ذات الإصدار الأحدث لا تُكتب فوقها. `shared_preferences` ليس قاعدة بيانات معاملات ولا يضمن الحفظ عند انهيار مفاجئ؛ ليس لتخزين بيانات مهمة أو حساسة.
-- الصور JPEG/PNG حتى 6 للإعلان، 2 MB للصورة و24 MB إجمالًا، حتى 4096 بكسل للضلع و12 ميغابكسل. تُفحص الترويسة والقابلية للفك قبل الحفظ: مجلد دعم التطبيق على Android وIndexedDB على Web، بلا base64 في التفضيلات. الصور المفقودة تعرض بديلًا آمنًا، والتنظيف ينتظر نجاح حفظ المراجع ويحترم الصور المستخدمة في محرر مفتوح.
-- الخروج يخفي الرحلات الخاصة لكنه **لا يحذف** الملف والبيانات. هذا ملف Demo واحد على الجهاز، لا عزل آمن بين مستخدمين. Einstellungen → Lokale Daten & Grenzen يشرح التخزين وإعادة المحاولة؛ إعادة الضبط لا تمس مفاتيح التطبيقات الأخرى ولا تعني حذف حساب حقيقي.
-- الخريطة رسم تخطيطي والمدن/المسافات عينات، وليست خدمة خرائط. اختيار الصور من محدد ملفات الجهاز فقط؛ لا إذن كاميرا أو موقع شامل ولا رفع لخادم.
-- Pur صفحة توضيحية؛ لا دفع أو اشتراك. روابط `demo://` نصوص مشاركة توضيحية وليست روابط عميقة مسجلة.
-- أصول بديلة مرخّصة، دون استخراج APK أو نسخ بيانات مستخدمين. [المصادر والرخص](ASSET_CREDITS.md).
+- التوكن يُحفظ في `shared_preferences` (غير مشفّر) ويُجدَّد عند الإقلاع عبر `GET /me`؛ 401 يُسجّل الخروج تلقائيًا.
+- التفضيلات المحلية (الثيم، الموافقات، السجل، المسودات) تبقى على الجهاز في الوضعين.
+- الوضع دون اتصال: 18 إعلانًا وهميًا وصور stock محلية؛ لا يُرسَل بريد أو كلمة مرور. تفاصيل التخزين المحلي وحدود الصور في `Einstellungen → البيانات والحدود` داخل التطبيق.
+- الخريطة رسم تخطيطي؛ لا إذن موقع أو كاميرا (اختيار الصور من محدد الملفات فقط).
+- أصول مرخّصة: [ASSET_CREDITS.md](ASSET_CREDITS.md). جرد الشاشات وحدود المطابقة: [docs/SCREEN_COVERAGE.md](docs/SCREEN_COVERAGE.md).
 
 ## التحقق والبناء
 
@@ -49,6 +52,7 @@ flutter analyze
 flutter test
 flutter test --platform chrome test/web_theme_test.dart
 flutter test --platform chrome test/web_storage_test.dart
+flutter test test/api_test.dart          # طبقة الـAPI بـMockClient
 flutter build apk --release
 bash tool/build_web.sh
 python3 -m http.server 8080 --directory build/web
@@ -71,6 +75,7 @@ GitHub Actions يشغّل التحليل والاختبارات ويبني APK �
 ## البنية
 
 ```text
+lib/api/                      # ApiClient, ApiSession (Sanctum), BackendStore (live data paths)
 lib/app.dart                  # Theme, app shell, mobile web frame
 lib/data/demo_store.dart      # Fixtures, filters, local state and persistence
 lib/data/local_models.dart    # Serializable drafts, conversations, notices
@@ -79,7 +84,8 @@ lib/data/media*.dart          # Validated media, Android files / Web IndexedDB
 lib/features/discovery.dart   # Home, search, categories
 lib/features/filters.dart      # Filter drafts and selectors
 lib/features/listing.dart      # Details, gallery, seller
-lib/features/account.dart      # Guest, auth, local account additions
+lib/features/account.dart      # Guest, auth, account
+lib/features/auth_pages.dart   # E-mail verification, forgot/reset password (live)
 lib/features/listing_editor.dart # Draft, photo, preview and confirmed mutation
 lib/features/local_pages.dart  # Inventory, collections, inbox, notifications, safety
 lib/features/settings.dart     # Privacy, design, help, information pages

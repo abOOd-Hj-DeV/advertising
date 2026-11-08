@@ -1,0 +1,4 @@
+storeFile=/absolute/path/to/sooqna-release.jks
+storePassword=CHANGE_ME
+keyAlias=sooqna
+keyPassword=CHANGE_ME

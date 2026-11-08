@@ -17,9 +17,12 @@ class ApiRepositories {
   Future<Map<String, dynamic>> category(String id) async =>
       (await client.get('/categories/$id'))['data'] as Map<String, dynamic>;
 
-  Future<List<dynamic>> locations({String? query}) async => (await client
-          .get('/locations', query == null ? null : {'q': query}))['data']
-      as List;
+  Future<List<dynamic>> locations({String? query}) async =>
+      (await client.get(
+            '/locations',
+            query == null ? null : {'q': query},
+          ))['data']
+          as List;
 
   // ── Listings ─────────────────────────────────────────────
   Future<Map<String, dynamic>> searchListings({
@@ -32,37 +35,51 @@ class ApiRepositories {
     String? sort,
     String? cursor,
     int limit = 20,
-  }) =>
-      client.get('/listings', {
-        if (q != null && q.isNotEmpty) 'q': q,
-        'category': ?category,
-        'governorate': ?governorate,
-        if (priceMin != null) 'price_min': '$priceMin',
-        if (priceMax != null) 'price_max': '$priceMax',
-        'currency': ?currency,
-        'sort': ?sort,
-        'cursor': ?cursor,
-        'limit': '$limit',
-      });
+  }) => client.get('/listings', {
+    if (q != null && q.isNotEmpty) 'q': q,
+    'category': ?category,
+    'governorate': ?governorate,
+    if (priceMin != null) 'price_min': '$priceMin',
+    if (priceMax != null) 'price_max': '$priceMax',
+    'currency': ?currency,
+    'sort': ?sort,
+    'cursor': ?cursor,
+    'limit': '$limit',
+  });
 
   Future<Map<String, dynamic>> listing(String id) async =>
       (await client.get('/listings/$id'))['data'] as Map<String, dynamic>;
 
   Future<Map<String, dynamic>> createListing(
-          Map<String, dynamic> payload, String idempotencyKey) async =>
-      (await client.post('/listings',
-          body: payload, idempotencyKey: idempotencyKey))['data']
-      as Map<String, dynamic>;
+    Map<String, dynamic> payload,
+    String idempotencyKey,
+  ) async =>
+      (await client.post(
+            '/listings',
+            body: payload,
+            idempotencyKey: idempotencyKey,
+          ))['data']
+          as Map<String, dynamic>;
 
   Future<Map<String, dynamic>> updateListing(
-          String id, Map<String, dynamic> payload, int version) async =>
-      (await client.patch('/listings/$id',
-          body: payload, ifMatch: '$version'))['data'] as Map<String, dynamic>;
+    String id,
+    Map<String, dynamic> payload,
+    int version,
+  ) async =>
+      (await client.patch(
+            '/listings/$id',
+            body: payload,
+            ifMatch: '$version',
+          ))['data']
+          as Map<String, dynamic>;
 
   Future<void> deleteListing(String id) => client.delete('/listings/$id');
 
-  Future<Map<String, dynamic>> transitionListing(String id, String action,
-          [Map<String, dynamic>? body]) async =>
+  Future<Map<String, dynamic>> transitionListing(
+    String id,
+    String action, [
+    Map<String, dynamic>? body,
+  ]) async =>
       (await client.post('/listings/$id/$action', body: body))['data']
           as Map<String, dynamic>;
 
@@ -80,38 +97,54 @@ class ApiRepositories {
       client.get('/favorites', cursor == null ? null : {'cursor': cursor});
 
   // ── Messaging ────────────────────────────────────────────
-  Future<Map<String, dynamic>> conversations(
-          {bool archived = false, String? cursor}) =>
-      client.get('/conversations', {
-        'archived': archived ? '1' : '0',
-        'cursor': ?cursor,
-      });
+  Future<Map<String, dynamic>> conversations({
+    bool archived = false,
+    String? cursor,
+  }) => client.get('/conversations', {
+    'archived': archived ? '1' : '0',
+    'cursor': ?cursor,
+  });
 
   Future<Map<String, dynamic>> startConversation(
-          String listingId, String? firstMessage, String idempotencyKey) async =>
-      (await client.post('/conversations', body: {
-        'listing_id': listingId,
-        'first_message': ?firstMessage,
-      }, idempotencyKey: idempotencyKey))['data'] as Map<String, dynamic>;
+    String listingId,
+    String? firstMessage,
+    String idempotencyKey,
+  ) async =>
+      (await client.post(
+            '/conversations',
+            body: {'listing_id': listingId, 'first_message': ?firstMessage},
+            idempotencyKey: idempotencyKey,
+          ))['data']
+          as Map<String, dynamic>;
 
-  Future<Map<String, dynamic>> messages(String conversationId,
-          {String? before, String? after, int limit = 30}) =>
-      client.get('/conversations/$conversationId/messages', {
-        'before': ?before,
-        'after': ?after,
-        'limit': '$limit',
-      });
+  Future<Map<String, dynamic>> messages(
+    String conversationId, {
+    String? before,
+    String? after,
+    int limit = 30,
+  }) => client.get('/conversations/$conversationId/messages', {
+    'before': ?before,
+    'after': ?after,
+    'limit': '$limit',
+  });
 
   Future<Map<String, dynamic>> sendMessage(
-          String conversationId, String body, String clientMessageId) async =>
-      (await client.post('/conversations/$conversationId/messages', body: {
-        'body': body,
-        'client_message_id': clientMessageId,
-      }, idempotencyKey: clientMessageId))['data'] as Map<String, dynamic>;
+    String conversationId,
+    String body,
+    String clientMessageId,
+  ) async =>
+      (await client.post(
+            '/conversations/$conversationId/messages',
+            body: {'body': body, 'client_message_id': clientMessageId},
+            idempotencyKey: clientMessageId,
+          ))['data']
+          as Map<String, dynamic>;
 
   Future<void> markRead(String conversationId, String lastMessageId) =>
-      client.post('/conversations/$conversationId/read',
-          body: {'last_read_message_id': lastMessageId});
+      client.post(
+        '/conversations/$conversationId/read',
+        body: {'last_read_message_id': lastMessageId},
+      );
 
   // ── Notifications ────────────────────────────────────────
   Future<int> unreadCount() async =>

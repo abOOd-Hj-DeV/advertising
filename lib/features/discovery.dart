@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../api/backend_store.dart';
 import '../data/demo_store.dart';
 import '../ui/theme.dart';
 import '../ui/widgets.dart';
@@ -622,12 +623,38 @@ class _SearchPageState extends State<SearchPage> {
                     else
                       ListView.builder(
                         padding: const EdgeInsets.only(bottom: 84),
-                        itemCount: results.length + 1,
+                        itemCount:
+                            results.length +
+                            1 +
+                            (store is BackendStore && store.hasMore ? 1 : 0),
                         itemBuilder: (context, i) {
                           if (i == 0) {
+                            // Placeholder promo only in the offline demo.
+                            if (store.isLive) return const SizedBox(height: 8);
                             return const Padding(
                               padding: EdgeInsets.fromLTRB(45, 8, 45, 14),
                               child: DemoSearchAd(),
+                            );
+                          }
+                          if (i == results.length + 1) {
+                            // Sentinel row: reaching it loads the next page.
+                            final live = store as BackendStore;
+                            if (!live.loadingMore) {
+                              WidgetsBinding.instance.addPostFrameCallback(
+                                (_) => live.loadMore(),
+                              );
+                            }
+                            return const Padding(
+                              padding: EdgeInsets.all(24),
+                              child: Center(
+                                child: SizedBox(
+                                  width: 24,
+                                  height: 24,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                  ),
+                                ),
+                              ),
                             );
                           }
                           final l = results[i - 1];
