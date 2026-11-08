@@ -12,8 +12,9 @@ val keystoreProperties = Properties().apply {
     val f = rootProject.file("key.properties")
     if (f.exists()) f.inputStream().use { load(it) }
 }
+// Blank values (e.g. unset GitHub secrets expand to "") count as absent.
 fun signingValue(key: String, env: String): String? =
-    keystoreProperties.getProperty(key) ?: System.getenv(env)
+    (keystoreProperties.getProperty(key) ?: System.getenv(env))?.takeIf { it.isNotBlank() }
 val hasReleaseKey = signingValue("storeFile", "SOOQNA_KEYSTORE_PATH") != null
 
 android {
